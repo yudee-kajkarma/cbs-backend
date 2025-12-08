@@ -16,12 +16,28 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
+
+
+  // Support
+SUPPORT_CREATED: "Support ticket created successfully",
+SUPPORT_LIST_FETCHED: "Support ticket list fetched successfully",
+SUPPORT_FETCHED: "Support ticket fetched successfully",
+SUPPORT_UPDATED: "Support ticket updated successfully",
+SUPPORT_DELETED: "Support ticket deleted successfully",
+
   // ISO
   ISO_CREATED: "ISO document created successfully",
   ISO_LIST_FETCHED: "ISO document list fetched successfully",
   ISO_FETCHED: "ISO document fetched successfully",
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
+
+  // Hardware (NEW)
+  HARDWARE_CREATED: "Hardware ticket created successfully",
+  HARDWARE_LIST_FETCHED: "Hardware ticket list fetched successfully",
+  HARDWARE_FETCHED: "Hardware ticket fetched successfully",
+  HARDWARE_UPDATED: "Hardware ticket updated successfully",
+  HARDWARE_DELETED: "Hardware ticket deleted successfully",
 };
 
 // -------- ERROR MESSAGES --------
@@ -29,6 +45,7 @@ export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
   INVALID_ID: "Invalid ID format",
+SUPPORT_NOT_FOUND: "Support ticket not found",
 
   // License
   LICENSE_NOT_FOUND: "License not found",
@@ -40,16 +57,15 @@ export const ERROR_MESSAGES = {
 
   // ISO
   ISO_NOT_FOUND: "ISO document not found",
-  ISO_UPLOAD_FAILED: "ISO document upload failed",
-  ISO_DELETE_FAILED: "ISO document delete failed",
+  ISO_UPLOAD_FAILED: "ISO upload failed",
+  ISO_DELETE_FAILED: "ISO delete failed",
+
+  // Hardware (NEW)
+  HARDWARE_NOT_FOUND: "Hardware ticket not found",
 };
 
 // -------- SUCCESS (200) --------
-export const sendSuccess = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendSuccess = (res: Response, message: string, data: any = null) => {
   return res.status(200).json({
     success: true,
     statusCode: 200,
@@ -59,11 +75,7 @@ export const sendSuccess = (
 };
 
 // -------- CREATED (201) --------
-export const sendCreated = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendCreated = (res: Response, message: string, data: any = null) => {
   return res.status(201).json({
     success: true,
     statusCode: 201,
