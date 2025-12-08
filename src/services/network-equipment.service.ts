@@ -2,10 +2,11 @@ import { NetworkEquipmentModel, INetworkEquipment } from "../models/network-equi
 import { FilterQuery } from "mongoose";
 
 class NetworkEquipmentService {
-  async create(payload: Partial<INetworkEquipment>): Promise<INetworkEquipment> {
-    const doc = await NetworkEquipmentModel.create(payload);
-    return doc.toObject();
-  }
+async create(payload: Partial<INetworkEquipment>): Promise<INetworkEquipment> {
+  const doc = await NetworkEquipmentModel.create(payload);
+  return doc.toObject({ versionKey: false });   // removes __v
+}
+
 
   async getAll(filter: FilterQuery<INetworkEquipment> = {}, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
