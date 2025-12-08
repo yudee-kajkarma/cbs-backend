@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-// -------- SUCCESS MESSAGES --------
+// ---------------- SUCCESS MESSAGES ----------------
 export const SUCCESS_MESSAGES = {
   // License
   LICENSE_CREATED: "License created successfully",
@@ -22,9 +22,16 @@ export const SUCCESS_MESSAGES = {
   ISO_FETCHED: "ISO document fetched successfully",
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
+
+  // 🔥 Furniture (MOVE HERE)
+  FURNITURE_CREATED: "Furniture item created successfully",
+  FURNITURE_LIST_FETCHED: "Furniture list fetched successfully",
+  FURNITURE_FETCHED: "Furniture fetched successfully",
+  FURNITURE_UPDATED: "Furniture updated successfully",
+  FURNITURE_DELETED: "Furniture deleted successfully",
 };
 
-// -------- ERROR MESSAGES --------
+// ---------------- ERROR MESSAGES ----------------
 export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
@@ -38,41 +45,26 @@ export const ERROR_MESSAGES = {
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
 
+  // Furniture
+  FURNITURE_NOT_FOUND: "Furniture item not found",
+  ITEMCODE_EXISTS: "Item code already exists",
+  INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
+
   // ISO
   ISO_NOT_FOUND: "ISO document not found",
   ISO_UPLOAD_FAILED: "ISO document upload failed",
   ISO_DELETE_FAILED: "ISO document delete failed",
 };
 
-// -------- SUCCESS (200) --------
-export const sendSuccess = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
-  return res.status(200).json({
-    success: true,
-    statusCode: 200,
-    message,
-    data,
-  });
+// ---------------- RESPONSE HELPERS ----------------
+export const sendSuccess = (res: Response, message: string, data: any = null) => {
+  return res.status(200).json({ success: true, statusCode: 200, message, data });
 };
 
-// -------- CREATED (201) --------
-export const sendCreated = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
-  return res.status(201).json({
-    success: true,
-    statusCode: 201,
-    message,
-    data,
-  });
+export const sendCreated = (res: Response, message: string, data: any = null) => {
+  return res.status(201).json({ success: true, statusCode: 201, message, data });
 };
 
-// -------- ERROR (custom status) --------
 export const sendError = (
   res: Response,
   statusCode: number,
@@ -87,7 +79,6 @@ export const sendError = (
   });
 };
 
-// -------- JOI VALIDATION ERROR THROWER --------
 export const throwJoiValidationError = (message: string) => {
   const error: any = new Error(message);
   error.type = "JoiValidationError";
