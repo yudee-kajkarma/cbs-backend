@@ -16,6 +16,12 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
+
+  NEW_HARDWARE_CREATED: "New hardware created successfully",
+  NEW_HARDWARE_LIST_FETCHED: "New hardware list fetched successfully",
+  NEW_HARDWARE_FETCHED: "New hardware fetched successfully",
+  NEW_HARDWARE_UPDATED: "New hardware updated successfully",
+  NEW_HARDWARE_DELETED: "New hardware deleted successfully",
   // ISO
   ISO_CREATED: "ISO document created successfully",
   ISO_LIST_FETCHED: "ISO document list fetched successfully",
@@ -32,7 +38,7 @@ export const ERROR_MESSAGES = {
 
   // License
   LICENSE_NOT_FOUND: "License not found",
-
+ NEW_HARDWARE_NOT_FOUND: "New hardware not found",
   // Document
   DOCUMENT_NOT_FOUND: "Document not found",
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
