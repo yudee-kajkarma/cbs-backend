@@ -23,7 +23,7 @@ export const SUCCESS_MESSAGES = {
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
 
-  // -------- ADDED: NETWORK EQUIPMENT SUCCESS ----------
+  // Network Equipment
   NETWORK_EQUIPMENT_CREATED: "Network equipment created successfully",
   NETWORK_EQUIPMENT_LIST_FETCHED: "Network equipment list fetched successfully",
   NETWORK_EQUIPMENT_FETCHED: "Network equipment fetched successfully",
@@ -50,7 +50,7 @@ export const ERROR_MESSAGES = {
   ISO_UPLOAD_FAILED: "ISO document upload failed",
   ISO_DELETE_FAILED: "ISO document delete failed",
 
-  // -------- ADDED: NETWORK EQUIPMENT ERRORS ----------
+  // Network Equipment
   NETWORK_EQUIPMENT_NOT_FOUND: "Network equipment not found",
   NETWORK_EQUIPMENT_EXISTS: "Network equipment already exists",
 };
@@ -66,6 +66,7 @@ export const sendSuccess = (
     statusCode: 200,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -80,6 +81,7 @@ export const sendCreated = (
     statusCode: 201,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -95,10 +97,11 @@ export const sendError = (
     statusCode,
     message,
     error,
+    timestamp: new Date().toISOString(),
   });
 };
 
-// -------- JOI VALIDATION ERROR THROWER --------
+// -------- JOI VALIDATION ERROR --------
 export const throwJoiValidationError = (message: string) => {
   const error: any = new Error(message);
   error.type = "JoiValidationError";

@@ -13,9 +13,7 @@ const parseDDMMYYYY = (s?: string | null): Date | null => {
 };
 
 class NetworkEquipmentController {
-  // -------------------------------
   // CREATE
-  // -------------------------------
   async create(req: Request, res: Response) {
     try {
       const body: any = { ...req.body };
@@ -25,13 +23,11 @@ class NetworkEquipmentController {
 
       const duplicates: string[] = [];
 
-      // MAC duplicate check
       if (body.macAddress) {
         const macExists = await networkEquipmentService.findByMac(body.macAddress);
         if (macExists) duplicates.push("macAddress");
       }
 
-      // Serial duplicate check
       if (body.serialNumber) {
         const serialExists = await networkEquipmentService.findBySerial(body.serialNumber);
         if (serialExists) duplicates.push("serialNumber");
@@ -45,8 +41,7 @@ class NetworkEquipmentController {
 
       return sendCreated(
         res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_CREATED ??
-          "Network equipment created",
+        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_CREATED ?? "Network equipment created",
         created
       );
     } catch (err: any) {
@@ -54,14 +49,12 @@ class NetworkEquipmentController {
         res,
         500,
         ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        err?.message ?? err
+        { error: err?.message ?? err }
       );
     }
   }
 
-  // -------------------------------
   // GET ALL
-  // -------------------------------
   async getAll(req: Request, res: Response) {
     try {
       const q: any = req.query || {};
@@ -77,23 +70,23 @@ class NetworkEquipmentController {
 
       return sendSuccess(
         res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_LIST_FETCHED ??
-          "Network equipment list fetched",
-        result
+        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_LIST_FETCHED ?? "Network equipment list fetched",
+        {
+          networkEquipments: result.items,
+          pagination: result.pagination
+        }
       );
     } catch (err: any) {
       return sendError(
         res,
         500,
         ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        err?.message ?? err
+        { error: err?.message ?? err }
       );
     }
   }
 
-  // -------------------------------
   // GET ONE
-  // -------------------------------
   async getOne(req: Request, res: Response) {
     try {
       const id = req.params.id;
@@ -103,15 +96,13 @@ class NetworkEquipmentController {
         return sendError(
           res,
           404,
-          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ??
-            "Network equipment not found"
+          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ?? "Network equipment not found"
         );
       }
 
       return sendSuccess(
         res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_FETCHED ??
-          "Network equipment fetched",
+        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_FETCHED ?? "Network equipment fetched",
         item
       );
     } catch (err: any) {
@@ -119,14 +110,12 @@ class NetworkEquipmentController {
         res,
         500,
         ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        err?.message ?? err
+        { error: err?.message ?? err }
       );
     }
   }
 
-  // -------------------------------
   // UPDATE
-  // -------------------------------
   async update(req: Request, res: Response) {
     try {
       const id = req.params.id;
@@ -140,21 +129,13 @@ class NetworkEquipmentController {
 
       const duplicates: string[] = [];
 
-      // MAC duplicate check
       if (body.macAddress) {
-        const macExists = await networkEquipmentService.findByMacExcludeId(
-          body.macAddress,
-          id
-        );
+        const macExists = await networkEquipmentService.findByMacExcludeId(body.macAddress, id);
         if (macExists) duplicates.push("macAddress");
       }
 
-      // Serial duplicate check
       if (body.serialNumber) {
-        const serialExists = await networkEquipmentService.findBySerialExcludeId(
-          body.serialNumber,
-          id
-        );
+        const serialExists = await networkEquipmentService.findBySerialExcludeId(body.serialNumber, id);
         if (serialExists) duplicates.push("serialNumber");
       }
 
@@ -168,15 +149,13 @@ class NetworkEquipmentController {
         return sendError(
           res,
           404,
-          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ??
-            "Network equipment not found"
+          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ?? "Network equipment not found"
         );
       }
 
       return sendSuccess(
         res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_UPDATED ??
-          "Network equipment updated",
+        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_UPDATED ?? "Network equipment updated",
         updated
       );
     } catch (err: any) {
@@ -184,14 +163,12 @@ class NetworkEquipmentController {
         res,
         500,
         ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        err?.message ?? err
+        { error: err?.message ?? err }
       );
     }
   }
 
-  // -------------------------------
   // DELETE
-  // -------------------------------
   async delete(req: Request, res: Response) {
     try {
       const id = req.params.id;
@@ -202,15 +179,13 @@ class NetworkEquipmentController {
         return sendError(
           res,
           404,
-          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ??
-            "Network equipment not found"
+          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ?? "Network equipment not found"
         );
       }
 
       return sendSuccess(
         res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_DELETED ??
-          "Network equipment deleted",
+        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_DELETED ?? "Network equipment deleted",
         removed
       );
     } catch (err: any) {
@@ -218,7 +193,7 @@ class NetworkEquipmentController {
         res,
         500,
         ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        err?.message ?? err
+        { error: err?.message ?? err }
       );
     }
   }

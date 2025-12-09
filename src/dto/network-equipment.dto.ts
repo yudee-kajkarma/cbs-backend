@@ -71,7 +71,39 @@ export const idParamSchema = Joi.object({
 export const listQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
+
+  // 🔎 Search (applies to multiple fields)
+  search: Joi.string().trim(),
+
+  // 🎯 Filters for individual fields
+  equipmentName: Joi.string().trim(),
   equipmentType: Joi.string().valid(...equipmentTypeEnum),
+  ipAddress: Joi.string().trim(),
+  macAddress: Joi.string().trim(),
+  serialNumber: Joi.string().trim(),
+  numberOfPorts: Joi.number().integer().min(1),
+  location: Joi.string().trim(),
+  purchaseDate: Joi.date(),
+  warrantyExpiry: Joi.date(),
+  firmwareVersion: Joi.string().trim(),
   status: Joi.string().valid(...statusEnum),
-  location: Joi.string().trim()
+
+  // 📌 Sorting
+  orderBy: Joi.string().valid(
+    "equipmentName",
+    "equipmentType",
+    "ipAddress",
+    "macAddress",
+    "serialNumber",
+    "numberOfPorts",
+    "location",
+    "purchaseDate",
+    "warrantyExpiry",
+    "firmwareVersion",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ),
+
+  order: Joi.string().valid("asc", "desc").default("asc")
 });
