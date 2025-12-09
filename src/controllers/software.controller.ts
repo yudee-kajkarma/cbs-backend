@@ -3,18 +3,34 @@ import { softwareService } from "../services/software.service";
 import { sendSuccess, sendCreated, sendError } from "../utils/response.util";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../utils/response.util";
 
+// -------- DATE FORMAT VALIDATION --------
+const isValidDDMMYYYY = (s?: string | null): boolean => {
+  if (!s) return true;
+  const regex = /^([0-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-\d{4}$/;
+  return regex.test(s);
+};
+
+const hasInvalidDate = (body: any) => {
+  return (
+    (body.purchaseDate && !isValidDDMMYYYY(body.purchaseDate)) ||
+    (body.expiryDate && !isValidDDMMYYYY(body.expiryDate))
+  );
+};
+
 const parseDDMMYYYY = (s?: string | null): Date | null => {
   if (!s) return null;
-  const parts = s.split("-");
-  if (parts.length !== 3) return null;
-  const [dd, mm, yyyy] = parts.map(p => parseInt(p, 10));
-  if (!dd || !mm || !yyyy) return null;
+  const [dd, mm, yyyy] = s.split("-").map(Number);
   return new Date(yyyy, mm - 1, dd);
 };
 
+// -------- CONTROLLER --------
 class SoftwareController {
   async create(req: Request, res: Response) {
     try {
+      if (hasInvalidDate(req.body)) {
+        return sendError(res, 400, ERROR_MESSAGES.INVALID_DATE_FORMAT);
+      }
+
       const body: any = { ...req.body };
 
       if (body.purchaseDate) body.purchaseDate = parseDDMMYYYY(body.purchaseDate);
@@ -22,38 +38,76 @@ class SoftwareController {
 
       const created = await softwareService.createSoftware(body);
 
-      return sendCreated(res, SUCCESS_MESSAGES.SOFTWARE_CREATED, created);
-    } catch (err: any) {
+      return res.status(201).json({
+        success: true,
+        message: SUCCESS_MESSAGES.SOFTWARE_CREATED,
+        data: created,
+        timestamp: new Date().toISOString()   // ✅ added
+      });
 
+    } catch (err: any) {
       if (err?.code === 11000 && err.keyValue?.licenseKey) {
         return sendError(res, 409, ERROR_MESSAGES.LICENSE_KEY_EXISTS);
       }
 
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err?.message ?? err);
     }
   }
 
+  // ==============================
+  //        GET ALL + FILTER
+  // ==============================
   async getAll(req: Request, res: Response) {
     try {
       const q = res.locals.validatedQuery || req.query;
+
       const page = Number(q.page || 1);
       const limit = Number(q.limit || 10);
 
       const filter: any = {};
 
+      // BASIC FILTERS
       if (q.licenseType) filter.licenseType = q.licenseType;
       if (q.assignedDepartment) filter.assignedDepartment = q.assignedDepartment;
       if (q.status) filter.status = q.status;
-      if (q.vendor) filter.vendor = { $regex: q.vendor, $options: "i" };
+
+      // STRING SEARCH
+      if (q.vendor) {
+        filter.vendor = { $regex: q.vendor, $options: "i" };
+      }
+
+      // DATE FILTERS
+      if (q.purchaseDate) {
+        const date = new Date(q.purchaseDate);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+
+        filter.purchaseDate = {
+          $gte: date,
+          $lt: nextDay
+        };
+      }
+
+      if (q.expiryDate) {
+        const date = new Date(q.expiryDate);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+
+        filter.expiryDate = {
+          $gte: date,
+          $lt: nextDay
+        };
+      }
 
       const result = await softwareService.getAll(filter, page, limit);
 
-      return sendSuccess(res, SUCCESS_MESSAGES.SOFTWARE_LIST_FETCHED, result);
+      return res.status(200).json({
+        success: true,
+        message: SUCCESS_MESSAGES.SOFTWARE_LIST_FETCHED,
+        data: result,
+        timestamp: new Date().toISOString()
+      });
+
     } catch (err: any) {
       return sendError(
         res,
@@ -66,14 +120,20 @@ class SoftwareController {
 
   async getOne(req: Request, res: Response) {
     try {
-      const id = req.params.id;
-      const item = await softwareService.getById(id);
+      const item = await softwareService.getById(req.params.id);
 
       if (!item) {
         return sendError(res, 404, ERROR_MESSAGES.SOFTWARE_NOT_FOUND);
       }
 
-      return sendSuccess(res, SUCCESS_MESSAGES.SOFTWARE_FETCHED, item);
+      return res.status(200).json({
+        success: true,
+        statusCode: 200,
+        message: SUCCESS_MESSAGES.SOFTWARE_FETCHED,
+        data: item,
+        timestamp: new Date().toISOString()   // already added before
+      });
+
     } catch (err: any) {
       return sendError(
         res,
@@ -86,6 +146,10 @@ class SoftwareController {
 
   async update(req: Request, res: Response) {
     try {
+      if (hasInvalidDate(req.body)) {
+        return sendError(res, 400, ERROR_MESSAGES.INVALID_DATE_FORMAT);
+      }
+
       const id = req.params.id;
       const body: any = { ...req.body };
 
@@ -98,39 +162,39 @@ class SoftwareController {
         return sendError(res, 404, ERROR_MESSAGES.SOFTWARE_NOT_FOUND);
       }
 
-      return sendSuccess(res, SUCCESS_MESSAGES.SOFTWARE_UPDATED, updated);
-    } catch (err: any) {
+      return res.status(200).json({
+        success: true,
+        message: SUCCESS_MESSAGES.SOFTWARE_UPDATED,
+        data: updated,
+        timestamp: new Date().toISOString()   // ✅ added
+      });
 
+    } catch (err: any) {
       if (err?.code === 11000 && err.keyValue?.licenseKey) {
         return sendError(res, 409, ERROR_MESSAGES.LICENSE_KEY_EXISTS);
       }
 
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err?.message ?? err);
     }
   }
 
   async delete(req: Request, res: Response) {
     try {
-      const id = req.params.id;
-      const removed = await softwareService.deleteSoftware(id);
+      const removed = await softwareService.deleteSoftware(req.params.id);
 
       if (!removed) {
         return sendError(res, 404, ERROR_MESSAGES.SOFTWARE_NOT_FOUND);
       }
 
-      return sendSuccess(res, SUCCESS_MESSAGES.SOFTWARE_DELETED, removed);
+      return res.status(200).json({
+        success: true,
+        message: SUCCESS_MESSAGES.SOFTWARE_DELETED,
+        data: removed,
+        timestamp: new Date().toISOString()   // ✅ added
+      });
+
     } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err?.message ?? err);
     }
   }
 }

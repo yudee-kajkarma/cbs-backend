@@ -36,6 +36,7 @@ export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
   INVALID_ID: "Invalid ID format",
+INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
 
   // License
   LICENSE_NOT_FOUND: "License not found",

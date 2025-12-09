@@ -39,12 +39,38 @@ export const updateSoftwareSchema: ObjectSchema = Joi.object({
 export const idParamSchema = Joi.object({
   id: Joi.string().hex().length(24).required()
 });
-
 export const listQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
-  licenseType: Joi.string().valid(...licenseTypeEnum).optional(),
-  assignedDepartment: Joi.string().valid(...departmentEnum).optional(),
-  status: Joi.string().valid(...statusEnum).optional(),
-  vendor: Joi.string().trim().optional()
+
+  // STRING FILTERS
+  name: Joi.string().trim().optional(),
+  vendor: Joi.string().trim().optional(),
+  licenseType: Joi.string().valid("Subscription", "Perpetual", "Trial", "Educational").optional(),
+  licenseKey: Joi.string().trim().optional(),
+  renewalCost: Joi.string().trim().optional(),
+  assignedDepartment: Joi.string().valid(
+    "All",
+    "IT",
+    "Finance",
+    "HR",
+    "Operations",
+    "Sales",
+    "Marketing",
+    "Engineering",
+    "Legal"
+  ).optional(),
+  status: Joi.string().valid("Active", "Expiring Soon", "Expired", "Suspended").optional(),
+
+  // NUMBER FILTERS
+  totalSeats: Joi.number().integer().optional(),
+  seatsUsed: Joi.number().integer().optional(),
+
+  // DATE FILTERS
+  purchaseDate: Joi.date().optional(),
+  expiryDate: Joi.date().optional(),
+  createdAt: Joi.date().optional(),
+  updatedAt: Joi.date().optional()
 });
+
+
