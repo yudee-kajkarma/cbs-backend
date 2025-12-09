@@ -28,4 +28,9 @@ export const licenseQueryDto = Joi.object({
   page: Joi.number().integer().min(1).optional(),
   limit: Joi.number().integer().min(1).max(100).optional(),
   search: Joi.string().optional(),
+  type: Joi.string().optional(),
+  name: Joi.string().optional(),
+  status: Joi.string().valid("Active", "Expired", "Expiring Soon").optional(),
 });
+
+

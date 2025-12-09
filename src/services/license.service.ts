@@ -26,25 +26,51 @@ export const create = async (data: any, file?: Express.Multer.File) => {
 };
 
 // ------------------ GET ALL WITH PAGINATION + STATUS ------------------
-export const getAll = async (page: number, limit: number) => {
+// src/services/license.service.ts
+
+export const getAll = async (page: number, limit: number, filters: any) => {
   const skip = (page - 1) * limit;
 
-  const total = await License.countDocuments();
+  const query: any = {};
 
-  const licenses = await License.find()
+  // FILTER: by type
+  if (filters.type) {
+    query.type = { $regex: filters.type, $options: "i" };
+  }
+
+  // FILTER: by name
+  if (filters.name) {
+    query.name = { $regex: filters.name, $options: "i" };
+  }
+
+  // FILTER: search (name/number/issuingAuthority)
+  if (filters.search) {
+    const regex = new RegExp(filters.search, "i");
+    query.$or = [
+      { name: regex },
+      { number: regex },
+      { issuingAuthority: regex },
+    ];
+  }
+
+  // 1) Fetch from DB (without status filter)
+  const rawData = await License.find(query)
     .skip(skip)
     .limit(limit)
+    .sort({ createdAt: -1 })
     .lean();
 
   const today = new Date();
 
-  const data = await Promise.all(
-    licenses.map(async (item) => {
+  // 2) Compute status + document URL
+  let data = await Promise.all(
+    rawData.map(async (item) => {
       const expiry = new Date(item.expiryDate);
+      const diffDays = Math.ceil(
+        (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       let status = "Active";
-      const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
       if (diffDays < 0) status = "Expired";
       else if (diffDays <= 30) status = "Expiring Soon";
 
@@ -58,16 +84,31 @@ export const getAll = async (page: number, limit: number) => {
     })
   );
 
+  // 3) FILTER: by computed status (Active, Expiring Soon, Expired)
+  if (filters.status) {
+    data = data.filter(
+      (item) => item.status.toLowerCase() === filters.status.toLowerCase()
+    );
+  }
+
+  // 4) Pagination counts
+  const total = data.length;
+  const totalPages = Math.ceil(total / limit);
+
   return {
-    data,
+    licenses: data,
     pagination: {
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
     },
   };
 };
+
+
 
 export const getOne = async (id: string) => {
   const license = await License.findById(id).lean();

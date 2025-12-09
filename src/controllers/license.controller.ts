@@ -19,18 +19,37 @@ export const create = async (req: Request, res: Response) => {
 };
 
 // ------------------ GET ALL ------------------
+// ------------------ GET ALL ------------------
 export const getAll = async (req: Request, res: Response) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const result = await LicenseService.getAll(page, limit);
+    const filters = {
+      search: req.query.search || "",
+      type: req.query.type || "",
+      name: req.query.name || "",
+      status: req.query.status || "",
+    };
 
-    return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_LIST_FETCHED, result);
+    const result = await LicenseService.getAll(page, limit, filters);
+
+    return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_LIST_FETCHED, {
+      licenses: result.licenses,
+      pagination: result.pagination,
+    });
+
   } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+    return sendError(
+      res,
+      500,
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      error.message
+    );
   }
 };
+
+
 
 // ------------------ GET ONE ------------------
 export const getOne = async (req: Request, res: Response) => {
