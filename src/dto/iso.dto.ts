@@ -20,7 +20,6 @@ export const isoIdDto = Joi.object({
   id: Joi.string().length(24).required(),
 });
 
-
 export const isoQueryDto = Joi.object({
   page: Joi.number().min(1).default(1),
   limit: Joi.number().min(1).max(100).default(10),
@@ -36,4 +35,19 @@ export const isoQueryDto = Joi.object({
   expiryDateTo: Joi.date().optional(),
 
   status: Joi.string().valid("Active", "Expired", "Expiring Soon").optional(),
+
+  // ✅ Added sorting controls
+  orderBy: Joi.string().valid(
+    "certificateName",
+    "isoStandard",
+    "certifyingBody",
+    "issueDate",
+    "expiryDate",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ).optional(),
+
+  sortBy: Joi.string().valid("asc", "desc").optional()
 });
+
