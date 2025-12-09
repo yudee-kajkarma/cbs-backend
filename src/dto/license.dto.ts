@@ -22,8 +22,6 @@ export const updateLicenseDto = Joi.object({
 export const licenseIdDto = Joi.object({
   id: Joi.string().length(24).hex().required(),
 });
-
-// OPTIONAL: for GET ALL filters
 export const licenseQueryDto = Joi.object({
   page: Joi.number().integer().min(1).optional(),
   limit: Joi.number().integer().min(1).max(100).optional(),
@@ -31,6 +29,14 @@ export const licenseQueryDto = Joi.object({
   type: Joi.string().optional(),
   name: Joi.string().optional(),
   status: Joi.string().valid("Active", "Expired", "Expiring Soon").optional(),
+  
+  // NEW: SORTING
+  orderBy: Joi.string()
+    .valid("name", "number", "issueDate", "expiryDate", "issuingAuthority", "createdAt")
+    .default("createdAt"),
+
+  sortBy: Joi.string().valid("asc", "desc").default("desc"),
 });
+
 
 

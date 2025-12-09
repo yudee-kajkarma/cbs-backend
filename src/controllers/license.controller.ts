@@ -32,7 +32,11 @@ export const getAll = async (req: Request, res: Response) => {
       status: req.query.status || "",
     };
 
-    const result = await LicenseService.getAll(page, limit, filters);
+    // NEW — sorting
+    const orderBy = (req.query.orderBy as string) || "createdAt";
+    const sortBy = (req.query.sortBy as string) || "desc";
+
+    const result = await LicenseService.getAll(page, limit, filters, orderBy, sortBy);
 
     return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_LIST_FETCHED, {
       licenses: result.licenses,

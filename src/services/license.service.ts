@@ -28,22 +28,28 @@ export const create = async (data: any, file?: Express.Multer.File) => {
 // ------------------ GET ALL WITH PAGINATION + STATUS ------------------
 // src/services/license.service.ts
 
-export const getAll = async (page: number, limit: number, filters: any) => {
+export const getAll = async (
+  page: number,
+  limit: number,
+  filters: any,
+  orderBy: string,
+  sortBy: string
+) => {
   const skip = (page - 1) * limit;
 
   const query: any = {};
 
-  // FILTER: by type
+  // Type filter
   if (filters.type) {
     query.type = { $regex: filters.type, $options: "i" };
   }
 
-  // FILTER: by name
+  // Name filter
   if (filters.name) {
     query.name = { $regex: filters.name, $options: "i" };
   }
 
-  // FILTER: search (name/number/issuingAuthority)
+  // Search filter
   if (filters.search) {
     const regex = new RegExp(filters.search, "i");
     query.$or = [
@@ -53,22 +59,25 @@ export const getAll = async (page: number, limit: number, filters: any) => {
     ];
   }
 
-  // 1) Fetch from DB (without status filter)
+  // NEW — sorting logic
+  const sortOrder = sortBy === "asc" ? 1 : -1;
+  const sortQuery: any = {};
+  sortQuery[orderBy] = sortOrder;
+
+  // Fetch data with sorting
   const rawData = await License.find(query)
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 })
+    .sort(sortQuery)   // 👈 Sorting applied here
     .lean();
 
   const today = new Date();
 
-  // 2) Compute status + document URL
+  // Compute status + URL
   let data = await Promise.all(
     rawData.map(async (item) => {
       const expiry = new Date(item.expiryDate);
-      const diffDays = Math.ceil(
-        (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-      );
+      const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
       let status = "Active";
       if (diffDays < 0) status = "Expired";
@@ -84,14 +93,13 @@ export const getAll = async (page: number, limit: number, filters: any) => {
     })
   );
 
-  // 3) FILTER: by computed status (Active, Expiring Soon, Expired)
+  // Filter by computed status
   if (filters.status) {
     data = data.filter(
       (item) => item.status.toLowerCase() === filters.status.toLowerCase()
     );
   }
 
-  // 4) Pagination counts
   const total = data.length;
   const totalPages = Math.ceil(total / limit);
 
@@ -107,6 +115,7 @@ export const getAll = async (page: number, limit: number, filters: any) => {
     },
   };
 };
+
 
 
 
