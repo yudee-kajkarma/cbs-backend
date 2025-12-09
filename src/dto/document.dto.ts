@@ -27,13 +27,26 @@ export const updateDocumentSchema = Joi.object({
 export const getDocumentByIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required(),
 });
-
 // Query params for listing documents
 export const listDocumentQuerySchema = Joi.object({
   search: Joi.string().optional(),
   name: Joi.string().optional(),
   category: Joi.string().optional(),
+
   status: Joi.string().valid("Active", "Archived").optional(),
+
+  // Sorting fields
+  orderBy: Joi.string().valid(
+  "name",
+  "category",
+  "createdAt",
+  "updatedAt"
+).optional(),
+
+
+  sortBy: Joi.string().valid("asc", "desc").optional(),
+
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
 });
+

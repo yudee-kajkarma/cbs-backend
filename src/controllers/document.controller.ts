@@ -37,14 +37,15 @@ export const list = async (req: Request, res: Response) => {
     const limit = Number(req.query.limit) || 10;
 
     // Collect filters
-    const filters = {
-      search: req.query.search as string | undefined,
-      name: req.query.name as string | undefined,
-      category: req.query.category as string | undefined,
-      status: req.query.status as string | undefined,
-      fromDate: req.query.fromDate as string | undefined,
-      toDate: req.query.toDate as string | undefined,
-    };
+const filters = {
+  search: req.query.search as string | undefined,
+  name: req.query.name as string | undefined,
+  category: req.query.category as string | undefined,
+  status: req.query.status as string | undefined,
+  orderBy: req.query.orderBy as string | undefined,
+  sortBy: req.query.sortBy as string | undefined,
+};
+
 
     // Call service
     const result = await DocumentService.getAll(page, limit, filters);

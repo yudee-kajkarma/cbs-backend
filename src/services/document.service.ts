@@ -41,6 +41,8 @@ export const getAll = async (
     name?: string;
     category?: string;
     status?: string;
+    orderBy?: string;
+    sortBy?: string;
   } = {}
 ): Promise<GetAllResult> => {
   const skip = (page - 1) * limit;
@@ -61,37 +63,41 @@ export const getAll = async (
     dbFilter.$or = [{ name: regex }, { partiesInvolved: regex }];
   }
 
-  // total count of matching DB filter (status not applied here because it's computed)
+  // ⭐⭐⭐ SORTING LOGIC ADDED ⭐⭐⭐
+  let sortQuery: any = { createdAt: -1 }; // default
+  if (filters.orderBy) {
+    const sortDirection = filters.sortBy === "asc" ? 1 : -1;
+    sortQuery = { [filters.orderBy]: sortDirection };
+  }
+
+  // total count of matching DB filter
   const totalMatching = await DocumentModel.countDocuments(dbFilter);
 
-  // fetch page from DB (without status filtering)
+  // fetch page from DB (now with sorting)
   const docs = await DocumentModel.find(dbFilter)
-    .sort({ createdAt: -1 })
+    .sort(sortQuery)        // ⬅⬅ ADDED
     .skip(skip)
     .limit(limit)
     .lean();
 
   // compute status and fileUrl
-  const today = new Date();
   const docsWithExtras = await Promise.all(
     docs.map(async (d) => {
       const status = getStatus(d.documentDate);
       const fileUrl = d.fileKey ? await getPresignedUrl(d.fileKey) : null;
 
-      // Remove fileKey from returned object if you don't want to expose it.
-      // If you want to keep it for frontend, you can include it.
       const { fileKey, ...rest } = d;
 
       return {
         ...rest,
-        fileKey, // keep if you want; remove this line to hide fileKey from response
+        fileKey,
         status,
         fileUrl,
       };
     })
   );
 
-  // If client requested status filter, apply it in-memory (status depends on documentDate)
+  // status filtering in-memory
   let filteredDocs = docsWithExtras;
   if (filters.status) {
     filteredDocs = docsWithExtras.filter(
@@ -99,25 +105,18 @@ export const getAll = async (
     );
   }
 
-  // Pagination: When status filter is applied after DB fetch, total should reflect count after status filter.
-  // To give accurate total when filters.status is present, we need to compute total matching status across all DB results.
-  // For simplicity and correctness: compute totalStatusCount when status filter exists by scanning entire DB matching dbFilter.
   let total = totalMatching;
   if (filters.status) {
-    // compute total documents matching dbFilter across whole collection, then compute status per item to count.
-    // Note: For large datasets this will be heavier. If you need high performance, consider storing status in DB.
     const allMatchingDocs = await DocumentModel.find(dbFilter).lean();
-    const allWithStatusPromises = allMatchingDocs.map(async (d) => {
-      const status = getStatus(d.documentDate);
-      return status;
-    });
-    const allStatuses = await Promise.all(allWithStatusPromises);
-    total = allStatuses.filter((s) => s.toLowerCase() === filters.status!.toLowerCase()).length;
+    const allStatuses = await Promise.all(
+      allMatchingDocs.map((d) => getStatus(d.documentDate))
+    );
+    total = allStatuses.filter(
+      (s) => s.toLowerCase() === filters.status!.toLowerCase()
+    ).length;
   }
 
   const totalPages = Math.ceil(total / limit);
-
-  // If status filter applied, return current page of filteredDocs; else return docsWithExtras
   const resultsToReturn = filters.status ? filteredDocs : docsWithExtras;
 
   return {
@@ -132,6 +131,7 @@ export const getAll = async (
     },
   };
 };
+
 
 export const getOne = async (id: string) => {
   const doc = await DocumentModel.findById(id).lean();
