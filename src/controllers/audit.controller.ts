@@ -11,39 +11,61 @@ import {
 export const create = async (req: Request, res: Response) => {
   try {
     const audit = await AuditService.create(req.body, req.file);
-    return sendCreated(res, SUCCESS_MESSAGES.DOCUMENT_CREATED, audit);
+    return sendCreated(res, SUCCESS_MESSAGES.AUDIT_CREATED, audit);
   } catch (error: any) {
     return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
+// LIST
 export const list = async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
-    const { data, total } = await AuditService.getAll(page, limit);
+    const filters = {
+      search: req.query.search?.toString(),
+      name: req.query.name?.toString(),
+      type: req.query.type?.toString(),
+      status: req.query.status?.toString(),
+      auditor: req.query.auditor?.toString(),
 
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_LIST_FETCHED, {
-      total,
-      page,
-      limit,
-      data,
+      // Optional date filters
+      periodStartFrom: req.query.periodStartFrom?.toString(),
+      periodStartTo: req.query.periodStartTo?.toString(),
+      periodEndFrom: req.query.periodEndFrom?.toString(),
+      periodEndTo: req.query.periodEndTo?.toString(),
+      completionFrom: req.query.completionFrom?.toString(),
+      completionTo: req.query.completionTo?.toString(),
+    };
+
+    const result = await AuditService.getAll(page, limit, filters);
+
+    return sendSuccess(res, SUCCESS_MESSAGES.AUDIT_LIST_FETCHED, {
+      audits: result.audits,
+      pagination: result.pagination,
     });
+
   } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+    return sendError(
+      res,
+      500,
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      error?.message ?? error
+    );
   }
 };
+
 
 export const getById = async (req: Request, res: Response) => {
   try {
     const audit = await AuditService.getOne(req.params.id);
 
     if (!audit) {
-      return sendError(res, 404, ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
+      return sendError(res, 404, ERROR_MESSAGES.AUDIT_NOT_FOUND);
     }
 
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_FETCHED, audit);
+    return sendSuccess(res, SUCCESS_MESSAGES.AUDIT_FETCHED, audit);
   } catch (error: any) {
     return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -54,10 +76,10 @@ export const update = async (req: Request, res: Response) => {
     const audit = await AuditService.update(req.params.id, req.body, req.file);
 
     if (!audit) {
-      return sendError(res, 404, ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
+      return sendError(res, 404, ERROR_MESSAGES.AUDIT_NOT_FOUND);
     }
 
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_UPDATED, audit);
+    return sendSuccess(res, SUCCESS_MESSAGES.AUDIT_UPDATED, audit);
   } catch (error: any) {
     return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
@@ -68,10 +90,10 @@ export const deleteAudit = async (req: Request, res: Response) => {
     const removed = await AuditService.remove(req.params.id);
 
     if (!removed) {
-      return sendError(res, 404, ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
+      return sendError(res, 404, ERROR_MESSAGES.AUDIT_NOT_FOUND);
     }
 
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_DELETED);
+    return sendSuccess(res, SUCCESS_MESSAGES.AUDIT_DELETED);
   } catch (error: any) {
     return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }

@@ -52,9 +52,9 @@ export const sendSuccess = (
 ) => {
   return res.status(200).json({
     success: true,
-    statusCode: 200,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -66,9 +66,9 @@ export const sendCreated = (
 ) => {
   return res.status(201).json({
     success: true,
-    statusCode: 201,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -81,9 +81,9 @@ export const sendError = (
 ) => {
   return res.status(statusCode).json({
     success: false,
-    statusCode,
     message,
     error,
+    timestamp: new Date().toISOString(),
   });
 };
 
