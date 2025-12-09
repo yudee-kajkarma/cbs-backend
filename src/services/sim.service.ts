@@ -9,19 +9,23 @@ const formatToDDMMYYYY = (date: Date): string => {
 };
 
 class SimService {
+  // ---------- CREATE ----------
   async createSim(payload: Partial<ISim>): Promise<ISim> {
-    if (payload.activationDate) {
-      payload.activationDate = formatToDDMMYYYY(new Date(payload.activationDate)) as any;
+    if (payload.activationDate instanceof Date) {
+      payload.activationDate = formatToDDMMYYYY(payload.activationDate) as any;
     }
-    if (payload.expiryDate) {
-      payload.expiryDate = formatToDDMMYYYY(new Date(payload.expiryDate)) as any;
+    if (payload.expiryDate instanceof Date) {
+      payload.expiryDate = formatToDDMMYYYY(payload.expiryDate) as any;
     }
+
     const sim = await SimModel.create(payload);
     return sim.toObject();
   }
 
+  // ---------- GET ALL ----------
   async getAllSims(filter: FilterQuery<ISim> = {}, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
+
     const [items, total] = await Promise.all([
       SimModel.find(filter)
         .sort({ createdAt: -1 })
@@ -29,6 +33,7 @@ class SimService {
         .limit(limit)
         .lean()
         .select("-__v"),
+
       SimModel.countDocuments(filter)
     ]);
 
@@ -37,21 +42,24 @@ class SimService {
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     };
   }
 
+  // ---------- GET ONE ----------
   async getSimById(id: string) {
     return SimModel.findById(id).lean().select("-__v");
   }
 
+  // ---------- UPDATE ----------
   async updateSim(id: string, payload: Partial<ISim>) {
-    if (payload.activationDate) {
-      payload.activationDate = formatToDDMMYYYY(new Date(payload.activationDate)) as any;
+    if (payload.activationDate instanceof Date) {
+      payload.activationDate = formatToDDMMYYYY(payload.activationDate) as any;
     }
-    if (payload.expiryDate) {
-      payload.expiryDate = formatToDDMMYYYY(new Date(payload.expiryDate)) as any;
+    if (payload.expiryDate instanceof Date) {
+      payload.expiryDate = formatToDDMMYYYY(payload.expiryDate) as any;
     }
+
     return SimModel.findByIdAndUpdate(id, payload, {
       new: true,
       runValidators: true
@@ -60,10 +68,12 @@ class SimService {
       .select("-__v");
   }
 
+  // ---------- DELETE ----------
   async deleteSim(id: string) {
     return SimModel.findByIdAndDelete(id).lean().select("-__v");
   }
 
+  // ---------- GET BY SIM NUMBER ----------
   async getBySimNumber(simNumber: string) {
     return SimModel.findOne({ simNumber }).lean().select("-__v");
   }

@@ -64,13 +64,16 @@ export const updateSimSchema: ObjectSchema = Joi.object({
   simCharges: Joi.number().min(0),
   dataLimit: Joi.string().trim(),
 
-  activationDate: ddmmyyyy,
-  expiryDate: ddmmyyyy,
+  activationDate: Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/),
+  expiryDate: Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/),
 
   assignedTo: Joi.string().trim(),
   department: Joi.string().valid(...departmentEnum),
 
-  deviceImei: imeiValidator,
+  // ⬅️ FIX: IMEI is OPTIONAL during update
+  deviceImei: Joi.string()
+    .pattern(/^[0-9]{15}$/)
+    .message("IMEI must be exactly 15 digits"),
 
   status: Joi.string().valid(...statusEnum),
   notes: Joi.string().max(2000),
@@ -83,7 +86,14 @@ export const idParamSchema: ObjectSchema = Joi.object({
 export const getSimsQuerySchema: ObjectSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
+
+  simNumber: Joi.string().trim(),
+  phoneNumber: Joi.string().trim(),
   carrier: Joi.string().valid(...carrierEnum),
   status: Joi.string().valid(...statusEnum),
   department: Joi.string().valid(...departmentEnum),
+
+  activationDate: Joi.string().trim(),
+  expiryDate: Joi.string().trim(),
 });
+
