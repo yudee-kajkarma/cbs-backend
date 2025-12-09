@@ -1,5 +1,5 @@
 import { SoftwareModel, ISoftware } from "../models/software.model";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, SortOrder } from "mongoose";
 
 class SoftwareService {
   async createSoftware(payload: Partial<ISoftware>): Promise<ISoftware> {
@@ -7,35 +7,39 @@ class SoftwareService {
     return doc.toObject();
   }
 
-async getAll(filter: FilterQuery<ISoftware> = {}, page = 1, limit = 10) {
-  const skip = (page - 1) * limit;
+  async getAll(
+    filter: FilterQuery<ISoftware> = {},
+    page = 1,
+    limit = 10,
+    sort: Record<string, SortOrder> = { createdAt: -1 }
+  ) {
+    const skip = (page - 1) * limit;
 
-  const [items, total] = await Promise.all([
-    SoftwareModel.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean()
-      .select("-__v"),
+    const [items, total] = await Promise.all([
+      SoftwareModel.find(filter)
+        .sort(sort) // ⭐ SORT NOW HAS CORRECT TYPE
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .select("-__v"),
 
-    SoftwareModel.countDocuments(filter),
-  ]);
+      SoftwareModel.countDocuments(filter),
+    ]);
 
-  const totalPages = Math.max(1, Math.ceil(total / limit));
+    const totalPages = Math.max(1, Math.ceil(total / limit));
 
-  return {
-    software: items,                 // 👈 SAME AS "licenses" IN LICENSE MODULE
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages,                    // 👈 SAME KEY AS LICENSE MODULE
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
-    }
-  };
-}
-
+    return {
+      software: items,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    };
+  }
 
   async getById(id: string) {
     return SoftwareModel.findById(id).lean().select("-__v");
@@ -55,7 +59,9 @@ async getAll(filter: FilterQuery<ISoftware> = {}, page = 1, limit = 10) {
   }
 
   async findByLicenseKey(key: string) {
-    return SoftwareModel.findOne({ licenseKey: key }).lean().select("-__v");
+    return SoftwareModel.findOne({ licenseKey: key })
+      .lean()
+      .select("-__v");
   }
 }
 

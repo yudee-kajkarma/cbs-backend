@@ -54,69 +54,60 @@ class SoftwareController {
     }
   }
 
-  // ==============================
-  //        GET ALL + FILTER
-  // ==============================
-  async getAll(req: Request, res: Response) {
-    try {
-      const q = res.locals.validatedQuery || req.query;
+// ==============================
+//        GET ALL + FILTER
+// ==============================
+async getAll(req: Request, res: Response) {
+  try {
+    const q = res.locals.validatedQuery || req.query;
 
-      const page = Number(q.page || 1);
-      const limit = Number(q.limit || 10);
+    const page = Number(q.page || 1);
+    const limit = Number(q.limit || 10);
 
-      const filter: any = {};
+    const filter: any = {};
 
-      // BASIC FILTERS
-      if (q.licenseType) filter.licenseType = q.licenseType;
-      if (q.assignedDepartment) filter.assignedDepartment = q.assignedDepartment;
-      if (q.status) filter.status = q.status;
+    // BASIC FILTERS
+    if (q.licenseType) filter.licenseType = q.licenseType;
+    if (q.assignedDepartment) filter.assignedDepartment = q.assignedDepartment;
+    if (q.status) filter.status = q.status;
 
-      // STRING SEARCH
-      if (q.vendor) {
-        filter.vendor = { $regex: q.vendor, $options: "i" };
-      }
-
-      // DATE FILTERS
-      if (q.purchaseDate) {
-        const date = new Date(q.purchaseDate);
-        const nextDay = new Date(date);
-        nextDay.setDate(date.getDate() + 1);
-
-        filter.purchaseDate = {
-          $gte: date,
-          $lt: nextDay
-        };
-      }
-
-      if (q.expiryDate) {
-        const date = new Date(q.expiryDate);
-        const nextDay = new Date(date);
-        nextDay.setDate(date.getDate() + 1);
-
-        filter.expiryDate = {
-          $gte: date,
-          $lt: nextDay
-        };
-      }
-
-      const result = await softwareService.getAll(filter, page, limit);
-
-      return res.status(200).json({
-        success: true,
-        message: SUCCESS_MESSAGES.SOFTWARE_LIST_FETCHED,
-        data: result,
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+    // STRING SEARCH
+    if (q.vendor) {
+      filter.vendor = { $regex: q.vendor, $options: "i" };
     }
+
+    // DATE FILTERS
+    if (q.purchaseDate) {
+      const date = new Date(q.purchaseDate);
+      filter.purchaseDate = { $gte: date, $lt: new Date(date.getTime() + 86400000) };
+    }
+
+    if (q.expiryDate) {
+      const date = new Date(q.expiryDate);
+      filter.expiryDate = { $gte: date, $lt: new Date(date.getTime() + 86400000) };
+    }
+
+    // ⭐⭐⭐ ADD SORTING HERE ⭐⭐⭐
+    const sort: any = {};
+    if (q.orderBy) {
+      sort[q.orderBy] = q.sortBy === "desc" ? -1 : 1;
+    } else {
+      sort["createdAt"] = -1; // default sort
+    }
+
+    const result = await softwareService.getAll(filter, page, limit, sort);
+
+    return res.status(200).json({
+      success: true,
+      message: SUCCESS_MESSAGES.SOFTWARE_LIST_FETCHED,
+      data: result,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err?.message ?? err);
   }
+}
+
 
   async getOne(req: Request, res: Response) {
     try {
