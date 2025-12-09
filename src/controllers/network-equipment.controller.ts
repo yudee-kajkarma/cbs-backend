@@ -55,36 +55,48 @@ class NetworkEquipmentController {
   }
 
   // GET ALL
-  async getAll(req: Request, res: Response) {
-    try {
-      const q: any = req.query || {};
-      const page = Number(q.page || 1);
-      const limit = Number(q.limit || 10);
+// GET ALL
+async getAll(req: Request, res: Response) {
+  try {
+    const q: any = req.query || {};
+    const page = Number(q.page || 1);
+    const limit = Number(q.limit || 10);
 
-      const filter: any = {};
-      if (q.equipmentType) filter.equipmentType = q.equipmentType;
-      if (q.status) filter.status = q.status;
-      if (q.location) filter.location = { $regex: q.location, $options: "i" };
+    const filter: any = {};
+    if (q.equipmentType) filter.equipmentType = q.equipmentType;
+    if (q.status) filter.status = q.status;
+    if (q.location) filter.location = { $regex: q.location, $options: "i" };
 
-      const result = await networkEquipmentService.getAll(filter, page, limit);
+    // ⭐ Sorting parameters
+    const orderBy = q.orderBy || "createdAt";
+    const order = q.order === "desc" ? -1 : 1;
 
-      return sendSuccess(
-        res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_LIST_FETCHED ?? "Network equipment list fetched",
-        {
-          networkEquipments: result.items,
-          pagination: result.pagination
-        }
-      );
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        { error: err?.message ?? err }
-      );
-    }
+    const result = await networkEquipmentService.getAll(
+      filter,
+      page,
+      limit,
+      orderBy,
+      order
+    );
+
+    return sendSuccess(
+      res,
+      SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_LIST_FETCHED ?? "Network equipment list fetched",
+      {
+        networkEquipments: result.items,
+        pagination: result.pagination
+      }
+    );
+  } catch (err: any) {
+    return sendError(
+      res,
+      500,
+      ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
+      { error: err?.message ?? err }
+    );
   }
+}
+
 
   // GET ONE
   async getOne(req: Request, res: Response) {

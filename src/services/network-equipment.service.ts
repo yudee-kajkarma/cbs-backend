@@ -7,34 +7,43 @@ class NetworkEquipmentService {
     const doc = await NetworkEquipmentModel.create(payload);
     return doc.toObject({ versionKey: false });
   }
+async getAll(
+  filter: FilterQuery<INetworkEquipment> = {},
+  page = 1,
+  limit = 10,
+  orderBy = "createdAt",
+  order: 1 | -1 = -1
+) {
+  const skip = (page - 1) * limit;
 
-  async getAll(filter: FilterQuery<INetworkEquipment> = {}, page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+  const sortObj: any = {};
+  sortObj[orderBy] = order;
 
-    const [items, total] = await Promise.all([
-      NetworkEquipmentModel.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean()
-        .select("-__v"),
-      NetworkEquipmentModel.countDocuments(filter)
-    ]);
+  const [items, total] = await Promise.all([
+    NetworkEquipmentModel.find(filter)
+      .sort(sortObj) // ⭐ Dynamic sorting
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .select("-__v"),
+    NetworkEquipmentModel.countDocuments(filter)
+  ]);
 
-    const totalPages = Math.max(1, Math.ceil(total / limit));
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
-    return {
-      items,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1
-      }
-    };
-  }
+  return {
+    items,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    }
+  };
+}
+
 
   async getById(id: string) {
     return NetworkEquipmentModel.findById(id).lean().select("-__v");
