@@ -22,12 +22,25 @@ export const getAll = async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    const isos = await ISOService.getAll(page, limit);
-    return sendSuccess(res, SUCCESS_MESSAGES.ISO_LIST_FETCHED, isos);
+   const result = await ISOService.getAll(page, limit, req.query);
+
+
+    return sendSuccess(res, SUCCESS_MESSAGES.ISO_LIST_FETCHED, {
+      isos: result.docs,   // <-- ARRAY INSIDE isos
+      pagination: {
+        total: result.total,
+        page: page,
+        limit: limit,
+        totalPages: result.totalPages,
+        hasNextPage: page < result.totalPages,
+        hasPrevPage: page > 1,
+      }
+    });
   } catch (error: any) {
     return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
 };
+
 
 export const getOne = async (req: Request, res: Response) => {
   try {

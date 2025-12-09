@@ -58,32 +58,92 @@ export const create = async (
   return iso.toObject();
 };
 
-export const getAll = async (page = 1, limit = 10) => {
+export const getAll = async (page: number, limit: number, query: any) => {
   const skip = (page - 1) * limit;
-  const total = await ISOModel.countDocuments();
 
-  const docs = await ISOModel.find()
-    .sort({ createdAt: -1 })
+  const {
+    certificateName,
+    status,
+    isoStandard,
+    certifyingBody,
+    issueDateFrom,
+    issueDateTo,
+    expiryDateFrom,
+    expiryDateTo
+  } = query;
+
+  let filter: any = {};
+
+  if (certificateName) {
+    filter.certificateName = { $regex: certificateName, $options: "i" };
+  }
+
+  if (isoStandard) {
+    filter.isoStandard = isoStandard;
+  }
+
+  if (certifyingBody) {
+    filter.certifyingBody = { $regex: certifyingBody, $options: "i" };
+  }
+
+  // Issue Date Range
+  if (issueDateFrom || issueDateTo) {
+    filter.issueDate = {};
+    if (issueDateFrom) filter.issueDate.$gte = new Date(issueDateFrom);
+    if (issueDateTo) filter.issueDate.$lte = new Date(issueDateTo);
+  }
+
+  // Expiry Date Range
+  if (expiryDateFrom || expiryDateTo) {
+    filter.expiryDate = {};
+    if (expiryDateFrom) filter.expiryDate.$gte = new Date(expiryDateFrom);
+    if (expiryDateTo) filter.expiryDate.$lte = new Date(expiryDateTo);
+  }
+
+  // STATUS FILTER — MERGING, NOT OVERWRITING
+  if (status) {
+    const now = new Date();
+    const soon = new Date();
+    soon.setDate(now.getDate() + 30);
+
+    if (!filter.expiryDate) filter.expiryDate = {};
+
+    if (status === "Expired") {
+      filter.expiryDate.$lte = now;
+    }
+
+    if (status === "Expiring Soon") {
+      filter.expiryDate.$gte = now;
+      filter.expiryDate.$lte = soon;
+    }
+
+    if (status === "Active") {
+      filter.expiryDate.$gt = soon;
+    }
+  }
+
+  const total = await ISOModel.countDocuments(filter);
+  const totalPages = Math.ceil(total / limit);
+
+  const docs = await ISOModel.find(filter)
     .skip(skip)
     .limit(limit)
+    .sort({ createdAt: -1 })
     .lean();
 
-  const updatedDocs = await Promise.all(
-    docs.map(async (doc) => ({
-      ...doc,
-      status: calculateStatus(doc.expiryDate),
-      fileUrl: doc.fileKey ? await getPresignedUrl(doc.fileKey) : null,
-    }))
-  );
+  const formatted = docs.map((iso) => ({
+    ...iso,
+    status: calculateStatus(iso.expiryDate),
+    fileUrl: iso.fileKey ? "https://dummy-url.com/presigned-url" : null,
+  }));
 
   return {
     total,
-    totalPages: Math.ceil(total / limit),
-    page,
-    limit,
-    docs: updatedDocs,
+    totalPages,
+    docs: formatted,
   };
 };
+
 
 export const getOne = async (id: string) => {
   const iso = await ISOModel.findById(id).lean();
