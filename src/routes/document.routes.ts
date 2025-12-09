@@ -1,6 +1,8 @@
 import { Router } from "express";
 import multer from "multer";
 
+import * as DocumentController from "../controllers/document.controller";
+
 import {
   validateDocumentBody,
   validateDocumentParams,
@@ -14,14 +16,10 @@ import {
   listDocumentQuerySchema,
 } from "../dto/document.dto";
 
-import * as DocumentController from "../controllers/document.controller";
-
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// =========================
 // CREATE
-// =========================
 router.post(
   "/",
   upload.single("file"),
@@ -29,27 +27,13 @@ router.post(
   DocumentController.create
 );
 
-// =========================
-// LIST (with query validation)
-// =========================
-router.get(
-  "/",
-  validateDocumentQuery(listDocumentQuerySchema),
-  DocumentController.list
-);
+// LIST
+router.get("/", validateDocumentQuery(listDocumentQuerySchema), DocumentController.list);
 
-// =========================
 // GET ONE
-// =========================
-router.get(
-  "/:id",
-  validateDocumentParams(getDocumentByIdSchema),
-  DocumentController.getOne
-);
+router.get("/:id", validateDocumentParams(getDocumentByIdSchema), DocumentController.getOne);
 
-// =========================
 // UPDATE
-// =========================
 router.put(
   "/:id",
   upload.single("file"),
@@ -58,13 +42,7 @@ router.put(
   DocumentController.update
 );
 
-// =========================
 // DELETE
-// =========================
-router.delete(
-  "/:id",
-  validateDocumentParams(getDocumentByIdSchema),
-  DocumentController.remove
-);
+router.delete("/:id", validateDocumentParams(getDocumentByIdSchema), DocumentController.remove);
 
 export default router;

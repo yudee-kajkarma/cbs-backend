@@ -1,4 +1,3 @@
-
 import { Response } from "express";
 
 // -------- SUCCESS MESSAGES --------
@@ -16,6 +15,13 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_FETCHED: "Document fetched successfully",
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
+
+  // ISO
+  ISO_CREATED: "ISO document created successfully",
+  ISO_LIST_FETCHED: "ISO document list fetched successfully",
+  ISO_FETCHED: "ISO document fetched successfully",
+  ISO_UPDATED: "ISO document updated successfully",
+  ISO_DELETED: "ISO document deleted successfully",
 };
 
 // -------- ERROR MESSAGES --------
@@ -31,33 +37,30 @@ export const ERROR_MESSAGES = {
   DOCUMENT_NOT_FOUND: "Document not found",
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
+
+  // ISO
+  ISO_NOT_FOUND: "ISO document not found",
+  ISO_UPLOAD_FAILED: "ISO document upload failed",
+  ISO_DELETE_FAILED: "ISO document delete failed",
 };
 
 // -------- SUCCESS (200) --------
-export const sendSuccess = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendSuccess = (res: Response, message: string, data: any = null) => {
   return res.status(200).json({
     success: true,
-    statusCode: 200,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
 // -------- CREATED (201) --------
-export const sendCreated = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendCreated = (res: Response, message: string, data: any = null) => {
   return res.status(201).json({
     success: true,
-    statusCode: 201,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -70,9 +73,9 @@ export const sendError = (
 ) => {
   return res.status(statusCode).json({
     success: false,
-    statusCode,
     message,
     error,
+    timestamp: new Date().toISOString(),
   });
 };
 
