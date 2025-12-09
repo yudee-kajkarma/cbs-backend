@@ -77,11 +77,17 @@ export const updateNewHardwareSchema: ObjectSchema = Joi.object({
 });
 
 // List schema (pagination + filters)
+// List schema (pagination + filters + sorting)
 export const getNewHardwareListSchema: ObjectSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
+
   search: Joi.string().optional().allow(""),
-  type: Joi.string().valid("Laptop", "Desktop", "Server", "Tablet", "Workstation").optional(),
+
+  type: Joi.string()
+    .valid("Laptop", "Desktop", "Server", "Tablet", "Workstation")
+    .optional(),
+
   operatingSystem: Joi.string()
     .valid(
       "Windows 11 Pro",
@@ -92,9 +98,34 @@ export const getNewHardwareListSchema: ObjectSchema = Joi.object({
       "Linux (Other)"
     )
     .optional(),
-  department: Joi.string().valid("IT", "Finance", "HR", "Operations", "Sales", "Marketing", "Legal").optional(),
-  status: Joi.string().valid("Active", "Inactive", "Under Repair", "Retired").optional(),
+
+  department: Joi.string()
+    .valid("IT", "Finance", "HR", "Operations", "Sales", "Marketing", "Legal")
+    .optional(),
+
+  status: Joi.string()
+    .valid("Active", "Inactive", "Under Repair", "Retired")
+    .optional(),
+
+  // ⭐ SORTING ADDED HERE ⭐
+sort: Joi.string()
+  .valid(
+    "deviceName",
+    "type",
+    "serialNumber",
+    "operatingSystem",
+    "purchaseDate",
+    "warrantyExpiry",
+    "department",
+    "status",
+    "createdAt"
+  )
+  .optional()
+  .default("createdAt"),
+
+order: Joi.string().valid("asc", "desc").optional().default("desc"),
 });
+
 
 // GET BY ID — param schema
 export const getNewHardwareByIdSchema: ObjectSchema = Joi.object({

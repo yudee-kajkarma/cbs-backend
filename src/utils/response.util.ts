@@ -16,12 +16,13 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
-
+  // New Hardware
   NEW_HARDWARE_CREATED: "New hardware created successfully",
   NEW_HARDWARE_LIST_FETCHED: "New hardware list fetched successfully",
   NEW_HARDWARE_FETCHED: "New hardware fetched successfully",
   NEW_HARDWARE_UPDATED: "New hardware updated successfully",
   NEW_HARDWARE_DELETED: "New hardware deleted successfully",
+
   // ISO
   ISO_CREATED: "ISO document created successfully",
   ISO_LIST_FETCHED: "ISO document list fetched successfully",
@@ -38,7 +39,10 @@ export const ERROR_MESSAGES = {
 
   // License
   LICENSE_NOT_FOUND: "License not found",
- NEW_HARDWARE_NOT_FOUND: "New hardware not found",
+
+  // New Hardware
+  NEW_HARDWARE_NOT_FOUND: "New hardware not found",
+
   // Document
   DOCUMENT_NOT_FOUND: "Document not found",
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
@@ -51,30 +55,22 @@ export const ERROR_MESSAGES = {
 };
 
 // -------- SUCCESS (200) --------
-export const sendSuccess = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendSuccess = (res: Response, message: string, data: any = null) => {
   return res.status(200).json({
     success: true,
-    statusCode: 200,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
 // -------- CREATED (201) --------
-export const sendCreated = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendCreated = (res: Response, message: string, data: any = null) => {
   return res.status(201).json({
     success: true,
-    statusCode: 201,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -87,9 +83,9 @@ export const sendError = (
 ) => {
   return res.status(statusCode).json({
     success: false,
-    statusCode,
     message,
     error,
+    timestamp: new Date().toISOString(),
   });
 };
 

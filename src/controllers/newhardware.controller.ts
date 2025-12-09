@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { newHardwareService } from "../services/newhardware.service";
 import { sendSuccess, sendCreated, sendError, SUCCESS_MESSAGES, ERROR_MESSAGES } from "../utils/response.util";
 
-// Optionally helpers to parse date strings can be added here if needed.
-
 export const newHardwareController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
@@ -16,16 +14,18 @@ export const newHardwareController = {
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const page = parseInt((req.query.page as string) || "1", 10) || 1;
-      const limit = parseInt((req.query.limit as string) || "10", 10) || 10;
-
+      const page = parseInt((req.query.page as string) || "1", 10);
+      const limit = parseInt((req.query.limit as string) || "10", 10);
       const filters = {
         search: req.query.search,
         type: req.query.type,
         operatingSystem: req.query.operatingSystem,
         department: req.query.department,
         status: req.query.status,
+        sort: req.query.sort,
+        order: req.query.order,
       };
+
 
       const data = await newHardwareService.getAll(page, limit, filters);
       return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_LIST_FETCHED, data);
