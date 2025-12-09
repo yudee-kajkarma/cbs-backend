@@ -65,26 +65,36 @@ SUPPORT_NOT_FOUND: "Support ticket not found",
 };
 
 // -------- SUCCESS (200) --------
-export const sendSuccess = (res: Response, message: string, data: any = null) => {
+export const sendSuccess = (
+  res: Response,
+  message: string,
+  data: any = null
+) => {
   return res.status(200).json({
     success: true,
-    statusCode: 200,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
 // -------- CREATED (201) --------
-export const sendCreated = (res: Response, message: string, data: any = null) => {
+
+export const sendCreated = (
+  res: Response,
+  message: string,
+  data: any = null
+) => {
   return res.status(201).json({
     success: true,
-    statusCode: 201,
     message,
     data,
+    timestamp: new Date().toISOString(),
   });
 };
 
 // -------- ERROR (custom status) --------
+
 export const sendError = (
   res: Response,
   statusCode: number,
@@ -93,11 +103,12 @@ export const sendError = (
 ) => {
   return res.status(statusCode).json({
     success: false,
-    statusCode,
     message,
     error,
+    timestamp: new Date().toISOString(),
   });
 };
+
 
 // -------- JOI VALIDATION ERROR THROWER --------
 export const throwJoiValidationError = (message: string) => {

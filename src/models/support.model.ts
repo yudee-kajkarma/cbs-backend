@@ -69,3 +69,15 @@ const SupportSchema = new Schema<ISupport>(
 );
 
 export const SupportModel = model<ISupport>("Support", SupportSchema);
+
+
+
+
+
+
+
+
+
+
+
+

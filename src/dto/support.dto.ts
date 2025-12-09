@@ -65,16 +65,39 @@ export const getSupportListSchema: ObjectSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
   search: Joi.string().optional(),
+
   category: Joi.string().valid(
     "Hardware", "Software", "Network", "Email",
     "Access Control", "Printer", "Phone", "Other"
   ).optional(),
+
   priority: Joi.string().valid("Low", "Medium", "High", "Critical").optional(),
+
   department: Joi.string()
     .valid("Finance", "HR", "Operations", "Sales", "Marketing", "IT", "Legal")
     .optional(),
-  status: Joi.string().valid("Open", "InProgress", "Resolved").optional(), // NEW
+
+  status: Joi.string().valid("Open", "InProgress", "Resolved").optional(),
+
+  sortBy: Joi.string()
+    .valid(
+      "ticketTitle",
+      "category",
+      "priority",
+      "department",
+      "assignTo",
+      "submittedBy",
+      "status",
+      "createdAt",
+      "updatedAt"
+    )
+    .default("createdAt"),
+
+  order: Joi.string()
+    .valid("asc", "desc")
+    .default("desc"),
 });
+
 
 // GET BY ID
 export const getSupportByIdSchema: ObjectSchema = Joi.object({

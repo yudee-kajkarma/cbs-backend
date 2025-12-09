@@ -20,10 +20,30 @@ export const supportController = {
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const {
+        page = 1,
+        limit = 10,
+        search,
+        category,
+        priority,
+        department,
+        status,
+        sortBy,
+        order,
+      } = req.query;
 
-      const data = await supportService.getAll(page, limit);
+      const data = await supportService.getAll({
+        page: parseInt(page as string),
+        limit: parseInt(limit as string),
+        search: search as string,
+        category: category as string,
+        priority: priority as string,
+        department: department as string,
+        status: status as string,
+        sortBy: sortBy as string,
+        order: order as "asc" | "desc",
+      });
+
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_LIST_FETCHED, data);
     } catch (error) {
       next(error);
@@ -33,9 +53,9 @@ export const supportController = {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await supportService.getById(req.params.id);
-      if (!data)
+      if (!data) {
         return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
-
+      }
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_FETCHED, data);
     } catch (error) {
       next(error);
@@ -45,9 +65,9 @@ export const supportController = {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await supportService.update(req.params.id, req.body);
-      if (!data)
+      if (!data) {
         return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
-
+      }
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_UPDATED, data);
     } catch (error) {
       next(error);
@@ -57,9 +77,9 @@ export const supportController = {
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const deleted = await supportService.delete(req.params.id);
-      if (!deleted)
+      if (!deleted) {
         return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
-
+      }
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_DELETED);
     } catch (error) {
       next(error);
