@@ -7,6 +7,8 @@ import licenseRoutes from './routes/license.routes';
 import hardwareTransferRoutes from './routes/hardwareTransfer.routes';
 import isoRoutes from './routes/iso.routes';
 import networkEquipmentRoutes from './routes/network-equipment.routes';
+import supportRoutes from './routes/support.routes';
+
 dotenv.config();
 // import documnentRoutes from './routes/document.routes'; 
 const app = express();
@@ -21,6 +23,7 @@ app.use("/api/iso", isoRoutes);
 
 // Routes
 app.use('/api/licenses', licenseRoutes);
+app.use('/api/support', supportRoutes);
 
 app.use('/api/network-equipment', networkEquipmentRoutes);
 

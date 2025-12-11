@@ -22,6 +22,17 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
+
+
+  // Support
+  SUPPORT_CREATED: "Support ticket created successfully",
+  SUPPORT_LIST_FETCHED: "Support ticket list fetched successfully",
+  SUPPORT_FETCHED: "Support ticket fetched successfully",
+  SUPPORT_UPDATED: "Support ticket updated successfully",
+  SUPPORT_DELETED: "Support ticket deleted successfully",
+
+
+
   ISO_CREATED: "ISO document created successfully",
   ISO_LIST_FETCHED: "ISO document list fetched successfully",
   ISO_FETCHED: "ISO document fetched successfully",
@@ -48,7 +59,8 @@ export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
   INVALID_ID: "Invalid ID format",
-INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
+  SUPPORT_NOT_FOUND: "Support ticket not found",
+  INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
 
   LICENSE_NOT_FOUND: "License not found",
 
@@ -62,12 +74,15 @@ INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
 
   ISO_NOT_FOUND: "ISO document not found",
-  ISO_UPLOAD_FAILED: "ISO document upload failed",
-  ISO_DELETE_FAILED: "ISO document delete failed",
+  ISO_UPLOAD_FAILED: "ISO upload failed",
+  ISO_DELETE_FAILED: "ISO delete failed",
 
   // Network Equipment
   NETWORK_EQUIPMENT_NOT_FOUND: "Network equipment not found",
   NETWORK_EQUIPMENT_EXISTS: "Network equipment already exists",
+
+  // Hardware (NEW)
+  HARDWARE_NOT_FOUND: "Hardware ticket not found",
 };
 
 // -------- SUCCESS (200) --------
@@ -81,6 +96,7 @@ export const sendSuccess = (res: Response, message: string, data: any = null) =>
 };
 
 // -------- CREATED (201) --------
+
 export const sendCreated = (res: Response, message: string, data: any = null) => {
   return res.status(201).json({
     success: true,
@@ -91,6 +107,7 @@ export const sendCreated = (res: Response, message: string, data: any = null) =>
 };
 
 // -------- ERROR (custom status) --------
+
 export const sendError = (
   res: Response,
   statusCode: number,
@@ -104,6 +121,7 @@ export const sendError = (
     timestamp: new Date().toISOString(),
   });
 };
+
 
 // -------- JOI VALIDATION ERROR --------
 export const throwJoiValidationError = (message: string) => {
