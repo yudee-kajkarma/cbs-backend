@@ -16,12 +16,12 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
-  // Audit
-  AUDIT_CREATED: "Audit created successfully",
-  AUDIT_LIST_FETCHED: "Audit list fetched successfully",
-  AUDIT_FETCHED: "Audit fetched successfully",
-  AUDIT_UPDATED: "Audit updated successfully",
-  AUDIT_DELETED: "Audit deleted successfully",
+  // ISO
+  ISO_CREATED: "ISO document created successfully",
+  ISO_LIST_FETCHED: "ISO document list fetched successfully",
+  ISO_FETCHED: "ISO document fetched successfully",
+  ISO_UPDATED: "ISO document updated successfully",
+  ISO_DELETED: "ISO document deleted successfully",
 };
 
 // -------- ERROR MESSAGES --------
@@ -38,18 +38,14 @@ export const ERROR_MESSAGES = {
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
 
-  // Audit
-  AUDIT_NOT_FOUND: "Audit not found",
-  AUDIT_UPLOAD_FAILED: "Audit document upload failed",
-  AUDIT_DELETE_FAILED: "Audit delete failed",
+  // ISO
+  ISO_NOT_FOUND: "ISO document not found",
+  ISO_UPLOAD_FAILED: "ISO document upload failed",
+  ISO_DELETE_FAILED: "ISO document delete failed",
 };
 
 // -------- SUCCESS (200) --------
-export const sendSuccess = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendSuccess = (res: Response, message: string, data: any = null) => {
   return res.status(200).json({
     success: true,
     message,
@@ -59,11 +55,7 @@ export const sendSuccess = (
 };
 
 // -------- CREATED (201) --------
-export const sendCreated = (
-  res: Response,
-  message: string,
-  data: any = null
-) => {
+export const sendCreated = (res: Response, message: string, data: any = null) => {
   return res.status(201).json({
     success: true,
     message,
