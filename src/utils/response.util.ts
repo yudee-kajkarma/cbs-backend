@@ -22,6 +22,13 @@ export const SUCCESS_MESSAGES = {
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
+  // New Hardware
+  NEW_HARDWARE_CREATED: "New hardware created successfully",
+  NEW_HARDWARE_LIST_FETCHED: "New hardware list fetched successfully",
+  NEW_HARDWARE_FETCHED: "New hardware fetched successfully",
+  NEW_HARDWARE_UPDATED: "New hardware updated successfully",
+  NEW_HARDWARE_DELETED: "New hardware deleted successfully",
+
 
 
   // Support
@@ -96,8 +103,11 @@ export const sendSuccess = (res: Response, message: string, data: any = null) =>
 };
 
 // -------- CREATED (201) --------
-
-export const sendCreated = (res: Response, message: string, data: any = null) => {
+export const sendCreated = (
+  res: Response,
+  message: string,
+  data: any = null
+) => {
   return res.status(201).json({
     success: true,
     message,
