@@ -34,6 +34,13 @@ export const SUCCESS_MESSAGES = {
   HARDWARE_TRANSFER_FETCHED: "Hardware transfer fetched successfully",
   HARDWARE_TRANSFER_UPDATED: "Hardware transfer updated successfully",
   HARDWARE_TRANSFER_DELETED: "Hardware transfer deleted successfully",
+
+  // Network Equipment
+  NETWORK_EQUIPMENT_CREATED: "Network equipment created successfully",
+  NETWORK_EQUIPMENT_LIST_FETCHED: "Network equipment list fetched successfully",
+  NETWORK_EQUIPMENT_FETCHED: "Network equipment fetched successfully",
+  NETWORK_EQUIPMENT_UPDATED: "Network equipment updated successfully",
+  NETWORK_EQUIPMENT_DELETED: "Network equipment deleted successfully",
 };
 
 // -------- ERROR MESSAGES --------
@@ -57,6 +64,10 @@ INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
   ISO_NOT_FOUND: "ISO document not found",
   ISO_UPLOAD_FAILED: "ISO document upload failed",
   ISO_DELETE_FAILED: "ISO document delete failed",
+
+  // Network Equipment
+  NETWORK_EQUIPMENT_NOT_FOUND: "Network equipment not found",
+  NETWORK_EQUIPMENT_EXISTS: "Network equipment already exists",
 };
 
 // -------- SUCCESS (200) --------
@@ -94,7 +105,7 @@ export const sendError = (
   });
 };
 
-// -------- JOI VALIDATION ERROR THROWER --------
+// -------- JOI VALIDATION ERROR --------
 export const throwJoiValidationError = (message: string) => {
   const error: any = new Error(message);
   error.type = "JoiValidationError";
