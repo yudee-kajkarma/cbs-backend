@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-// -------- SUCCESS MESSAGES --------
+// ---------------- SUCCESS MESSAGES ----------------
 export const SUCCESS_MESSAGES = {
   LICENSE_CREATED: "License created successfully",
   LICENSE_LIST_FETCHED: "License list fetched successfully",
@@ -59,9 +59,16 @@ export const SUCCESS_MESSAGES = {
   NETWORK_EQUIPMENT_FETCHED: "Network equipment fetched successfully",
   NETWORK_EQUIPMENT_UPDATED: "Network equipment updated successfully",
   NETWORK_EQUIPMENT_DELETED: "Network equipment deleted successfully",
+
+  // 🔥 Furniture (MOVE HERE)
+  FURNITURE_CREATED: "Furniture item created successfully",
+  FURNITURE_LIST_FETCHED: "Furniture list fetched successfully",
+  FURNITURE_FETCHED: "Furniture fetched successfully",
+  FURNITURE_UPDATED: "Furniture updated successfully",
+  FURNITURE_DELETED: "Furniture deleted successfully",
 };
 
-// -------- ERROR MESSAGES --------
+// ---------------- ERROR MESSAGES ----------------
 export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
@@ -79,6 +86,10 @@ export const ERROR_MESSAGES = {
   DOCUMENT_NOT_FOUND: "Document not found",
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
+
+  // Furniture
+  FURNITURE_NOT_FOUND: "Furniture item not found",
+  ITEMCODE_EXISTS: "Item code already exists",
 
   ISO_NOT_FOUND: "ISO document not found",
   ISO_UPLOAD_FAILED: "ISO upload failed",
@@ -117,7 +128,6 @@ export const sendCreated = (
 };
 
 // -------- ERROR (custom status) --------
-
 export const sendError = (
   res: Response,
   statusCode: number,
