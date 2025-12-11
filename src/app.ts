@@ -3,9 +3,10 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 
 import licenseRoutes from './routes/license.routes';
-import {errorMiddleware} from './middlewares/error.middleware';
+// import { errorHandler } from './middlewares/error.middleware';
 import auditRoutes from './routes/audit.routes';
-import isoRoutes from "./routes/iso.routes";
+import isoRoutes from './routes/iso.routes';
+import simRoutes from './routes/sim.routes';
 dotenv.config();
 // import documnentRoutes from './routes/document.routes'; 
 const app = express();
@@ -22,7 +23,7 @@ app.use("/api/iso", isoRoutes);
 app.use('/api/licenses', licenseRoutes);
 app.use('/api/audits', auditRoutes);
 
-// Global Error Handler
-app.use(errorMiddleware);
+app.use('/api/sims', simRoutes);
+// app.use(errorHandler);
 
 export default app;

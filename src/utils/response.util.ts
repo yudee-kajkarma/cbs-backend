@@ -19,6 +19,13 @@ export const SUCCESS_MESSAGES = {
   ISO_FETCHED: "ISO document fetched successfully",
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
+
+  // SIM
+  SIM_CREATED: "SIM created successfully",
+  SIM_LIST_FETCHED: "SIM list fetched successfully",
+  SIM_FETCHED: "SIM fetched successfully",
+  SIM_UPDATED: "SIM updated successfully",
+  SIM_DELETED: "SIM deleted successfully",
 };
 
 // -------- ERROR MESSAGES --------
@@ -35,6 +42,11 @@ export const ERROR_MESSAGES = {
   ISO_NOT_FOUND: "ISO document not found",
   ISO_UPLOAD_FAILED: "ISO document upload failed",
   ISO_DELETE_FAILED: "ISO document delete failed",
+
+  // SIM
+  SIM_NOT_FOUND: "SIM not found",
+  SIM_UPLOAD_FAILED: "SIM upload failed",
+  SIM_DELETE_FAILED: "SIM delete failed",
 };
 
 // -------- SUCCESS (200) --------
