@@ -1,10 +1,41 @@
-// src/services/license.service.ts
 import License from "../models/license.model";
 import {
   uploadBufferToS3,
   getPresignedUrl,
   deleteFromS3,
 } from "../utils/s3.util";
+import { paginate, calculatePagination } from "../utils/pagination.util";
+
+// Helper function to build MongoDB query for status filtering
+const buildStatusQuery = (status: string, today: Date): any => {
+  const thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+  switch (status.toLowerCase()) {
+    case "expired":
+      return { expiryDate: { $lt: today } };
+    case "expiring soon":
+      return { 
+        expiryDate: { 
+          $gte: today, 
+          $lte: thirtyDaysFromNow 
+        } 
+      };
+    case "active":
+      return { expiryDate: { $gt: thirtyDaysFromNow } };
+    default:
+      return {};
+  }
+};
+
+const calculateStatus = (expiryDate: Date, today: Date): string => {
+  const expiry = new Date(expiryDate);
+  const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return "Expired";
+  if (diffDays <= 30) return "Expiring Soon";
+  return "Active";
+};
 
 export const create = async (data: any, file?: Express.Multer.File) => {
   let documentKey: string | undefined;
@@ -25,9 +56,6 @@ export const create = async (data: any, file?: Express.Multer.File) => {
   return license.toObject();
 };
 
-// ------------------ GET ALL WITH PAGINATION + STATUS ------------------
-// src/services/license.service.ts
-
 export const getAll = async (
   page: number,
   limit: number,
@@ -35,8 +63,6 @@ export const getAll = async (
   orderBy: string,
   sortBy: string
 ) => {
-  const skip = (page - 1) * limit;
-
   const query: any = {};
 
   // Type filter
@@ -59,29 +85,24 @@ export const getAll = async (
     ];
   }
 
-  // NEW — sorting logic
-  const sortOrder = sortBy === "asc" ? 1 : -1;
-  const sortQuery: any = {};
-  sortQuery[orderBy] = sortOrder;
-
-  // Fetch data with sorting
-  const rawData = await License.find(query)
-    .skip(skip)
-    .limit(limit)
-    .sort(sortQuery)   // 👈 Sorting applied here
-    .lean();
-
+  // Apply status filter at database level
   const today = new Date();
+  
+  if (filters.status) {
+    const statusQuery = buildStatusQuery(filters.status, today);
+    Object.assign(query, statusQuery);
+  }
 
-  // Compute status + URL
-  let data = await Promise.all(
-    rawData.map(async (item) => {
-      const expiry = new Date(item.expiryDate);
-      const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  // Build sort query
+  const sortOrder = sortBy === "asc" ? 1 : -1;
+  const sortQuery: any = { [orderBy]: sortOrder };
 
-      let status = "Active";
-      if (diffDays < 0) status = "Expired";
-      else if (diffDays <= 30) status = "Expiring Soon";
+  // Paginate at database level
+  const { data: rawData, total } = await paginate(License, query, page, limit, sortQuery);
+
+  const data = await Promise.all(
+    rawData.map(async (item: any) => {
+      const status = calculateStatus(item.expiryDate, today);
 
       return {
         ...item,
@@ -93,26 +114,9 @@ export const getAll = async (
     })
   );
 
-  // Filter by computed status
-  if (filters.status) {
-    data = data.filter(
-      (item) => item.status.toLowerCase() === filters.status.toLowerCase()
-    );
-  }
-
-  const total = data.length;
-  const totalPages = Math.ceil(total / limit);
-
   return {
     licenses: data,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    },
+    pagination: calculatePagination(total, page, limit),
   };
 };
 
@@ -124,13 +128,7 @@ export const getOne = async (id: string) => {
   if (!license) return null;
 
   const today = new Date();
-  const expiry = new Date(license.expiryDate);
-
-  let status = "Active";
-  const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) status = "Expired";
-  else if (diffDays <= 30) status = "Expiring Soon";
+  const status = calculateStatus(license.expiryDate, today);
 
   return {
     ...license,
@@ -167,8 +165,12 @@ export const update = async (id: string, data: any, file?: Express.Multer.File) 
 
   if (!updated) return null;
 
+  const today = new Date();
+  const status = calculateStatus(updated.expiryDate, today);
+
   return {
     ...updated,
+    status,
     documentUrl: updated.documentKey
       ? await getPresignedUrl(updated.documentKey)
       : null,

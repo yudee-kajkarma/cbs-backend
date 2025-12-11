@@ -1,21 +1,41 @@
 import Joi from "joi";
 
 export const createLicenseDto = Joi.object({
-  name: Joi.string().required(),
-  number: Joi.string().required(),
-  issueDate: Joi.date().required(),
-  expiryDate: Joi.date().required(),
-  issuingAuthority: Joi.string().required(),
+  name: Joi.string().trim().min(1).max(200).required(),
+  number: Joi.string().trim().min(1).max(100).required(),
+  issueDate: Joi.date().max('now').required().messages({
+    'date.max': 'Issue date cannot be in the future'
+  }),
+  expiryDate: Joi.date()
+    .greater(Joi.ref('issueDate'))
+    .required()
+    .messages({
+      'date.greater': 'Expiry date must be after issue date'
+    }),
+  issuingAuthority: Joi.string().trim().min(1).max(200).required(),
   documentKey: Joi.string().optional(),
 });
 
 export const updateLicenseDto = Joi.object({
-  name: Joi.string().optional(),
-  number: Joi.string().optional(),
-  issueDate: Joi.date().optional(),
-  expiryDate: Joi.date().optional(),
-  issuingAuthority: Joi.string().optional(),
+  name: Joi.string().trim().min(1).max(200).optional(),
+  number: Joi.string().trim().min(1).max(100).optional(),
+  issueDate: Joi.date().max('now').optional().messages({
+    'date.max': 'Issue date cannot be in the future'
+  }),
+  expiryDate: Joi.date()
+    .when('issueDate', {
+      is: Joi.exist(),
+      then: Joi.date().greater(Joi.ref('issueDate')),
+      otherwise: Joi.date()
+    })
+    .messages({
+      'date.greater': 'Expiry date must be after issue date'
+    })
+    .optional(),
+  issuingAuthority: Joi.string().trim().min(1).max(200).optional(),
   documentKey: Joi.string().optional(),
+}).min(1).messages({
+  'object.min': 'At least one field must be provided for update'
 });
 
 // for params /:id

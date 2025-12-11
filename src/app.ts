@@ -1,7 +1,7 @@
 import express from 'express';
+import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-
 import licenseRoutes from './routes/license.routes';
 import hardwareTransferRoutes from './routes/hardwareTransfer.routes';
 import isoRoutes from './routes/iso.routes';
@@ -15,14 +15,21 @@ import simRoutes from './routes/sim.routes';
 import softwareRoutes from './routes/software.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
-dotenv.config(); 
+import { config } from './config/config'; 
 const app = express();
 
-app.use(morgan('dev'));
+// CORS middleware
+app.use(cors({
+  origin: config.cors.allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Routes
