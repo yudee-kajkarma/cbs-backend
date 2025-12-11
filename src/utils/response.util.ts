@@ -28,12 +28,12 @@ export const SUCCESS_MESSAGES = {
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
 
-  // SIM
-  SIM_CREATED: "SIM created successfully",
-  SIM_LIST_FETCHED: "SIM list fetched successfully",
-  SIM_FETCHED: "SIM fetched successfully",
-  SIM_UPDATED: "SIM updated successfully",
-  SIM_DELETED: "SIM deleted successfully",
+  // -------- HARDWARE TRANSFER --------
+  HARDWARE_TRANSFER_CREATED: "Hardware transfer created successfully",
+  HARDWARE_TRANSFER_LIST_FETCHED: "Hardware transfer list fetched successfully",
+  HARDWARE_TRANSFER_FETCHED: "Hardware transfer fetched successfully",
+  HARDWARE_TRANSFER_UPDATED: "Hardware transfer updated successfully",
+  HARDWARE_TRANSFER_DELETED: "Hardware transfer deleted successfully",
 };
 
 // -------- ERROR MESSAGES --------
@@ -57,11 +57,6 @@ INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
   ISO_NOT_FOUND: "ISO document not found",
   ISO_UPLOAD_FAILED: "ISO document upload failed",
   ISO_DELETE_FAILED: "ISO document delete failed",
-
-  // SIM
-  SIM_NOT_FOUND: "SIM not found",
-  SIM_UPLOAD_FAILED: "SIM upload failed",
-  SIM_DELETE_FAILED: "SIM delete failed",
 };
 
 // -------- SUCCESS (200) --------
