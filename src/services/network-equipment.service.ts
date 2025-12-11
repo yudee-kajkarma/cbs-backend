@@ -1,48 +1,44 @@
 import { NetworkEquipmentModel, INetworkEquipment } from "../models/network-equipment.model";
 import { FilterQuery } from "mongoose";
+import { paginate, parseSortParams, validatePaginationParams } from "../utils/pagination.util";
 
 class NetworkEquipmentService {
 
   async create(payload: Partial<INetworkEquipment>): Promise<INetworkEquipment> {
     const doc = await NetworkEquipmentModel.create(payload);
-    return doc.toObject({ versionKey: false });
+    return doc.toObject();
   }
-async getAll(
-  filter: FilterQuery<INetworkEquipment> = {},
-  page = 1,
-  limit = 10,
-  orderBy = "createdAt",
-  order: 1 | -1 = -1
-) {
-  const skip = (page - 1) * limit;
 
-  const sortObj: any = {};
-  sortObj[orderBy] = order;
+  async getAll(
+    filter: FilterQuery<INetworkEquipment> = {},
+    page = 1,
+    limit = 10,
+    orderBy?: string,
+    sortBy?: string
+  ) {
+    // Validate pagination
+    const validation = validatePaginationParams(page, limit);
+    if (!validation.isValid) {
+      throw new Error(validation.error);
+    }
 
-  const [items, total] = await Promise.all([
-    NetworkEquipmentModel.find(filter)
-      .sort(sortObj) // ⭐ Dynamic sorting
-      .skip(skip)
-      .limit(limit)
-      .lean()
-      .select("-__v"),
-    NetworkEquipmentModel.countDocuments(filter)
-  ]);
+    // Parse sorting
+    const sort = orderBy && sortBy
+      ? parseSortParams(orderBy, sortBy)
+      : { createdAt: -1 as const };
 
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-
-  return {
-    items,
-    pagination: {
-      total,
+    const { data: items, pagination } = await paginate(NetworkEquipmentModel, filter, {
       page,
       limit,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
-    }
-  };
-}
+      sort,
+      select: "-__v",
+    });
+
+    return {
+      items,
+      pagination,
+    };
+  }
 
 
   async getById(id: string) {

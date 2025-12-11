@@ -7,6 +7,7 @@ import {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
 } from "../utils/response.util";
+import { handleControllerError } from "../utils/error.util";
 
 // ---------------------------------------------
 // CREATE DOCUMENT
@@ -19,12 +20,7 @@ export const create = async (req: Request, res: Response) => {
       document: result,
     });
   } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error?.message ?? error
-    );
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -55,12 +51,7 @@ const filters = {
       pagination: result.pagination,
     });
   } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error?.message ?? error
-    );
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -78,12 +69,7 @@ export const getOne = async (req: Request, res: Response) => {
       document: doc,
     });
   } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error?.message ?? error
-    );
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -101,15 +87,12 @@ export const update = async (req: Request, res: Response) => {
       document: updated,
     });
   } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error?.message ?? error
-    );
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
+// ---------------------------------------------
+// DELETE DOCUMENT
 // ---------------------------------------------
 // DELETE DOCUMENT
 // ---------------------------------------------
@@ -124,11 +107,25 @@ export const remove = async (req: Request, res: Response) => {
       deleted: true,
     });
   } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error?.message ?? error
-    );
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+  }
+};
+
+// ---------------------------------------------
+// GET DOWNLOAD URL (Optimized endpoint)
+// ---------------------------------------------
+export const getDownloadUrl = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    const url = await DocumentService.getDownloadUrl(id);
+    if (!url) return sendError(res, 404, "Document or file not found");
+
+    return sendSuccess(res, "Download URL generated successfully", {
+      url,
+      expiresIn: 900, // 15 minutes (default S3 expiry)
+    });
+  } catch (error: any) {
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };

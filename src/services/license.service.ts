@@ -4,7 +4,7 @@ import {
   getPresignedUrl,
   deleteFromS3,
 } from "../utils/s3.util";
-import { paginate, calculatePagination } from "../utils/pagination.util";
+import { paginate, calculatePagination, parseSortParams } from "../utils/pagination.util";
 
 // Helper function to build MongoDB query for status filtering
 const buildStatusQuery = (status: string, today: Date): any => {
@@ -93,30 +93,29 @@ export const getAll = async (
     Object.assign(query, statusQuery);
   }
 
-  // Build sort query
-  const sortOrder = sortBy === "asc" ? 1 : -1;
-  const sortQuery: any = { [orderBy]: sortOrder };
+  // Paginate at database level with sorting
+  const sortQuery = parseSortParams(orderBy, sortBy);
+  const { data: rawData, pagination: paginationMeta } = await paginate(License, query, {
+    page,
+    limit,
+    sort: sortQuery,
+  });
 
-  // Paginate at database level
-  const { data: rawData, total } = await paginate(License, query, page, limit, sortQuery);
+  // Optimize: Don't generate presigned URLs for list view
+  // Frontend can request URLs individually when needed
+  const data = rawData.map((item: any) => {
+    const status = calculateStatus(item.expiryDate, today);
 
-  const data = await Promise.all(
-    rawData.map(async (item: any) => {
-      const status = calculateStatus(item.expiryDate, today);
-
-      return {
-        ...item,
-        status,
-        documentUrl: item.documentKey
-          ? await getPresignedUrl(item.documentKey)
-          : null,
-      };
-    })
-  );
+    return {
+      ...item,
+      status,
+      hasDocument: !!item.documentKey, // Just indicate if document exists
+    };
+  });
 
   return {
     licenses: data,
-    pagination: calculatePagination(total, page, limit),
+    pagination: paginationMeta,
   };
 };
 
@@ -181,11 +180,20 @@ export const remove = async (id: string) => {
   const existing = await License.findById(id);
   if (!existing) return null;
 
-  if (existing.documentKey) {
-    await deleteFromS3(existing.documentKey);
-  }
-
+  const documentKey = existing.documentKey;
+  
+  // Delete from DB first
   await License.findByIdAndDelete(id);
+  
+  // Then delete from S3 (best effort - don't fail if S3 delete fails)
+  if (documentKey) {
+    try {
+      await deleteFromS3(documentKey);
+    } catch (error) {
+      console.error('Failed to delete S3 file:', documentKey, error);
+      // Don't throw - DB deletion already succeeded
+    }
+  }
 
   return true;
 };

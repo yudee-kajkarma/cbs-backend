@@ -1,25 +1,12 @@
 import { Request, Response } from "express";
 import { networkEquipmentService } from "../services/network-equipment.service";
-import { sendSuccess, sendCreated, sendError } from "../utils/response.util";
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../utils/response.util";
-
-const parseDDMMYYYY = (s?: string | null): Date | null => {
-  if (!s) return null;
-  const parts = s.split("-");
-  if (parts.length !== 3) return null;
-
-  const [dd, mm, yyyy] = parts.map(Number);
-  return new Date(yyyy, mm - 1, dd);
-};
+import { sendSuccess, sendCreated, sendError, ERROR_MESSAGES, SUCCESS_MESSAGES } from "../utils/response.util";
 
 class NetworkEquipmentController {
   // CREATE
   async create(req: Request, res: Response) {
     try {
       const body: any = { ...req.body };
-
-      body.purchaseDate = parseDDMMYYYY(body.purchaseDate);
-      body.warrantyExpiry = parseDDMMYYYY(body.warrantyExpiry);
 
       const duplicates: string[] = [];
 
@@ -55,47 +42,48 @@ class NetworkEquipmentController {
   }
 
   // GET ALL
-// GET ALL
-async getAll(req: Request, res: Response) {
-  try {
-    const q: any = req.query || {};
-    const page = Number(q.page || 1);
-    const limit = Number(q.limit || 10);
+  async getAll(req: Request, res: Response) {
+    try {
+      const q: any = req.query;
 
-    const filter: any = {};
-    if (q.equipmentType) filter.equipmentType = q.equipmentType;
-    if (q.status) filter.status = q.status;
-    if (q.location) filter.location = { $regex: q.location, $options: "i" };
+      const filter: any = {};
 
-    // ⭐ Sorting parameters
-    const orderBy = q.orderBy || "createdAt";
-    const order = q.order === "desc" ? -1 : 1;
-
-    const result = await networkEquipmentService.getAll(
-      filter,
-      page,
-      limit,
-      orderBy,
-      order
-    );
-
-    return sendSuccess(
-      res,
-      SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_LIST_FETCHED ?? "Network equipment list fetched",
-      {
-        networkEquipments: result.items,
-        pagination: result.pagination
+      if (q.search) {
+        const searchRegex = { $regex: q.search, $options: "i" };
+        filter.$or = [
+          { deviceName: searchRegex },
+          { type: searchRegex },
+          { macAddress: searchRegex },
+          { ipAddress: searchRegex },
+          { location: searchRegex },
+        ];
       }
-    );
-  } catch (err: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-      { error: err?.message ?? err }
-    );
+
+      if (q.type) filter.type = q.type;
+      if (q.location) filter.location = { $regex: q.location, $options: "i" };
+
+      if (q.fromDate || q.toDate) {
+        filter.purchaseDate = {};
+        if (q.fromDate) filter.purchaseDate.$gte = new Date(q.fromDate);
+        if (q.toDate) filter.purchaseDate.$lte = new Date(q.toDate);
+      }
+
+      const page = parseInt(q.page || "1");
+      const limit = parseInt(q.limit || "10");
+
+      const result = await networkEquipmentService.getAll(filter, page, limit, q.orderBy, q.sortBy);
+
+      const msg = SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_FETCHED ?? "Network equipment fetched";
+      return sendSuccess(res, msg, result);
+    } catch (err: any) {
+      return sendError(
+        res,
+        500,
+        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
+        { error: err?.message ?? err }
+      );
+    }
   }
-}
 
 
   // GET ONE
@@ -132,12 +120,6 @@ async getAll(req: Request, res: Response) {
     try {
       const id = req.params.id;
       const body: any = { ...req.body };
-
-      if (body.purchaseDate)
-        body.purchaseDate = parseDDMMYYYY(body.purchaseDate);
-
-      if (body.warrantyExpiry)
-        body.warrantyExpiry = parseDDMMYYYY(body.warrantyExpiry);
 
       const duplicates: string[] = [];
 

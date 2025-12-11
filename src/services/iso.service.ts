@@ -1,9 +1,11 @@
-import { ISOModel, allowedStandards } from "../models/iso.model";
+import { ISOModel } from "../models/iso.model";
+import { allowedISOStandards } from "../dto/iso.dto";
 import {
   uploadBufferToS3,
   getPresignedUrl,
   deleteFromS3,
 } from "../utils/s3.util";
+import { paginate, validatePaginationParams, parseSortParams } from "../utils/pagination.util";
 
 export interface CreateISOInput {
   certificateName: string;
@@ -36,19 +38,19 @@ export const create = async (
   data: CreateISOInput,
   file?: Express.Multer.File
 ) => {
-  if (!allowedStandards.includes(data.isoStandard)) {
+  if (!allowedISOStandards.includes(data.isoStandard)) {
     throw new Error("Invalid ISO Standard");
   }
 
-  let fileKey: string | undefined;
-
-  if (file) {
-    fileKey = await uploadBufferToS3(
-      file.buffer,
-      file.originalname,
-      file.mimetype
-    );
+  if (!file) {
+    throw new Error("File is required");
   }
+
+  const fileKey = await uploadBufferToS3(
+    file.buffer,
+    file.originalname,
+    file.mimetype
+  );
 
   const iso = await ISOModel.create({
     ...data,
@@ -59,7 +61,11 @@ export const create = async (
 };
 
 export const getAll = async (page: number, limit: number, query: any) => {
-  const skip = (page - 1) * limit;
+  // Validate pagination parameters
+  const validation = validatePaginationParams(page, limit);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
+  }
 
   const {
     certificateName,
@@ -69,7 +75,9 @@ export const getAll = async (page: number, limit: number, query: any) => {
     issueDateFrom,
     issueDateTo,
     expiryDateFrom,
-    expiryDateTo
+    expiryDateTo,
+    orderBy,
+    sortBy
   } = query;
 
   let filter: any = {};
@@ -93,54 +101,53 @@ export const getAll = async (page: number, limit: number, query: any) => {
     if (issueDateTo) filter.issueDate.$lte = new Date(issueDateTo);
   }
 
-  // Expiry Date Range
-  if (expiryDateFrom || expiryDateTo) {
-    filter.expiryDate = {};
-    if (expiryDateFrom) filter.expiryDate.$gte = new Date(expiryDateFrom);
-    if (expiryDateTo) filter.expiryDate.$lte = new Date(expiryDateTo);
-  }
-
-  // STATUS FILTER — MERGING, NOT OVERWRITING
-  if (status) {
-    const now = new Date();
-    const soon = new Date();
-    soon.setDate(now.getDate() + 30);
-
+  // Expiry Date Range - Build incrementally to avoid overwriting
+  if (expiryDateFrom || expiryDateTo || status) {
     if (!filter.expiryDate) filter.expiryDate = {};
 
-    if (status === "Expired") {
-      filter.expiryDate.$lte = now;
-    }
+    // User-provided date range
+    if (expiryDateFrom) filter.expiryDate.$gte = new Date(expiryDateFrom);
+    if (expiryDateTo) filter.expiryDate.$lte = new Date(expiryDateTo);
 
-    if (status === "Expiring Soon") {
-      filter.expiryDate.$gte = now;
-      filter.expiryDate.$lte = soon;
-    }
+    // Status filter - only apply if no explicit date range provided
+    if (status && !expiryDateFrom && !expiryDateTo) {
+      const now = new Date();
+      const soon = new Date();
+      soon.setDate(now.getDate() + 30);
 
-    if (status === "Active") {
-      filter.expiryDate.$gt = soon;
+      if (status === "Expired") {
+        filter.expiryDate.$lte = now;
+      } else if (status === "Expiring Soon") {
+        filter.expiryDate.$gte = now;
+        filter.expiryDate.$lte = soon;
+      } else if (status === "Active") {
+        filter.expiryDate.$gt = soon;
+      }
     }
   }
 
-  const total = await ISOModel.countDocuments(filter);
-  const totalPages = Math.ceil(total / limit);
+  // Parse sorting parameters
+  const sort = orderBy && sortBy 
+    ? parseSortParams(orderBy, sortBy) 
+    : { createdAt: -1 as const };
 
-  const docs = await ISOModel.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 })
-    .lean();
+  // Use pagination utility
+  const { data: isos, pagination } = await paginate(ISOModel, filter, {
+    page,
+    limit,
+    sort,
+  });
 
-  const formatted = docs.map((iso) => ({
+  // Optimize: Don't generate presigned URLs for list view
+  const formatted = isos.map((iso) => ({
     ...iso,
     status: calculateStatus(iso.expiryDate),
-    fileUrl: iso.fileKey ? "https://dummy-url.com/presigned-url" : null,
+    hasFile: !!iso.fileKey, 
   }));
 
   return {
-    total,
-    totalPages,
-    docs: formatted,
+    isos: formatted,
+    pagination,
   };
 };
 
@@ -164,7 +171,7 @@ export const update = async (
   const existing = await ISOModel.findById(id);
   if (!existing) return null;
 
-  if (data.isoStandard && !allowedStandards.includes(data.isoStandard)) {
+  if (data.isoStandard && !allowedISOStandards.includes(data.isoStandard)) {
     throw new Error("Invalid ISO Standard");
   }
 
@@ -198,11 +205,19 @@ export const remove = async (id: string) => {
   const existing = await ISOModel.findById(id);
   if (!existing) return null;
 
-  if (existing.fileKey) {
-    await deleteFromS3(existing.fileKey);
-  }
-
+  const fileKey = existing.fileKey;
+  
+  // Delete from DB first
   await ISOModel.findByIdAndDelete(id);
+  
+  // Then delete from S3 (best effort)
+  if (fileKey) {
+    try {
+      await deleteFromS3(fileKey);
+    } catch (error) {
+      console.error('Failed to delete S3 file:', fileKey, error);
+    }
+  }
 
   return true;
 };

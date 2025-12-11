@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { FilterQuery } from "mongoose";
 import { simService } from "../services/sim.service";
 import {
   sendSuccess,
@@ -8,32 +9,11 @@ import {
   ERROR_MESSAGES
 } from "../utils/response.util";
 
-// Convert "DD-MM-YYYY" → Date
-const parseDDMMYYYY = (s?: string | null): Date | null => {
-  if (!s) return null;
-
-  const parts = s.split("-");
-  if (parts.length !== 3) return null;
-
-  const [dd, mm, yyyy] = parts.map((p) => parseInt(p, 10));
-  if (!dd || !mm || !yyyy) return null;
-
-  return new Date(yyyy, mm - 1, dd);
-};
-
 class SimController {
   // ---------- CREATE ----------
   async create(req: Request, res: Response) {
     try {
-      const body = { ...req.body };
-
-      if (body.activationDate)
-        body.activationDate = parseDDMMYYYY(body.activationDate);
-
-      if (body.expiryDate)
-        body.expiryDate = parseDDMMYYYY(body.expiryDate);
-
-      const sim = await simService.createSim(body);
+      const sim = await simService.createSim(req.body);
       return sendCreated(res, SUCCESS_MESSAGES.SIM_CREATED, sim);
     } catch (err: any) {
       if (err?.code === 11000) {
@@ -60,10 +40,12 @@ class SimController {
         status,
         department,
         activationDate,
-        expiryDate
+        expiryDate,
+        orderBy,
+        sortBy
       } = req.query as any;
 
-      const filter: any = {};
+      const filter: FilterQuery<any> = {};
 
       // Partial & case-insensitive search
       if (simNumber) filter.simNumber = { $regex: simNumber, $options: "i" };
@@ -73,28 +55,21 @@ class SimController {
       if (status) filter.status = status;
       if (department) filter.department = department;
 
-      // Dates stored as string in DB → exact match filter
-      if (activationDate) filter.activationDate = activationDate;
-      if (expiryDate) filter.expiryDate = expiryDate;
+      // Dates stored as Date in DB
+      if (activationDate) filter.activationDate = new Date(activationDate);
+      if (expiryDate) filter.expiryDate = new Date(expiryDate);
 
-      const data = await simService.getAllSims(
+      const result = await simService.getAllSims(
         filter,
         Number(page),
-        Number(limit)
+        Number(limit),
+        orderBy,
+        sortBy
       );
 
-      const pagination = {
-        total: data.total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: data.totalPages,
-        hasNextPage: Number(page) < data.totalPages,
-        hasPrevPage: Number(page) > 1
-      };
-
       return sendSuccess(res, SUCCESS_MESSAGES.SIM_LIST_FETCHED, {
-        items: data.items,
-        pagination
+        sims: result.items,
+        pagination: result.pagination
       });
     } catch (err: any) {
       return sendError(
@@ -129,15 +104,7 @@ class SimController {
   async update(req: Request, res: Response) {
     try {
       const id = req.params.id;
-      const body = { ...req.body };
-
-      if (body.activationDate)
-        body.activationDate = parseDDMMYYYY(body.activationDate);
-
-      if (body.expiryDate)
-        body.expiryDate = parseDDMMYYYY(body.expiryDate);
-
-      const sim = await simService.updateSim(id, body);
+      const sim = await simService.updateSim(id, req.body);
 
       if (!sim) return sendError(res, 404, ERROR_MESSAGES.SIM_NOT_FOUND);
 

@@ -1,13 +1,4 @@
-import {
-  IsIn,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsISO8601,
-  IsMongoId,
-  IsNumber,
-  Min,
-} from "class-validator";
+import Joi from "joi";
 
 import {
   TransferType,
@@ -17,130 +8,92 @@ import {
   TransferStatus,
 } from "../models/hardwareTransfer.model";
 
-/* ----------------------------------------------------
-   CREATE DTO
----------------------------------------------------- */
-export class CreateHardwareTransferDto {
-  @IsIn(Object.values(HardwareList))
-  hardwareName!: string;
+// Base schema for reusability
+const hardwareTransferBaseSchema = {
+  hardwareName: Joi.string().valid(...Object.values(HardwareList)),
+  serialNumber: Joi.string().trim(),
+  fromUser: Joi.string().valid(...Object.values(TransferUserList)),
+  toUser: Joi.string().valid(...Object.values(TransferUserList)),
+  transferDate: Joi.date(),
+  expectedReturnDate: Joi.date().allow(null),
+  transferType: Joi.string().valid(...Object.values(TransferType)),
+  hardwareCondition: Joi.string().valid(...Object.values(HardwareCondition)),
+  transferReason: Joi.string().trim(),
+  approvedBy: Joi.string().trim(),
+  additionalNotes: Joi.string().trim(),
+  status: Joi.string().valid(...Object.values(TransferStatus)),
+};
 
-  @IsString()
-  @IsNotEmpty()
-  serialNumber!: string;
+// CREATE DTO
+export const createHardwareTransferDto = Joi.object({
+  hardwareName: hardwareTransferBaseSchema.hardwareName.required(),
+  serialNumber: hardwareTransferBaseSchema.serialNumber.required(),
+  fromUser: hardwareTransferBaseSchema.fromUser.required(),
+  toUser: hardwareTransferBaseSchema.toUser.required(),
+  transferDate: hardwareTransferBaseSchema.transferDate.required(),
+  expectedReturnDate: hardwareTransferBaseSchema.expectedReturnDate.optional(),
+  transferType: hardwareTransferBaseSchema.transferType.required(),
+  hardwareCondition: hardwareTransferBaseSchema.hardwareCondition.required(),
+  transferReason: hardwareTransferBaseSchema.transferReason.optional(),
+  approvedBy: hardwareTransferBaseSchema.approvedBy.optional(),
+  additionalNotes: hardwareTransferBaseSchema.additionalNotes.optional(),
+  status: hardwareTransferBaseSchema.status.optional(),
+});
 
-  @IsIn(Object.values(TransferUserList))
-  fromUser!: string;
+// UPDATE DTO
+export const updateHardwareTransferDto = Joi.object({
+  hardwareName: hardwareTransferBaseSchema.hardwareName.optional(),
+  serialNumber: hardwareTransferBaseSchema.serialNumber.optional(),
+  fromUser: hardwareTransferBaseSchema.fromUser.optional(),
+  toUser: hardwareTransferBaseSchema.toUser.optional(),
+  transferDate: hardwareTransferBaseSchema.transferDate.optional(),
+  expectedReturnDate: hardwareTransferBaseSchema.expectedReturnDate.optional(),
+  transferType: hardwareTransferBaseSchema.transferType.optional(),
+  hardwareCondition: hardwareTransferBaseSchema.hardwareCondition.optional(),
+  transferReason: hardwareTransferBaseSchema.transferReason.optional(),
+  approvedBy: hardwareTransferBaseSchema.approvedBy.optional(),
+  additionalNotes: hardwareTransferBaseSchema.additionalNotes.optional(),
+  status: hardwareTransferBaseSchema.status.optional(),
+}).min(1);
 
-  @IsIn(Object.values(TransferUserList))
-  toUser!: string;
+// PARAMS DTO (/:id)
+export const hardwareTransferIdDto = Joi.object({
+  id: Joi.string().hex().length(24).required(),
+});
 
-  @IsISO8601()
-  transferDate!: string;
+// QUERY DTO
+export const hardwareTransferQueryDto = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
 
-  @IsOptional()
-  @IsISO8601()
-  expectedReturnDate?: string;
+  // Search and filters
+  search: Joi.string().trim().optional(),
+  hardwareName: Joi.string().valid(...Object.values(HardwareList)).optional(),
+  fromUser: Joi.string().valid(...Object.values(TransferUserList)).optional(),
+  toUser: Joi.string().valid(...Object.values(TransferUserList)).optional(),
+  transferType: Joi.string().valid(...Object.values(TransferType)).optional(),
+  hardwareCondition: Joi.string().valid(...Object.values(HardwareCondition)).optional(),
+  status: Joi.string().valid(...Object.values(TransferStatus)).optional(),
 
-  @IsIn(Object.values(TransferType))
-  transferType!: string;
+  // Date filters
+  transferDateFrom: Joi.date().optional(),
+  transferDateTo: Joi.date().optional(),
+  expectedReturnDateFrom: Joi.date().optional(),
+  expectedReturnDateTo: Joi.date().optional(),
 
-  @IsIn(Object.values(HardwareCondition))
-  hardwareCondition!: string;
-
-  @IsOptional()
-  @IsString()
-  transferReason?: string;
-
-  @IsOptional()
-  @IsString()
-  approvedBy?: string;
-
-  @IsOptional()
-  @IsString()
-  additionalNotes?: string;
-
-  // ⭐ ADDED THIS (Fix for your error)
-  @IsOptional()
-  @IsIn(Object.values(TransferStatus))
-  status?: string;
-}
-
-/* ----------------------------------------------------
-   UPDATE DTO
----------------------------------------------------- */
-export class UpdateHardwareTransferDto {
-  @IsOptional()
-  @IsIn(Object.values(HardwareList))
-  hardwareName?: string;
-
-  @IsOptional()
-  @IsString()
-  serialNumber?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(TransferUserList))
-  fromUser?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(TransferUserList))
-  toUser?: string;
-
-  @IsOptional()
-  @IsISO8601()
-  transferDate?: string;
-
-  @IsOptional()
-  @IsISO8601()
-  expectedReturnDate?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(TransferType))
-  transferType?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(HardwareCondition))
-  hardwareCondition?: string;
-
-  @IsOptional()
-  @IsString()
-  transferReason?: string;
-
-  @IsOptional()
-  @IsString()
-  approvedBy?: string;
-
-  @IsOptional()
-  @IsString()
-  additionalNotes?: string;
-
-  @IsOptional()
-  @IsIn(Object.values(TransferStatus))
-  status?: string;
-}
-
-/* ----------------------------------------------------
-   PARAMS DTO (/:id)
----------------------------------------------------- */
-export class HardwareTransferIdDto {
-  @IsMongoId()
-  id!: string;
-}
-
-/* ----------------------------------------------------
-   QUERY DTO
----------------------------------------------------- */
-export class HardwareTransferQueryDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  page?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  limit?: number;
-}
+  // Sorting
+  orderBy: Joi.string().valid(
+    "hardwareName",
+    "serialNumber",
+    "fromUser",
+    "toUser",
+    "transferDate",
+    "expectedReturnDate",
+    "transferType",
+    "hardwareCondition",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ).optional(),
+  sortBy: Joi.string().valid("asc", "desc").optional(),
+});

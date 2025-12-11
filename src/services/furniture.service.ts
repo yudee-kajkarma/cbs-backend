@@ -1,24 +1,25 @@
 import { FurnitureModel } from "../models/furniture.model";
 import { IFurniture } from "../models/furniture.model";
 import { FilterQuery } from "mongoose";
+import { paginate, parseSortParams } from "../utils/pagination.util";
 
 export const furnitureService = {
   async create(data: Partial<IFurniture>) {
     return await FurnitureModel.create(data);
   },
 
-  async getAll(page = 1, limit = 10, filters: FilterQuery<IFurniture> = {}) {
-    const skip = (page - 1) * limit;
-    const [items, total] = await Promise.all([
-      FurnitureModel.find(filters).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      FurnitureModel.countDocuments(filters),
-    ]);
-    return {
-      items,
-      total,
+  async getAll(page = 1, limit = 10, filters: FilterQuery<IFurniture> = {}, orderBy = "createdAt", sortBy: "asc" | "desc" = "desc") {
+    const sortQuery = parseSortParams(orderBy, sortBy);
+    const { data: items, pagination } = await paginate(FurnitureModel, filters, {
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      sort: sortQuery,
+      lean: false,
+    });
+    
+    return {
+      items,
+      pagination,
     };
   },
 

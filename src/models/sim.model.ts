@@ -24,7 +24,7 @@ export interface ISim extends Document {
 const SimSchema = new Schema<ISim>(
   {
     simNumber: { type: String, required: true, trim: true, unique: true },
-    phoneNumber: { type: String, trim: true, unique: true },   // UNIQUE ✔
+    phoneNumber: { type: String, trim: true, unique: true, sparse: true },
     carrier: { type: String, required: true },
     planType: { type: String, trim: true },
     monthlyFee: { type: Number, default: 0 },
@@ -37,8 +37,7 @@ const SimSchema = new Schema<ISim>(
     assignedTo: { type: String, default: null },
     department: { type: String },
 
-    // IMEI UNIQUE ✔
-    deviceImei: { type: String, unique: true },
+    deviceImei: { type: String, unique: true, sparse: true },
 
     status: { type: String, required: true, default: "Active" },
     notes: { type: String }

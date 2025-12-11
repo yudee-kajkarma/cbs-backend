@@ -1,5 +1,6 @@
 import { NewHardwareModel } from "../models/newhardware.model";
 import { INewHardware } from "../models/newhardware.model";
+import { paginate, parseSortParams } from "../utils/pagination.util";
 
 export const newHardwareService = {
   async create(data: INewHardware) {
@@ -7,10 +8,9 @@ export const newHardwareService = {
   },
 
   async getAll(page: number, limit: number, filters: any = {}) {
-    const skip = (page - 1) * limit;
     const query: any = {};
 
-    // ❗ FIXED: Search only added when search exists
+    // Search only added when search exists
     if (filters.search && filters.search !== "") {
       const re = new RegExp(filters.search as string, "i");
       query.$or = [
@@ -20,34 +20,24 @@ export const newHardwareService = {
       ];
     }
 
-    // ❗ FIXED: These should only run if value exists
+    // These should only run if value exists
     if (filters.type) query.type = filters.type;
     if (filters.operatingSystem) query.operatingSystem = filters.operatingSystem;
     if (filters.department) query.department = filters.department;
     if (filters.status) query.status = filters.status;
 
-const sortField = filters.sort || "createdAt";
-const sortOrder = filters.order === "asc" ? 1 : -1;
-
-const [items, total] = await Promise.all([
-  NewHardwareModel.find(query)
-    .sort({ [sortField]: sortOrder })
-    .skip(skip)
-    .limit(limit),
-
-  NewHardwareModel.countDocuments(query),
-]);
+    // Use pagination utility with sorting
+    const sortQuery = parseSortParams(filters.orderBy || 'createdAt', filters.sortBy || 'desc');
+    const { data: items, pagination } = await paginate(NewHardwareModel, query, {
+      page,
+      limit,
+      sort: sortQuery,
+      lean: false,
+    });
 
     return {
-      newHardwares: items,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPrevPage: page > 1,
-      },
+      items,
+      pagination,
     };
   },
 

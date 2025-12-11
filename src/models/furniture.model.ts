@@ -37,22 +37,6 @@ export interface IFurniture extends Document {
   updatedAt: Date;
 }
 
-const parseDDMMYYYY = (value: any) => {
-  if (!value || typeof value !== "string") return value;
-  const [dd, mm, yyyy] = value.split("-");
-  if (!dd || !mm || !yyyy) return value;
-  return new Date(`${yyyy}-${mm}-${dd}`);
-};
-
-const toDDMMYYYY = (date: any) => {
-  if (!date) return null;
-  const d = new Date(date);
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${dd}-${mm}-${yyyy}`;
-};
-
 const FurnitureSchema = new Schema<IFurniture>(
   {
     itemName: { type: String, required: true },
@@ -83,7 +67,7 @@ const FurnitureSchema = new Schema<IFurniture>(
     assignedTo: { type: String, default: "Unassigned" },
 
     supplier: { type: String },
-    purchaseDate: { type: Date, default: null, set: parseDDMMYYYY },
+    purchaseDate: { type: Date, default: null },
     unitValue: { type: Number, default: null },
     purchaseCurrency: {
       type: String,
@@ -97,8 +81,8 @@ const FurnitureSchema = new Schema<IFurniture>(
       default: "USD",
     },
 
-    warrantyExpiry: { type: Date, default: null, set: parseDDMMYYYY },
-    lastInspection: { type: Date, default: null, set: parseDDMMYYYY },
+    warrantyExpiry: { type: Date, default: null },
+    lastInspection: { type: Date, default: null },
 
     status: {
       type: String,
@@ -113,9 +97,6 @@ const FurnitureSchema = new Schema<IFurniture>(
     timestamps: true,
     toJSON: {
       transform(doc, ret) {
-        ret.purchaseDate = toDDMMYYYY(ret.purchaseDate);
-        ret.warrantyExpiry = toDDMMYYYY(ret.warrantyExpiry);
-        ret.lastInspection = toDDMMYYYY(ret.lastInspection);
         delete ret.__v;
         return ret;
       },

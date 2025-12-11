@@ -107,23 +107,22 @@ export const getNewHardwareListSchema: ObjectSchema = Joi.object({
     .valid("Active", "Inactive", "Under Repair", "Retired")
     .optional(),
 
-  // ⭐ SORTING ADDED HERE ⭐
-sort: Joi.string()
-  .valid(
-    "deviceName",
-    "type",
-    "serialNumber",
-    "operatingSystem",
-    "purchaseDate",
-    "warrantyExpiry",
-    "department",
-    "status",
-    "createdAt"
-  )
-  .optional()
-  .default("createdAt"),
+  orderBy: Joi.string()
+    .valid(
+      "deviceName",
+      "type",
+      "serialNumber",
+      "operatingSystem",
+      "purchaseDate",
+      "warrantyExpiry",
+      "department",
+      "status",
+      "createdAt"
+    )
+    .optional()
+    .default("createdAt"),
 
-order: Joi.string().valid("asc", "desc").optional().default("desc"),
+  sortBy: Joi.string().valid("asc", "desc").optional().default("desc"),
 });
 
 

@@ -1,6 +1,7 @@
 import { SupportModel } from "../models/support.model";
 import { ISupport } from "../models/support.model";
-import { FilterQuery, SortOrder } from "mongoose";
+import { FilterQuery } from "mongoose";
+import { paginate, parseSortParams } from "../utils/pagination.util";
 
 interface IGetAllSupportParams {
   page: number;
@@ -10,8 +11,8 @@ interface IGetAllSupportParams {
   priority?: string;
   department?: string;
   status?: string;
-  sortBy?: string;
-  order?: "asc" | "desc";
+  orderBy?: string;
+  sortBy?: "asc" | "desc";
 }
 
 export const supportService = {
@@ -28,11 +29,10 @@ export const supportService = {
       priority,
       department,
       status,
-      sortBy = "createdAt",
-      order = "desc",
+      orderBy = "createdAt",
+      sortBy = "desc",
     } = params;
 
-    const skip = (page - 1) * limit;
     const query: FilterQuery<ISupport> = {};
 
     // Search by ticketTitle or description
@@ -63,30 +63,18 @@ export const supportService = {
       query.status = status;
     }
 
-    // Sorting
-    const sort: { [key: string]: SortOrder } = {};
-    if (sortBy) {
-      sort[sortBy] = order === "asc" ? 1 : -1;
-    }
-
-    const [items, total] = await Promise.all([
-      SupportModel.find(query)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit),
-      SupportModel.countDocuments(query),
-    ]);
+    // Use pagination utility with sorting
+    const sortQuery = parseSortParams(orderBy, sortBy);
+    const { data: items, pagination: paginationMeta } = await paginate(SupportModel, query, {
+      page,
+      limit,
+      sort: sortQuery,
+      lean: false,
+    });
 
     return {
-      supports: items,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        hasNextPage: page * limit < total,
-        hasPrevPage: page > 1,
-      },
+      items,
+      pagination: paginationMeta,
     };
   },
 

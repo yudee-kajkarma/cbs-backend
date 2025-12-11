@@ -7,8 +7,8 @@ export const newHardwareController = {
     try {
       const data = await newHardwareService.create(req.body);
       return sendCreated(res, SUCCESS_MESSAGES.NEW_HARDWARE_CREATED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
@@ -22,45 +22,45 @@ export const newHardwareController = {
         operatingSystem: req.query.operatingSystem,
         department: req.query.department,
         status: req.query.status,
-        sort: req.query.sort,
-        order: req.query.order,
+        orderBy: req.query.orderBy,
+        sortBy: req.query.sortBy,
       };
 
 
       const data = await newHardwareService.getAll(page, limit, filters);
       return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_LIST_FETCHED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await newHardwareService.getById(req.params.id);
-      if (!data) return sendError(res, 404, ERROR_MESSAGES.NEW_HARDWARE_NOT_FOUND);
+      if (!data) return sendError(res, 404, ERROR_MESSAGES.HARDWARE_NOT_FOUND);
       return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_FETCHED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await newHardwareService.update(req.params.id, req.body);
-      if (!data) return sendError(res, 404, ERROR_MESSAGES.NEW_HARDWARE_NOT_FOUND);
+      if (!data) return sendError(res, 404, ERROR_MESSAGES.HARDWARE_NOT_FOUND);
       return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_UPDATED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const deleted = await newHardwareService.delete(req.params.id);
-      if (!deleted) return sendError(res, 404, ERROR_MESSAGES.NEW_HARDWARE_NOT_FOUND);
+      if (!deleted) return sendError(res, 404, ERROR_MESSAGES.HARDWARE_NOT_FOUND);
       return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_DELETED);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 };

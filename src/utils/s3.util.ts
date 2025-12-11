@@ -18,6 +18,22 @@ export const getPresignedUrl = async (_key: string) => {
   return "https://dummy-url.com/presigned-url";
 };
 
+/**
+ * OPTIMIZATION: Generate presigned URLs for multiple keys in batch
+ * More efficient than calling getPresignedUrl multiple times
+ */
+export const batchGetPresignedUrls = async (keys: string[]): Promise<Record<string, string>> => {
+  console.log("⚠ batchGetPresignedUrls skipped (TEMP DISABLED)");
+  
+  // In production, this would parallelize S3 requests efficiently
+  const urlMap: Record<string, string> = {};
+  keys.forEach(key => {
+    urlMap[key] = "https://dummy-url.com/presigned-url";
+  });
+  
+  return urlMap;
+};
+
 export const uploadToS3 = async (_file: Express.Multer.File) => {
   console.log("⚠ uploadToS3 skipped (TEMP DISABLED)");
 

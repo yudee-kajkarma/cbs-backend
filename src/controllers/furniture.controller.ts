@@ -37,27 +37,17 @@ const handleDuplicateItemCode = (err: any, res: Response) => {
   return null;
 };
 
-const dateFields = ["purchaseDate", "warrantyExpiry", "lastInspection"];
-const hasInvalidDate = (body: any) => {
-  const regex = /^\d{2}-\d{2}-\d{4}$/;
-  for (const f of dateFields) {
-    if (body[f] && !regex.test(body[f])) return true;
-  }
-  return false;
-};
-
 export const furnitureController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { error } = createFurnitureSchema.validate(req.body);
       if (error) return sendError(res, 400, error.details[0].message);
-      if (hasInvalidDate(req.body)) return sendError(res, 400, ERROR_MESSAGES.INVALID_DATE_FORMAT);
       const data = await furnitureService.create(req.body);
       return sendCreated(res, SUCCESS_MESSAGES.FURNITURE_CREATED, data);
     } catch (err: any) {
       const dup = handleDuplicateItemCode(err, res);
       if (dup) return dup;
-      next(err);
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
     }
   },
 
@@ -67,11 +57,13 @@ export const furnitureController = {
       if (error) return sendError(res, 400, error.details[0].message);
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const orderBy = (req.query.orderBy as string) || "createdAt";
+      const sortBy = (req.query.sortBy as "asc" | "desc") || "desc";
       const filters = parseQueryFilters(req.query);
-      const data = await furnitureService.getAll(page, limit, filters);
+      const data = await furnitureService.getAll(page, limit, filters, orderBy, sortBy);
       return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_LIST_FETCHED, data);
-    } catch (err) {
-      next(err);
+    } catch (err: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
     }
   },
 
@@ -83,8 +75,8 @@ export const furnitureController = {
       const data = await furnitureService.getById(req.params.id);
       if (!data) return sendError(res, 404, ERROR_MESSAGES.FURNITURE_NOT_FOUND);
       return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_FETCHED, data);
-    } catch (err) {
-      next(err);
+    } catch (err: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
     }
   },
 
@@ -93,14 +85,13 @@ export const furnitureController = {
       const { error } = updateFurnitureSchema.validate(req.body);
       if (error) return sendError(res, 400, error.details[0].message);
       if (!validateObjectId(req.params.id)) return sendError(res, 400, ERROR_MESSAGES.INVALID_ID);
-      if (hasInvalidDate(req.body)) return sendError(res, 400, ERROR_MESSAGES.INVALID_DATE_FORMAT);
       const data = await furnitureService.update(req.params.id, req.body);
       if (!data) return sendError(res, 404, ERROR_MESSAGES.FURNITURE_NOT_FOUND);
       return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_UPDATED, data);
     } catch (err: any) {
       const dup = handleDuplicateItemCode(err, res);
       if (dup) return dup;
-      next(err);
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
     }
   },
 
@@ -110,8 +101,8 @@ export const furnitureController = {
       const deleted = await furnitureService.delete(req.params.id);
       if (!deleted) return sendError(res, 404, ERROR_MESSAGES.FURNITURE_NOT_FOUND);
       return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_DELETED);
-    } catch (err) {
-      next(err);
+    } catch (err: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
     }
   },
 };

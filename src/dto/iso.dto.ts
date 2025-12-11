@@ -1,23 +1,39 @@
 import Joi from "joi";
 
+export const allowedISOStandards = [
+  "ISO 9001:2015",
+  "ISO 14001:2015",
+  "ISO 27001:2013",
+  "ISO 45001:2018",
+  "ISO 50001:2018"
+];
+
+const isoBaseSchema = {
+  certificateName: Joi.string(),
+  isoStandard: Joi.string().valid(...allowedISOStandards),
+  issueDate: Joi.date(),
+  expiryDate: Joi.date(),
+  certifyingBody: Joi.string(),
+};
+
 export const createISODto = Joi.object({
-  certificateName: Joi.string().required(),
-  isoStandard: Joi.string().required(),
-  issueDate: Joi.date().required(),
-  expiryDate: Joi.date().required(),
-  certifyingBody: Joi.string().required(),
+  certificateName: isoBaseSchema.certificateName.required(),
+  isoStandard: isoBaseSchema.isoStandard.required(),
+  issueDate: isoBaseSchema.issueDate.required(),
+  expiryDate: isoBaseSchema.expiryDate.required(),
+  certifyingBody: isoBaseSchema.certifyingBody.required(),
 });
 
 export const updateISODto = Joi.object({
-  certificateName: Joi.string().optional(),
-  isoStandard: Joi.string().optional(),
-  issueDate: Joi.date().optional(),
-  expiryDate: Joi.date().optional(),
-  certifyingBody: Joi.string().optional(),
-});
+  certificateName: isoBaseSchema.certificateName.optional(),
+  isoStandard: isoBaseSchema.isoStandard.optional(),
+  issueDate: isoBaseSchema.issueDate.optional(),
+  expiryDate: isoBaseSchema.expiryDate.optional(),
+  certifyingBody: isoBaseSchema.certifyingBody.optional(),
+}).min(1);
 
 export const isoIdDto = Joi.object({
-  id: Joi.string().length(24).required(),
+  id: Joi.string().length(24).hex().required(),
 });
 
 export const isoQueryDto = Joi.object({

@@ -24,7 +24,7 @@ export class HardwareTransferController {
       return sendError(
         res,
         500,
-        ERROR_MESSAGES.HARDWARE_TRANSFER_SAVE_FAILED,
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         err
       );
     }
@@ -35,7 +35,27 @@ export class HardwareTransferController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
-      const result = await service.list(page, limit, {});
+      const filters = {
+        search: req.query.search,
+        hardwareName: req.query.hardwareName,
+        fromUser: req.query.fromUser,
+        toUser: req.query.toUser,
+        transferType: req.query.transferType,
+        hardwareCondition: req.query.hardwareCondition,
+        status: req.query.status,
+        transferDateFrom: req.query.transferDateFrom,
+        transferDateTo: req.query.transferDateTo,
+        expectedReturnDateFrom: req.query.expectedReturnDateFrom,
+        expectedReturnDateTo: req.query.expectedReturnDateTo,
+      };
+
+      const result = await service.list(
+        page,
+        limit,
+        filters,
+        req.query.orderBy as string,
+        req.query.sortBy as string
+      );
 
       return sendSuccess(
         res,
@@ -88,7 +108,7 @@ export class HardwareTransferController {
       return sendError(
         res,
         500,
-        ERROR_MESSAGES.HARDWARE_TRANSFER_UPDATE_FAILED,
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         err
       );
     }
@@ -113,7 +133,7 @@ export class HardwareTransferController {
       return sendError(
         res,
         500,
-        ERROR_MESSAGES.HARDWARE_TRANSFER_DELETE_FAILED,
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         err
       );
     }

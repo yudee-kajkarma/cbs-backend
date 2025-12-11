@@ -8,6 +8,7 @@ import {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
 } from "../utils/response.util";
+import { handleControllerError } from "../utils/error.util";
 
 // ------------------ CREATE ------------------
 export const create = async (req: Request, res: Response) => {
@@ -15,7 +16,7 @@ export const create = async (req: Request, res: Response) => {
     const result = await LicenseService.create(req.body, req.file);
     return sendCreated(res, SUCCESS_MESSAGES.LICENSE_CREATED, result);
   } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -45,12 +46,7 @@ export const getAll = async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error.message
-    );
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -67,7 +63,7 @@ export const getOne = async (req: Request, res: Response) => {
 
     return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_FETCHED, result);
   } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -82,7 +78,7 @@ export const update = async (req: Request, res: Response) => {
 
     return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_UPDATED, result);
   } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -97,6 +93,6 @@ export const remove = async (req: Request, res: Response) => {
 
     return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_DELETED);
   } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
   }
 };

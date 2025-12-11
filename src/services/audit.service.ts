@@ -4,6 +4,7 @@ import {
   getPresignedUrl,
   deleteFromS3,
 } from "../utils/s3.util";
+import { paginate, validatePaginationParams } from "../utils/pagination.util";
 
 export const create = async (data: any, file?: Express.Multer.File) => {
   let fileKey;
@@ -27,6 +28,23 @@ export const create = async (data: any, file?: Express.Multer.File) => {
   return audit.toObject();
 };
 
+const formatAuditForList = (item: any) => {
+  const now = new Date();
+  const start = new Date(item.periodStart);
+  const end = new Date(item.periodEnd);
+  const completion = new Date(item.completionDate);
+
+  let status = "Scheduled";
+  if (now > completion) status = "Completed";
+  else if (now >= start && now <= end) status = "In Progress";
+
+  return {
+    ...item,
+    status,
+    hasFile: !!item.fileKey, // Just indicate if file exists
+  };
+};
+
 const formatAudit = async (item: any) => {
   const now = new Date();
   const start = new Date(item.periodStart);
@@ -45,9 +63,14 @@ const formatAudit = async (item: any) => {
 };
 
 export const getAll = async (page: number, limit: number, filters: any) => {
+  // Validate pagination parameters
+  const validation = validatePaginationParams(page, limit);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
+  }
+
   const query: any = {};
 
-  // 🔍 search (name, type, auditor)
   if (filters.search) {
     query.$or = [
       { name: new RegExp(filters.search, "i") },
@@ -56,13 +79,11 @@ export const getAll = async (page: number, limit: number, filters: any) => {
     ];
   }
 
-  // 🔍 exact filters
   if (filters.name) query.name = new RegExp(filters.name, "i");
   if (filters.type) query.type = new RegExp(filters.type, "i");
   if (filters.status) query.status = filters.status;
   if (filters.auditor) query.auditor = new RegExp(filters.auditor, "i");
 
-  // 🔍 date range filters
   const dateFilter: any = {};
 
   if (filters.periodStartFrom || filters.periodStartTo) {
@@ -91,30 +112,19 @@ export const getAll = async (page: number, limit: number, filters: any) => {
 
   Object.assign(query, dateFilter);
 
-  // 📌 Pagination
-  const skip = (page - 1) * limit;
+  // Use pagination utility
+  const { data: audits, pagination: paginationMeta } = await paginate(Audit, query, {
+    page,
+    limit,
+    sort: { createdAt: -1 },
+  });
 
-  const audits = await Audit.find(query)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .lean();
-
-  const total = await Audit.countDocuments(query);
-
-  // Format documents
-  const formatted = await Promise.all(audits.map((a) => formatAudit(a)));
+  // Format documents without expensive S3 calls
+  const formatted = audits.map((a) => formatAuditForList(a));
 
   return {
     audits: formatted,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-      hasNextPage: page * limit < total,
-      hasPrevPage: page > 1,
-    },
+    pagination: paginationMeta,
   };
 };
 
@@ -170,8 +180,19 @@ export const remove = async (id: string) => {
   const existing = await Audit.findById(id);
   if (!existing) return null;
 
-  if (existing.fileKey) await deleteFromS3(existing.fileKey);
-
+  const fileKey = existing.fileKey;
+  
+  // Delete from DB first
   await Audit.findByIdAndDelete(id);
+  
+  // Then delete from S3 (best effort)
+  if (fileKey) {
+    try {
+      await deleteFromS3(fileKey);
+    } catch (error) {
+      console.error('Failed to delete S3 file:', fileKey, error);
+    }
+  }
+
   return true;
 };

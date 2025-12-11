@@ -1,12 +1,6 @@
 import { Schema, model } from "mongoose";
+import  { allowedAuditTypes }  from "../dto/audit.dto";
 
-export const allowedAuditTypes = [
-  "Financial Audit",
-  "Internal Audit",
-  "Compliance Audit",
-  "Tax Audit",
-  "Operational Audit",
-];
 
 const auditSchema = new Schema(
   {

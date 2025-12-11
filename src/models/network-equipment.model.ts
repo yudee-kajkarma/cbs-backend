@@ -31,7 +31,10 @@ const NetworkEquipmentSchema = new Schema<INetworkEquipment>(
     firmwareVersion: { type: String, required: true },
     status: { type: String, required: true }
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    versionKey: false
+  }
 );
 
 // No unique index, since you check duplicates in controller

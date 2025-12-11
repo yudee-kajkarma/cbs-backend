@@ -41,10 +41,7 @@ export const list = async (req: Request, res: Response) => {
 
     const result = await AuditService.getAll(page, limit, filters);
 
-    return sendSuccess(res, SUCCESS_MESSAGES.AUDIT_LIST_FETCHED, {
-      audits: result.audits,
-      pagination: result.pagination,
-    });
+    return sendSuccess(res, SUCCESS_MESSAGES.AUDIT_LIST_FETCHED, result);
 
   } catch (error: any) {
     return sendError(

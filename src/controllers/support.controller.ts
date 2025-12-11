@@ -13,8 +13,8 @@ export const supportController = {
     try {
       const data = await supportService.create(req.body);
       return sendCreated(res, SUCCESS_MESSAGES.SUPPORT_CREATED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
@@ -28,8 +28,8 @@ export const supportController = {
         priority,
         department,
         status,
+        orderBy,
         sortBy,
-        order,
       } = req.query;
 
       const data = await supportService.getAll({
@@ -40,13 +40,13 @@ export const supportController = {
         priority: priority as string,
         department: department as string,
         status: status as string,
-        sortBy: sortBy as string,
-        order: order as "asc" | "desc",
+        orderBy: orderBy as string,
+        sortBy: sortBy as "asc" | "desc",
       });
 
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_LIST_FETCHED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
@@ -57,8 +57,8 @@ export const supportController = {
         return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
       }
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_FETCHED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
@@ -69,8 +69,8 @@ export const supportController = {
         return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
       }
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_UPDATED, data);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 
@@ -81,8 +81,8 @@ export const supportController = {
         return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
       }
       return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_DELETED);
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }
   },
 };

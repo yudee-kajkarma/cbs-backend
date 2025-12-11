@@ -46,6 +46,20 @@ export const SUCCESS_MESSAGES = {
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
 
+  // -------- AUDIT --------
+  AUDIT_CREATED: "Audit created successfully",
+  AUDIT_LIST_FETCHED: "Audit list fetched successfully",
+  AUDIT_FETCHED: "Audit fetched successfully",
+  AUDIT_UPDATED: "Audit updated successfully",
+  AUDIT_DELETED: "Audit deleted successfully",
+
+  // -------- SIM --------
+  SIM_CREATED: "SIM created successfully",
+  SIM_LIST_FETCHED: "SIM list fetched successfully",
+  SIM_FETCHED: "SIM fetched successfully",
+  SIM_UPDATED: "SIM updated successfully",
+  SIM_DELETED: "SIM deleted successfully",
+
   // -------- HARDWARE TRANSFER --------
   HARDWARE_TRANSFER_CREATED: "Hardware transfer created successfully",
   HARDWARE_TRANSFER_LIST_FETCHED: "Hardware transfer list fetched successfully",
@@ -66,6 +80,8 @@ export const SUCCESS_MESSAGES = {
   FURNITURE_FETCHED: "Furniture fetched successfully",
   FURNITURE_UPDATED: "Furniture updated successfully",
   FURNITURE_DELETED: "Furniture deleted successfully",
+
+
 };
 
 // ---------------- ERROR MESSAGES ----------------
@@ -94,6 +110,15 @@ export const ERROR_MESSAGES = {
   ISO_NOT_FOUND: "ISO document not found",
   ISO_UPLOAD_FAILED: "ISO upload failed",
   ISO_DELETE_FAILED: "ISO delete failed",
+
+  // Audit
+  AUDIT_NOT_FOUND: "Audit not found",
+
+  // SIM
+  SIM_NOT_FOUND: "SIM not found",
+
+  // Hardware Transfer
+  HARDWARE_TRANSFER_NOT_FOUND: "Hardware transfer not found",
 
   // Network Equipment
   NETWORK_EQUIPMENT_NOT_FOUND: "Network equipment not found",

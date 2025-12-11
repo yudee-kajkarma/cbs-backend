@@ -1,5 +1,6 @@
 import DocumentModel from "../models/document.model";
 import { uploadBufferToS3, deleteFromS3, getPresignedUrl } from "../utils/s3.util";
+import { paginate, parseSortParams } from "../utils/pagination.util";
 
 type GetAllResult = {
   documents: any[];
@@ -45,8 +46,6 @@ export const getAll = async (
     sortBy?: string;
   } = {}
 ): Promise<GetAllResult> => {
-  const skip = (page - 1) * limit;
-
   // Build mongoose filter for DB-level searchable fields
   const dbFilter: any = {};
 
@@ -63,72 +62,40 @@ export const getAll = async (
     dbFilter.$or = [{ name: regex }, { partiesInvolved: regex }];
   }
 
-  // ⭐⭐⭐ SORTING LOGIC ADDED ⭐⭐⭐
-  let sortQuery: any = { createdAt: -1 }; // default
-  if (filters.orderBy) {
-    const sortDirection = filters.sortBy === "asc" ? 1 : -1;
-    sortQuery = { [filters.orderBy]: sortDirection };
-  }
-
-  // total count of matching DB filter
-  const totalMatching = await DocumentModel.countDocuments(dbFilter);
-
-  // fetch page from DB (now with sorting)
-  const docs = await DocumentModel.find(dbFilter)
-    .sort(sortQuery)        // ⬅⬅ ADDED
-    .skip(skip)
-    .limit(limit)
-    .lean();
-
-  // compute status and fileUrl
-  const docsWithExtras = await Promise.all(
-    docs.map(async (d) => {
-      const status = getStatus(d.documentDate);
-      const fileUrl = d.fileKey ? await getPresignedUrl(d.fileKey) : null;
-
-      const { fileKey, ...rest } = d;
-
-      return {
-        ...rest,
-        fileKey,
-        status,
-        fileUrl,
-      };
-    })
-  );
-
-  // status filtering in-memory
-  let filteredDocs = docsWithExtras;
+  // Handle status filtering at DB level if possible
   if (filters.status) {
-    filteredDocs = docsWithExtras.filter(
-      (item) => item.status.toLowerCase() === filters.status!.toLowerCase()
-    );
+    const today = new Date();
+    if (filters.status.toLowerCase() === 'archived') {
+      dbFilter.documentDate = { $lt: today };
+    } else if (filters.status.toLowerCase() === 'active') {
+      dbFilter.documentDate = { $gte: today };
+    }
   }
 
-  let total = totalMatching;
-  if (filters.status) {
-    const allMatchingDocs = await DocumentModel.find(dbFilter).lean();
-    const allStatuses = await Promise.all(
-      allMatchingDocs.map((d) => getStatus(d.documentDate))
-    );
-    total = allStatuses.filter(
-      (s) => s.toLowerCase() === filters.status!.toLowerCase()
-    ).length;
-  }
+  // Use pagination utility with sorting
+  const sortQuery = parseSortParams(filters.orderBy || 'createdAt', filters.sortBy || 'desc');
+  const { data: docs, pagination: paginationMeta } = await paginate(DocumentModel, dbFilter, {
+    page,
+    limit,
+    sort: sortQuery,
+  });
 
-  const totalPages = Math.ceil(total / limit);
-  const resultsToReturn = filters.status ? filteredDocs : docsWithExtras;
+  // Optimize: Don't generate presigned URLs for list view
+  // Compute only status (cheap operation)
+  const docsWithExtras = docs.map((d) => {
+    const status = getStatus(d.documentDate);
+    const { fileKey, ...rest } = d;
+
+    return {
+      ...rest,
+      status,
+      hasFile: !!fileKey, // Just indicate if file exists
+    };
+  });
 
   return {
-    documents: resultsToReturn,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    },
+    documents: docsWithExtras,
+    pagination: paginationMeta,
   };
 };
 
@@ -187,10 +154,53 @@ export const remove = async (id: string) => {
   const existing = await DocumentModel.findById(id);
   if (!existing) return null;
 
-  if (existing.fileKey) {
-    await deleteFromS3(existing.fileKey);
+  const fileKey = existing.fileKey;
+  
+  // Delete from DB first
+  await DocumentModel.findByIdAndDelete(id);
+  
+  // Then delete from S3 (best effort - don't fail if S3 delete fails)
+  if (fileKey) {
+    try {
+      await deleteFromS3(fileKey);
+    } catch (error) {
+      console.error('Failed to delete S3 file:', fileKey, error);
+      // Don't throw - DB deletion already succeeded
+    }
   }
 
-  await DocumentModel.findByIdAndDelete(id);
   return true;
+};
+
+/**
+ * Get download URL for a specific document
+ * Lightweight endpoint - only generates URL when needed
+ */
+export const getDownloadUrl = async (id: string): Promise<string | null> => {
+  const doc = await DocumentModel.findById(id).lean().select('fileKey');
+  if (!doc || !doc.fileKey) return null;
+  
+  return await getPresignedUrl(doc.fileKey);
+};
+
+/**
+ * OPTIMIZATION: Batch generate presigned URLs for multiple documents
+ * Use this when frontend needs URLs for multiple items (e.g., bulk download)
+ */
+export const generatePresignedUrls = async (fileKeys: string[]): Promise<Record<string, string>> => {
+  const urlPromises = fileKeys.map(async (key) => {
+    try {
+      const url = await getPresignedUrl(key);
+      return { key, url };
+    } catch (error) {
+      console.error(`Failed to generate URL for ${key}:`, error);
+      return { key, url: null };
+    }
+  });
+
+  const results = await Promise.all(urlPromises);
+  return results.reduce((acc, { key, url }) => {
+    if (url) acc[key] = url;
+    return acc;
+  }, {} as Record<string, string>);
 };

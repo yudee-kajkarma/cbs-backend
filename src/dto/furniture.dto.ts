@@ -13,8 +13,6 @@ const conditionEnum = ["Excellent", "Good", "Fair", "Poor"];
 const currencyEnum = ["KWD", "USD", "EUR", "GBP"];
 const statusEnum = ["Active", "Under Repair", "Inactive", "Disposed"];
 
-const ddmmyyyy = Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).allow(null, "");
-
 // CREATE
 export const createFurnitureSchema: ObjectSchema = Joi.object({
   itemName: Joi.string().required(),
@@ -28,13 +26,13 @@ export const createFurnitureSchema: ObjectSchema = Joi.object({
   location: Joi.string().required(),
   assignedTo: Joi.string().optional().allow("Unassigned", ""),
   supplier: Joi.string().optional().allow(""),
-  purchaseDate: ddmmyyyy,
+  purchaseDate: Joi.date().iso().optional().allow(null),
   unitValue: Joi.number().precision(2).optional().allow(null),
   purchaseCurrency: Joi.string().valid(...currencyEnum).optional(),
   currentUnitValue: Joi.number().precision(2).optional().allow(null),
   currentCurrency: Joi.string().valid(...currencyEnum).optional(),
-  warrantyExpiry: ddmmyyyy,
-  lastInspection: ddmmyyyy,
+  warrantyExpiry: Joi.date().iso().optional().allow(null),
+  lastInspection: Joi.date().iso().optional().allow(null),
   status: Joi.string().valid(...statusEnum).default("Active"),
   notes: Joi.string().optional().allow(""),
 });
@@ -52,13 +50,13 @@ export const updateFurnitureSchema: ObjectSchema = Joi.object({
   location: Joi.string().optional(),
   assignedTo: Joi.string().optional().allow("Unassigned", ""),
   supplier: Joi.string().optional().allow(""),
-  purchaseDate: ddmmyyyy,
+  purchaseDate: Joi.date().iso().optional().allow(null),
   unitValue: Joi.number().precision(2).optional().allow(null),
   purchaseCurrency: Joi.string().valid(...currencyEnum).optional(),
   currentUnitValue: Joi.number().precision(2).optional().allow(null),
   currentCurrency: Joi.string().valid(...currencyEnum).optional(),
-  warrantyExpiry: ddmmyyyy,
-  lastInspection: ddmmyyyy,
+  warrantyExpiry: Joi.date().iso().optional().allow(null),
+  lastInspection: Joi.date().iso().optional().allow(null),
   status: Joi.string().valid(...statusEnum).optional(),
   notes: Joi.string().optional().allow(""),
 });
@@ -71,6 +69,27 @@ export const getFurnitureListSchema: ObjectSchema = Joi.object({
   category: Joi.string().valid(...categoryEnum).optional(),
   status: Joi.string().valid(...statusEnum).optional(),
   location: Joi.string().optional().allow(""),
+  
+  orderBy: Joi.string()
+    .valid(
+      "itemName",
+      "itemCode",
+      "category",
+      "quantity",
+      "condition",
+      "location",
+      "status",
+      "purchaseDate",
+      "warrantyExpiry",
+      "lastInspection",
+      "createdAt",
+      "updatedAt"
+    )
+    .default("createdAt"),
+
+  sortBy: Joi.string()
+    .valid("asc", "desc")
+    .default("desc"),
 });
 
 // GET BY ID

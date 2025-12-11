@@ -8,10 +8,10 @@ import {
 } from "../middlewares/hardwareTransfer.middleware";
 
 import {
-  CreateHardwareTransferDto,
-  UpdateHardwareTransferDto,
-  HardwareTransferIdDto,
-  HardwareTransferQueryDto,
+  createHardwareTransferDto,
+  updateHardwareTransferDto,
+  hardwareTransferIdDto,
+  hardwareTransferQueryDto,
 } from "../dto/hardwareTransfer.dto";
 
 const router = Router();
@@ -20,36 +20,36 @@ const controller = new HardwareTransferController();
 // ---------- CREATE ----------
 router.post(
   "/",
-  validateBody(CreateHardwareTransferDto),
+  validateBody(createHardwareTransferDto),
   controller.create.bind(controller)
 );
 
 // ---------- GET ALL ----------
 router.get(
   "/",
-  validateQuery(HardwareTransferQueryDto),
+  validateQuery(hardwareTransferQueryDto),
   controller.list.bind(controller)
 );
 
 // ---------- GET ONE ----------
 router.get(
   "/:id",
-  validateParams(HardwareTransferIdDto),
+  validateParams(hardwareTransferIdDto),
   controller.getById.bind(controller)
 );
 
 // ---------- UPDATE ----------
 router.put(
   "/:id",
-  validateParams(HardwareTransferIdDto),
-  validateBody(UpdateHardwareTransferDto, true), // skip missing
+  validateParams(hardwareTransferIdDto),
+  validateBody(updateHardwareTransferDto, true), // skip missing
   controller.update.bind(controller)
 );
 
 // ---------- DELETE ----------
 router.delete(
   "/:id",
-  validateParams(HardwareTransferIdDto),
+  validateParams(hardwareTransferIdDto),
   controller.remove.bind(controller)
 );
 

@@ -14,69 +14,62 @@ const departmentEnum = [
 ];
 const statusEnum = ["Active", "Inactive", "Suspended", "Expired"];
 
-// dd-mm-yyyy validator
-const ddmmyyyy = Joi.string()
-  .pattern(/^\d{2}-\d{2}-\d{4}$/)
-  .message("must be in dd-mm-yyyy format")
-  .required();
-
-// IMEI strict
-const imeiValidator = Joi.string()
-  .pattern(/^[0-9]{15}$/)
-  .message("IMEI must be exactly 15 digits")
-  .required();
-
-export const createSimSchema: ObjectSchema = Joi.object({
-  simNumber: Joi.string().trim().required(),
-  phoneNumber: Joi.string().trim().required(),
-
-  carrier: Joi.string().valid(...carrierEnum).required(),
-  planType: Joi.string().trim().required(),
-
-  monthlyFee: Joi.number().min(0).required(),
-  currency: Joi.string().valid(...currencyEnum).required(),
-  extraCharges: Joi.number().min(0).required(),
-  simCharges: Joi.number().min(0).required(),
-  dataLimit: Joi.string().trim().required(),
-
-  activationDate: ddmmyyyy,
-  expiryDate: ddmmyyyy,
-
-  assignedTo: Joi.string().trim().required(),
-  department: Joi.string().valid(...departmentEnum).required(),
-
-  deviceImei: imeiValidator,
-
-  status: Joi.string().valid(...statusEnum).required(),
-  notes: Joi.string().max(2000).optional(), // keep optional
-});
-
-export const updateSimSchema: ObjectSchema = Joi.object({
+// Base schema fields
+const simBaseSchema = {
   simNumber: Joi.string().trim(),
   phoneNumber: Joi.string().trim(),
-
   carrier: Joi.string().valid(...carrierEnum),
   planType: Joi.string().trim(),
-
   monthlyFee: Joi.number().min(0),
   currency: Joi.string().valid(...currencyEnum),
   extraCharges: Joi.number().min(0),
   simCharges: Joi.number().min(0),
   dataLimit: Joi.string().trim(),
-
-  activationDate: Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/),
-  expiryDate: Joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/),
-
+  activationDate: Joi.date(),
+  expiryDate: Joi.date(),
   assignedTo: Joi.string().trim(),
   department: Joi.string().valid(...departmentEnum),
-
-  // ⬅️ FIX: IMEI is OPTIONAL during update
-  deviceImei: Joi.string()
-    .pattern(/^[0-9]{15}$/)
-    .message("IMEI must be exactly 15 digits"),
-
+  deviceImei: Joi.string().pattern(/^[0-9]{15}$/).message("IMEI must be exactly 15 digits"),
   status: Joi.string().valid(...statusEnum),
   notes: Joi.string().max(2000),
+};
+
+export const createSimSchema: ObjectSchema = Joi.object({
+  simNumber: simBaseSchema.simNumber.required(),
+  phoneNumber: simBaseSchema.phoneNumber.optional(),
+  carrier: simBaseSchema.carrier.required(),
+  planType: simBaseSchema.planType.optional(),
+  monthlyFee: simBaseSchema.monthlyFee.optional(),
+  currency: simBaseSchema.currency.optional(),
+  extraCharges: simBaseSchema.extraCharges.optional(),
+  simCharges: simBaseSchema.simCharges.optional(),
+  dataLimit: simBaseSchema.dataLimit.optional(),
+  activationDate: simBaseSchema.activationDate.optional(),
+  expiryDate: simBaseSchema.expiryDate.optional(),
+  assignedTo: simBaseSchema.assignedTo.optional(),
+  department: simBaseSchema.department.optional(),
+  deviceImei: simBaseSchema.deviceImei.optional(),
+  status: simBaseSchema.status.optional(),
+  notes: simBaseSchema.notes.optional(),
+});
+
+export const updateSimSchema: ObjectSchema = Joi.object({
+  simNumber: simBaseSchema.simNumber.optional(),
+  phoneNumber: simBaseSchema.phoneNumber.optional(),
+  carrier: simBaseSchema.carrier.optional(),
+  planType: simBaseSchema.planType.optional(),
+  monthlyFee: simBaseSchema.monthlyFee.optional(),
+  currency: simBaseSchema.currency.optional(),
+  extraCharges: simBaseSchema.extraCharges.optional(),
+  simCharges: simBaseSchema.simCharges.optional(),
+  dataLimit: simBaseSchema.dataLimit.optional(),
+  activationDate: simBaseSchema.activationDate.optional(),
+  expiryDate: simBaseSchema.expiryDate.optional(),
+  assignedTo: simBaseSchema.assignedTo.optional(),
+  department: simBaseSchema.department.optional(),
+  deviceImei: simBaseSchema.deviceImei.optional(),
+  status: simBaseSchema.status.optional(),
+  notes: simBaseSchema.notes.optional(),
 }).min(1);
 
 export const idParamSchema: ObjectSchema = Joi.object({

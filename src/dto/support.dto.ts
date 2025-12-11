@@ -79,7 +79,7 @@ export const getSupportListSchema: ObjectSchema = Joi.object({
 
   status: Joi.string().valid("Open", "InProgress", "Resolved").optional(),
 
-  sortBy: Joi.string()
+  orderBy: Joi.string()
     .valid(
       "ticketTitle",
       "category",
@@ -93,7 +93,7 @@ export const getSupportListSchema: ObjectSchema = Joi.object({
     )
     .default("createdAt"),
 
-  order: Joi.string()
+  sortBy: Joi.string()
     .valid("asc", "desc")
     .default("desc"),
 });

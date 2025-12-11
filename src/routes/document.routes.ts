@@ -30,6 +30,8 @@ router.post(
 // LIST
 router.get("/", validateDocumentQuery(listDocumentQuerySchema), DocumentController.list);
 
+router.get("/:id/download-url", validateDocumentParams(getDocumentByIdSchema), DocumentController.getDownloadUrl);
+
 // GET ONE
 router.get("/:id", validateDocumentParams(getDocumentByIdSchema), DocumentController.getOne);
 

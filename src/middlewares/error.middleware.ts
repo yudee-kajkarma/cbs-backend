@@ -9,7 +9,10 @@ export const errorMiddleware = (
 ) => {
   console.error("ERROR:", err);
 
-  return res.status(err.status || 500).json({
+  // Fix: Check both statusCode and status
+  const statusCode = err.statusCode || err.status || 500;
+  
+  return res.status(statusCode).json({
     success: false,
     message: err.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
   });

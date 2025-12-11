@@ -8,59 +8,51 @@ export const statusEnum = [
   "Online", "Offline", "Maintenance", "Decommissioned"
 ] as const;
 
-// DATE FORMAT dd-mm-yyyy
-const ddmmyyyy = Joi.string()
-  .pattern(/^\d{2}-\d{2}-\d{4}$/)
-  .message("must be in dd-mm-yyyy format");
-
-// IP VALIDATION (IPv4)
-const ipv4 = Joi.string()
-  .ip({ version: ["ipv4"] })
-  .message("must be a valid IPv4 address");
-
-// MAC VALIDATION → ANY STRING ALLOWED NOW
-const mac = Joi.string().trim();   // <--- UPDATED
-
 const portOptions = [2, 4, 8, 16, 24, 48];
 
-// ===============================
-// CREATE SCHEMA (UPDATED)
-// ===============================
-export const createNetworkEquipmentSchema: ObjectSchema = Joi.object({
-  equipmentName: Joi.string().trim().required(),
-  equipmentType: Joi.string().valid(...equipmentTypeEnum).required(),
-
-  // OPTIONAL FIELDS
-  ipAddress: ipv4.optional(),
-  macAddress: mac.optional(),   // <--- UPDATED (no regex)
-
-  // REQUIRED FIELDS
-  serialNumber: Joi.string().trim().required(),
-  numberOfPorts: Joi.number().valid(...portOptions).required(),
-  location: Joi.string().trim().required(),
-  purchaseDate: ddmmyyyy.required(),
-  warrantyExpiry: ddmmyyyy.required(),
-  firmwareVersion: Joi.string().trim().required(),
-  status: Joi.string().valid(...statusEnum).required()
-});
-
-// ===============================
-// UPDATE SCHEMA
-// ===============================
-export const updateNetworkEquipmentSchema = Joi.object({
+// Base schema for reusability
+const networkEquipmentBaseSchema = {
   equipmentName: Joi.string().trim(),
   equipmentType: Joi.string().valid(...equipmentTypeEnum),
-
-  ipAddress: ipv4,
-  macAddress: mac,  // <--- UPDATED (no regex)
-
+  ipAddress: Joi.string().ip({ version: ["ipv4"] }),
+  macAddress: Joi.string().trim(),
   serialNumber: Joi.string().trim(),
   numberOfPorts: Joi.number().valid(...portOptions),
   location: Joi.string().trim(),
-  purchaseDate: ddmmyyyy,
-  warrantyExpiry: ddmmyyyy,
+  purchaseDate: Joi.date(),
+  warrantyExpiry: Joi.date(),
   firmwareVersion: Joi.string().trim(),
-  status: Joi.string().valid(...statusEnum)
+  status: Joi.string().valid(...statusEnum),
+};
+
+// CREATE SCHEMA
+export const createNetworkEquipmentSchema: ObjectSchema = Joi.object({
+  equipmentName: networkEquipmentBaseSchema.equipmentName.required(),
+  equipmentType: networkEquipmentBaseSchema.equipmentType.required(),
+  ipAddress: networkEquipmentBaseSchema.ipAddress.optional(),
+  macAddress: networkEquipmentBaseSchema.macAddress.required(),
+  serialNumber: networkEquipmentBaseSchema.serialNumber.required(),
+  numberOfPorts: networkEquipmentBaseSchema.numberOfPorts.required(),
+  location: networkEquipmentBaseSchema.location.required(),
+  purchaseDate: networkEquipmentBaseSchema.purchaseDate.required(),
+  warrantyExpiry: networkEquipmentBaseSchema.warrantyExpiry.required(),
+  firmwareVersion: networkEquipmentBaseSchema.firmwareVersion.required(),
+  status: networkEquipmentBaseSchema.status.required(),
+});
+
+// UPDATE SCHEMA
+export const updateNetworkEquipmentSchema = Joi.object({
+  equipmentName: networkEquipmentBaseSchema.equipmentName.optional(),
+  equipmentType: networkEquipmentBaseSchema.equipmentType.optional(),
+  ipAddress: networkEquipmentBaseSchema.ipAddress.optional(),
+  macAddress: networkEquipmentBaseSchema.macAddress.optional(),
+  serialNumber: networkEquipmentBaseSchema.serialNumber.optional(),
+  numberOfPorts: networkEquipmentBaseSchema.numberOfPorts.optional(),
+  location: networkEquipmentBaseSchema.location.optional(),
+  purchaseDate: networkEquipmentBaseSchema.purchaseDate.optional(),
+  warrantyExpiry: networkEquipmentBaseSchema.warrantyExpiry.optional(),
+  firmwareVersion: networkEquipmentBaseSchema.firmwareVersion.optional(),
+  status: networkEquipmentBaseSchema.status.optional(),
 }).min(1);
 
 // ===============================
@@ -72,23 +64,23 @@ export const listQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
 
-  // 🔎 Search (applies to multiple fields)
-  search: Joi.string().trim(),
+  // Search (applies to multiple fields)
+  search: Joi.string().trim().optional(),
 
-  // 🎯 Filters for individual fields
-  equipmentName: Joi.string().trim(),
-  equipmentType: Joi.string().valid(...equipmentTypeEnum),
-  ipAddress: Joi.string().trim(),
-  macAddress: Joi.string().trim(),
-  serialNumber: Joi.string().trim(),
-  numberOfPorts: Joi.number().integer().min(1),
-  location: Joi.string().trim(),
-  purchaseDate: Joi.date(),
-  warrantyExpiry: Joi.date(),
-  firmwareVersion: Joi.string().trim(),
-  status: Joi.string().valid(...statusEnum),
+  // Filters for individual fields
+  equipmentName: Joi.string().trim().optional(),
+  equipmentType: Joi.string().valid(...equipmentTypeEnum).optional(),
+  ipAddress: Joi.string().trim().optional(),
+  macAddress: Joi.string().trim().optional(),
+  serialNumber: Joi.string().trim().optional(),
+  numberOfPorts: Joi.number().integer().min(1).optional(),
+  location: Joi.string().trim().optional(),
+  purchaseDate: Joi.date().optional(),
+  warrantyExpiry: Joi.date().optional(),
+  firmwareVersion: Joi.string().trim().optional(),
+  status: Joi.string().valid(...statusEnum).optional(),
 
-  // 📌 Sorting
+  // Sorting
   orderBy: Joi.string().valid(
     "equipmentName",
     "equipmentType",
@@ -103,7 +95,7 @@ export const listQuerySchema = Joi.object({
     "status",
     "createdAt",
     "updatedAt"
-  ),
+  ).optional(),
 
-  order: Joi.string().valid("asc", "desc").default("asc")
+  sortBy: Joi.string().valid("asc", "desc").optional()
 });
