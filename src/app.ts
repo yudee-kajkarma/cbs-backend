@@ -7,6 +7,7 @@ import licenseRoutes from './routes/license.routes';
 import auditRoutes from './routes/audit.routes';
 import isoRoutes from './routes/iso.routes';
 import simRoutes from './routes/sim.routes';
+import softwareRoutes from './routes/software.routes';
 dotenv.config();
 // import documnentRoutes from './routes/document.routes'; 
 const app = express();
@@ -21,7 +22,8 @@ app.use("/api/iso", isoRoutes);
 
 // Routes
 app.use('/api/licenses', licenseRoutes);
-app.use('/api/audits', auditRoutes);
+
+app.use("/api/software", softwareRoutes);
 
 app.use('/api/sims', simRoutes);
 // app.use(errorHandler);

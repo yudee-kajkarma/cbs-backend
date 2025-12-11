@@ -8,6 +8,14 @@ export const SUCCESS_MESSAGES = {
   LICENSE_UPDATED: "License updated successfully",
   LICENSE_DELETED: "License deleted successfully",
 
+  // -------- SOFTWARE MESSAGES --------
+  SOFTWARE_CREATED: "Software created successfully",
+  SOFTWARE_LIST_FETCHED: "Software list fetched successfully",
+  SOFTWARE_FETCHED: "Software fetched successfully",
+  SOFTWARE_UPDATED: "Software updated successfully",
+  SOFTWARE_DELETED: "Software deleted successfully",
+
+
   DOCUMENT_CREATED: "Document created successfully",
   DOCUMENT_LIST_FETCHED: "Document list fetched successfully",
   DOCUMENT_FETCHED: "Document fetched successfully",
@@ -33,8 +41,15 @@ export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
   INVALID_ID: "Invalid ID format",
+INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
 
   LICENSE_NOT_FOUND: "License not found",
+
+  // -------- SOFTWARE ERRORS --------
+  SOFTWARE_NOT_FOUND: "Software not found",
+  LICENSE_KEY_EXISTS: "License key already exists",   // <-- Added here
+
+  // Document
   DOCUMENT_NOT_FOUND: "Document not found",
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
