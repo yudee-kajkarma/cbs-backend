@@ -60,8 +60,8 @@ export const furnitureController = {
       const orderBy = (req.query.orderBy as string) || "createdAt";
       const sortBy = (req.query.sortBy as "asc" | "desc") || "desc";
       const filters = parseQueryFilters(req.query);
-      const data = await furnitureService.getAll(page, limit, filters, orderBy, sortBy);
-      return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_LIST_FETCHED, data);
+      const { furnitures, pagination } = await furnitureService.getAll(page, limit, filters, orderBy, sortBy);
+      return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_LIST_FETCHED, { furnitures, pagination });
     } catch (err: any) {
       return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
     }

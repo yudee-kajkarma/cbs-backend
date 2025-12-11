@@ -49,7 +49,7 @@ export class HardwareTransferController {
         expectedReturnDateTo: req.query.expectedReturnDateTo,
       };
 
-      const result = await service.list(
+      const { hardwareTransfers, pagination } = await service.list(
         page,
         limit,
         filters,
@@ -60,7 +60,7 @@ export class HardwareTransferController {
       return sendSuccess(
         res,
         SUCCESS_MESSAGES.HARDWARE_TRANSFER_LIST_FETCHED,
-        result
+        { hardwareTransfers, pagination }
       );
     } catch (err) {
       return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err);

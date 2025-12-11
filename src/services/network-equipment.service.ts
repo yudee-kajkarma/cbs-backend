@@ -27,7 +27,7 @@ class NetworkEquipmentService {
       ? parseSortParams(orderBy, sortBy)
       : { createdAt: -1 as const };
 
-    const { data: items, pagination } = await paginate(NetworkEquipmentModel, filter, {
+    const { data: networkEquipments, pagination } = await paginate(NetworkEquipmentModel, filter, {
       page,
       limit,
       sort,
@@ -35,7 +35,7 @@ class NetworkEquipmentService {
     });
 
     return {
-      items,
+      networkEquipments,
       pagination,
     };
   }

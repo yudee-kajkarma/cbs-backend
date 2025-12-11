@@ -27,8 +27,8 @@ export const newHardwareController = {
       };
 
 
-      const data = await newHardwareService.getAll(page, limit, filters);
-      return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_LIST_FETCHED, data);
+      const { newHardwares, pagination } = await newHardwareService.getAll(page, limit, filters);
+      return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_LIST_FETCHED, { newHardwares, pagination });
     } catch (error: any) {
       return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
     }

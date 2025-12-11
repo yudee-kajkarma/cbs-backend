@@ -88,7 +88,7 @@ export class HardwareTransferService {
       ? parseSortParams(orderBy, sortBy)
       : { createdAt: -1 as const };
 
-    const { data: items, pagination } = await paginate(HardwareTransferModel, query, {
+    const { data: hardwareTransfers, pagination } = await paginate(HardwareTransferModel, query, {
       page,
       limit,
       sort,
@@ -96,7 +96,7 @@ export class HardwareTransferService {
     });
 
     return {
-      items,
+      hardwareTransfers,
       pagination,
     };
   }

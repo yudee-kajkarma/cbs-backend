@@ -10,7 +10,7 @@ export const furnitureService = {
 
   async getAll(page = 1, limit = 10, filters: FilterQuery<IFurniture> = {}, orderBy = "createdAt", sortBy: "asc" | "desc" = "desc") {
     const sortQuery = parseSortParams(orderBy, sortBy);
-    const { data: items, pagination } = await paginate(FurnitureModel, filters, {
+    const { data: furnitures, pagination } = await paginate(FurnitureModel, filters, {
       page,
       limit,
       sort: sortQuery,
@@ -18,7 +18,7 @@ export const furnitureService = {
     });
     
     return {
-      items,
+      furnitures,
       pagination,
     };
   },

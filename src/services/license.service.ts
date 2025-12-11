@@ -101,8 +101,6 @@ export const getAll = async (
     sort: sortQuery,
   });
 
-  // Optimize: Don't generate presigned URLs for list view
-  // Frontend can request URLs individually when needed
   const data = rawData.map((item: any) => {
     const status = calculateStatus(item.expiryDate, today);
 

@@ -28,7 +28,7 @@ export const newHardwareService = {
 
     // Use pagination utility with sorting
     const sortQuery = parseSortParams(filters.orderBy || 'createdAt', filters.sortBy || 'desc');
-    const { data: items, pagination } = await paginate(NewHardwareModel, query, {
+    const { data: newHardwares, pagination } = await paginate(NewHardwareModel, query, {
       page,
       limit,
       sort: sortQuery,
@@ -36,7 +36,7 @@ export const newHardwareService = {
     });
 
     return {
-      items,
+      newHardwares,
       pagination,
     };
   },

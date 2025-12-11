@@ -174,7 +174,6 @@ export const remove = async (id: string) => {
 
 /**
  * Get download URL for a specific document
- * Lightweight endpoint - only generates URL when needed
  */
 export const getDownloadUrl = async (id: string): Promise<string | null> => {
   const doc = await DocumentModel.findById(id).lean().select('fileKey');

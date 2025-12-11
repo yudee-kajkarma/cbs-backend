@@ -4,7 +4,7 @@ import { throwJoiValidationError } from "../utils/response.util";
 
 export const furnitureValidateRequest = (schema: ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.body, { stripUnknown: false });
     if (error) return next(throwJoiValidationError(error.details[0].message));
     next();
   };
