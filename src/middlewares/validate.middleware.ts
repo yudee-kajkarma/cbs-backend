@@ -1,16 +1,69 @@
-import { Request, Response, NextFunction } from 'express';
-import Joi from 'joi';
+import { Request, Response, NextFunction } from "express";
+import { ObjectSchema } from "joi";
+import { throwJoiValidationError } from "../utils/response.util";
 
-export const validate = (schema: Joi.ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    // Combine body and query for flexible validation (mainly body used here)
-    const toValidate = req.body;
-    const { error, value } = schema.validate(toValidate, { abortEarly: false, stripUnknown: true });
-    if (error) {
-      const details = error.details.map(d => d.message);
-      return res.status(400).json({ success: false, message: 'Validation error', details });
+
+export const validateRequest = (schema: ObjectSchema) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const { error, value } = schema.validate(req.body, {
+        abortEarly: true,
+        stripUnknown: true,
+        convert: true,
+      });
+
+      if (error) {
+        const msg = error.details[0].message.replace(/"/g, "");
+        throw throwJoiValidationError(msg);
+      }
+
+      req.body = value;
+      next();
+    } catch (err) {
+      next(err);
     }
-    req.body = value;
-    return next();
+  };
+};
+export const validateQuery = (schema: ObjectSchema) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const { error, value } = schema.validate(req.query, {
+        abortEarly: true,
+        stripUnknown: true,
+        convert: true,
+      });
+
+      if (error) {
+        const msg = error.details[0].message.replace(/"/g, "");
+        throw throwJoiValidationError(msg);
+      }
+
+      req.query = value;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+};
+
+
+export const validateParams = (schema: ObjectSchema) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const { error, value } = schema.validate(req.params, {
+        abortEarly: true,
+        stripUnknown: true,
+      });
+
+      if (error) {
+        const msg = error.details[0].message.replace(/"/g, "");
+        throw throwJoiValidationError(msg);
+      }
+
+      req.params = value;
+      next();
+    } catch (err) {
+      next(err);
+    }
   };
 };
