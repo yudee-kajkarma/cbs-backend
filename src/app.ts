@@ -3,12 +3,11 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 
 import licenseRoutes from './routes/license.routes';
+import {errorMiddleware} from './middlewares/error.middleware';
 import auditRoutes from './routes/audit.routes';
-
-import { errorMiddleware } from './middlewares/error.middleware';
-
+import isoRoutes from "./routes/iso.routes";
 dotenv.config();
-import documnentRoutes from './routes/document.routes'; 
+// import documnentRoutes from './routes/document.routes'; 
 const app = express();
 
 app.use(morgan('dev'));
@@ -17,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health Check
 app.get('/health', (req, res) => res.json({ ok: true }));
+app.use("/api/iso", isoRoutes);
 
 // Routes
 app.use('/api/licenses', licenseRoutes);
