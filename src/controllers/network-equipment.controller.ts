@@ -1,196 +1,86 @@
 import { Request, Response } from "express";
-import { networkEquipmentService } from "../services/network-equipment.service";
-import { sendSuccess, sendCreated, sendError, ERROR_MESSAGES, SUCCESS_MESSAGES } from "../utils/response.util";
+import { NetworkEquipmentService } from "../services/network-equipment.service";
+import { NetworkEquipmentResponseDto, GetAllNetworkEquipmentResponseDto } from "../dtos/network-equipment-dto";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ResponseUtil } from "../utils/response-formatter.util";
+import { toDto, toDtoList } from "../utils/dto-mapper.util";
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
-class NetworkEquipmentController {
-  // CREATE
-  async create(req: Request, res: Response) {
+export class NetworkEquipmentController {
+  /**
+   * Create a new network equipment
+   */
+  static async create(req: Request, res: Response): Promise<void> {
     try {
-      const body: any = { ...req.body };
-
-      const duplicates: string[] = [];
-
-      if (body.macAddress) {
-        const macExists = await networkEquipmentService.findByMac(body.macAddress);
-        if (macExists) duplicates.push("macAddress");
-      }
-
-      if (body.serialNumber) {
-        const serialExists = await networkEquipmentService.findBySerial(body.serialNumber);
-        if (serialExists) duplicates.push("serialNumber");
-      }
-
-      if (duplicates.length > 0) {
-        return sendError(res, 409, "Duplicate values", { duplicates });
-      }
-
-      const created = await networkEquipmentService.create(body);
-
-      return sendCreated(
-        res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_CREATED ?? "Network equipment created",
-        created
-      );
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        { error: err?.message ?? err }
-      );
+      const result = await NetworkEquipmentService.create(req.body);
+      const dto = toDto(NetworkEquipmentResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.NETWORK_EQUIPMENT.CREATED_SUCCESSFULLY, dto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
     }
   }
 
-  // GET ALL
-  async getAll(req: Request, res: Response) {
+  /**
+   * Get all network equipment with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const q: any = req.query;
-
-      const filter: any = {};
-
-      if (q.search) {
-        const searchRegex = { $regex: q.search, $options: "i" };
-        filter.$or = [
-          { deviceName: searchRegex },
-          { type: searchRegex },
-          { macAddress: searchRegex },
-          { ipAddress: searchRegex },
-          { location: searchRegex },
-        ];
-      }
-
-      if (q.type) filter.type = q.type;
-      if (q.location) filter.location = { $regex: q.location, $options: "i" };
-
-      if (q.fromDate || q.toDate) {
-        filter.purchaseDate = {};
-        if (q.fromDate) filter.purchaseDate.$gte = new Date(q.fromDate);
-        if (q.toDate) filter.purchaseDate.$lte = new Date(q.toDate);
-      }
-
-      const page = parseInt(q.page || "1");
-      const limit = parseInt(q.limit || "10");
-
-      const result = await networkEquipmentService.getAll(filter, page, limit, q.orderBy, q.sortBy);
-
-      const msg = SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_FETCHED ?? "Network equipment fetched";
-      return sendSuccess(res, msg, result);
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        { error: err?.message ?? err }
-      );
+      const result = await NetworkEquipmentService.getAll(req.query);
+      const equipmentDto = toDtoList(NetworkEquipmentResponseDto, result.networkEquipments);
+      const responseData = {
+        networkEquipments: equipmentDto,
+        pagination: result.pagination,
+        filters: result.filters
+      };
+      const response = ResponseUtil.success(INFO_MESSAGES.NETWORK_EQUIPMENT.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
     }
   }
 
-
-  // GET ONE
-  async getOne(req: Request, res: Response) {
+  /**
+   * Get network equipment by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
-      const item = await networkEquipmentService.getById(id);
-
-      if (!item) {
-        return sendError(
-          res,
-          404,
-          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ?? "Network equipment not found"
-        );
-      }
-
-      return sendSuccess(
-        res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_FETCHED ?? "Network equipment fetched",
-        item
-      );
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        { error: err?.message ?? err }
-      );
+      const { id } = req.params;
+      const result = await NetworkEquipmentService.getById(id);
+      const dto = toDto(NetworkEquipmentResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.NETWORK_EQUIPMENT.RETRIEVED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
     }
   }
 
-  // UPDATE
-  async update(req: Request, res: Response) {
+  /**
+   * Update network equipment by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
-      const body: any = { ...req.body };
-
-      const duplicates: string[] = [];
-
-      if (body.macAddress) {
-        const macExists = await networkEquipmentService.findByMacExcludeId(body.macAddress, id);
-        if (macExists) duplicates.push("macAddress");
-      }
-
-      if (body.serialNumber) {
-        const serialExists = await networkEquipmentService.findBySerialExcludeId(body.serialNumber, id);
-        if (serialExists) duplicates.push("serialNumber");
-      }
-
-      if (duplicates.length > 0) {
-        return sendError(res, 409, "Duplicate values", { duplicates });
-      }
-
-      const updated = await networkEquipmentService.update(id, body);
-
-      if (!updated) {
-        return sendError(
-          res,
-          404,
-          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ?? "Network equipment not found"
-        );
-      }
-
-      return sendSuccess(
-        res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_UPDATED ?? "Network equipment updated",
-        updated
-      );
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        { error: err?.message ?? err }
-      );
+      const { id } = req.params;
+      const result = await NetworkEquipmentService.update(id, req.body);
+      const dto = toDto(NetworkEquipmentResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.NETWORK_EQUIPMENT.UPDATED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
     }
   }
 
-  // DELETE
-  async delete(req: Request, res: Response) {
+  /**
+   * Delete network equipment by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
-
-      const removed = await networkEquipmentService.delete(id);
-
-      if (!removed) {
-        return sendError(
-          res,
-          404,
-          ERROR_MESSAGES?.NETWORK_EQUIPMENT_NOT_FOUND ?? "Network equipment not found"
-        );
-      }
-
-      return sendSuccess(
-        res,
-        SUCCESS_MESSAGES?.NETWORK_EQUIPMENT_DELETED ?? "Network equipment deleted",
-        removed
-      );
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES?.INTERNAL_SERVER_ERROR ?? "Something went wrong",
-        { error: err?.message ?? err }
-      );
+      const { id } = req.params;
+      await NetworkEquipmentService.delete(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.NETWORK_EQUIPMENT.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
     }
   }
 }
-
-export const networkEquipmentController = new NetworkEquipmentController();

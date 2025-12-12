@@ -1,145 +1,86 @@
 import { Request, Response } from "express";
-import { FilterQuery } from "mongoose";
-import { simService } from "../services/sim.service";
-import {
-  sendSuccess,
-  sendCreated,
-  sendError,
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES
-} from "../utils/response.util";
+import { SimService } from "../services/sim.service";
+import { SIMResponseDto, GetAllSIMsResponseDto } from "../dtos/sim-dto";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ResponseUtil } from "../utils/response-formatter.util";
+import { toDto, toDtoList } from "../utils/dto-mapper.util";
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
-class SimController {
-  // ---------- CREATE ----------
-  async create(req: Request, res: Response) {
+export class SimController {
+  /**
+   * Create a new SIM
+   */
+  static async create(req: Request, res: Response): Promise<void> {
     try {
-      const sim = await simService.createSim(req.body);
-      return sendCreated(res, SUCCESS_MESSAGES.SIM_CREATED, sim);
-    } catch (err: any) {
-      if (err?.code === 11000) {
-        return sendError(res, 409, `SIM with same simNumber already exists.`);
-      }
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      const result = await SimService.create(req.body);
+      const dto = toDto(SIMResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.SIM.CREATED_SUCCESSFULLY, dto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
     }
   }
 
-  // ---------- GET ALL ----------
-  async getAll(req: Request, res: Response) {
+  /**
+   * Get all SIMs with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        page = 1,
-        limit = 10,
-        simNumber,
-        phoneNumber,
-        carrier,
-        status,
-        department,
-        activationDate,
-        expiryDate,
-        orderBy,
-        sortBy
-      } = req.query as any;
-
-      const filter: FilterQuery<any> = {};
-
-      // Partial & case-insensitive search
-      if (simNumber) filter.simNumber = { $regex: simNumber, $options: "i" };
-      if (phoneNumber) filter.phoneNumber = { $regex: phoneNumber, $options: "i" };
-
-      if (carrier) filter.carrier = carrier;
-      if (status) filter.status = status;
-      if (department) filter.department = department;
-
-      // Dates stored as Date in DB
-      if (activationDate) filter.activationDate = new Date(activationDate);
-      if (expiryDate) filter.expiryDate = new Date(expiryDate);
-
-      const result = await simService.getAllSims(
-        filter,
-        Number(page),
-        Number(limit),
-        orderBy,
-        sortBy
-      );
-
-      return sendSuccess(res, SUCCESS_MESSAGES.SIM_LIST_FETCHED, {
-        sims: result.items,
-        pagination: result.pagination
-      });
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      const result = await SimService.getAll(req.query);
+      const simsDto = toDtoList(SIMResponseDto, result.sims);
+      const responseData = {
+        sims: simsDto,
+        pagination: result.pagination,
+        filters: result.filters
+      };
+      const response = ResponseUtil.success(INFO_MESSAGES.SIM.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
     }
   }
 
-  // ---------- GET ONE ----------
-  async getOne(req: Request, res: Response) {
+  /**
+   * Get SIM by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
-      const sim = await simService.getSimById(id);
-
-      if (!sim) return sendError(res, 404, ERROR_MESSAGES.SIM_NOT_FOUND);
-
-      return sendSuccess(res, SUCCESS_MESSAGES.SIM_FETCHED, sim);
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      const { id } = req.params;
+      const result = await SimService.getById(id);
+      const dto = toDto(SIMResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.SIM.RETRIEVED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
     }
   }
 
-  // ---------- UPDATE ----------
-  async update(req: Request, res: Response) {
+  /**
+   * Update SIM by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
-      const sim = await simService.updateSim(id, req.body);
-
-      if (!sim) return sendError(res, 404, ERROR_MESSAGES.SIM_NOT_FOUND);
-
-      return sendSuccess(res, SUCCESS_MESSAGES.SIM_UPDATED, sim);
-    } catch (err: any) {
-      if (err?.code === 11000) {
-        return sendError(res, 409, `SIM with same simNumber already exists.`);
-      }
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      const { id } = req.params;
+      const result = await SimService.update(id, req.body);
+      const dto = toDto(SIMResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.SIM.UPDATED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
     }
   }
 
-  // ---------- DELETE ----------
-  async delete(req: Request, res: Response) {
+  /**
+   * Delete SIM by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const id = req.params.id;
-      const sim = await simService.deleteSim(id);
-
-      if (!sim) return sendError(res, 404, ERROR_MESSAGES.SIM_NOT_FOUND);
-
-      return sendSuccess(res, SUCCESS_MESSAGES.SIM_DELETED, sim);
-    } catch (err: any) {
-      return sendError(
-        res,
-        500,
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        err?.message ?? err
-      );
+      const { id } = req.params;
+      await SimService.delete(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.SIM.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
     }
   }
 }
-
-export const simController = new SimController();

@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { softwareController } from "../controllers/software.controller";
-import { validateBody, validateParams, validateQuery } from "../middlewares/software.middleware";
-import { createSoftwareSchema, updateSoftwareSchema, idParamSchema, listQuerySchema } from "../dto/software.dto";
+import { SoftwareController } from "../controllers/software.controller";
+import { validateBody, validateParams, validateQuery } from "../middlewares/validate.middleware";
+import { createSoftwareSchema, updateSoftwareSchema, idParamSchema, listQuerySchema } from "../validators/software.dto";
 
 const router = Router();
 
-router.post("/", validateBody(createSoftwareSchema), (req, res) => softwareController.create(req, res));
-router.get("/", validateQuery(listQuerySchema), (req, res) => softwareController.getAll(req, res));
-router.get("/:id", validateParams(idParamSchema), (req, res) => softwareController.getOne(req, res));
-router.put("/:id", validateParams(idParamSchema), validateBody(updateSoftwareSchema), (req, res) => softwareController.update(req, res));
-router.delete("/:id", validateParams(idParamSchema), (req, res) => softwareController.delete(req, res));
+router.post("/", validateBody(createSoftwareSchema), SoftwareController.create);
+router.get("/", validateQuery(listQuerySchema), SoftwareController.getAll);
+router.get("/:id", validateParams(idParamSchema), SoftwareController.getById);
+router.put("/:id", validateParams(idParamSchema), validateBody(updateSoftwareSchema), SoftwareController.update);
+router.delete("/:id", validateParams(idParamSchema), SoftwareController.delete);
 
 export default router;

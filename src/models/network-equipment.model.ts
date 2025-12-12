@@ -1,19 +1,6 @@
 
 import { Schema, model, Document } from "mongoose";
-
-export interface INetworkEquipment extends Document {
-  equipmentName: string;
-  equipmentType: string;
-  ipAddress?: string;
-  macAddress: string;
-  serialNumber: string;
-  numberOfPorts: number;
-  location: string;
-  purchaseDate: Date;
-  warrantyExpiry: Date;
-  firmwareVersion: string;
-  status: string;
-}
+import { INetworkEquipment } from '../interfaces';
 
 const NetworkEquipmentSchema = new Schema<INetworkEquipment>(
   {

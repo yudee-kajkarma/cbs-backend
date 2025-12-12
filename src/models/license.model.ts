@@ -1,15 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-
-export interface ILicense extends Document {
-  name: string;
-  number: string;
-  issueDate: Date;
-  expiryDate: Date;
-  issuingAuthority: string;
-  documentKey?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { ILicense } from '../interfaces';
 
 const LicenseSchema: Schema = new Schema(
   {

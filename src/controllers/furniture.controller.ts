@@ -1,108 +1,86 @@
-import { Request, Response, NextFunction } from "express";
-import { furnitureService } from "../services/furniture.service";
-import {
-  sendSuccess,
-  sendCreated,
-  sendError,
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../utils/response.util";
-import { FilterQuery, Types } from "mongoose";
-import { IFurniture } from "../models/furniture.model";
-import {
-  createFurnitureSchema,
-  updateFurnitureSchema,
-  getFurnitureListSchema,
-  getFurnitureByIdSchema,
-} from "../dto/furniture.dto";
+import { Request, Response } from "express";
+import { FurnitureService } from "../services/furniture.service";
+import { ErrorHandler } from '../utils/error-handler.util';
+import { ResponseUtil } from '../utils/response-formatter.util';
+import { toDto, toDtoList } from '../utils/dto-mapper.util';
+import { FurnitureResponseDto, GetAllFurnitureResponseDto } from '../dtos/furniture-dto';
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
-const validateObjectId = (id: string) => Types.ObjectId.isValid(id);
-
-const parseQueryFilters = (query: any): FilterQuery<IFurniture> => {
-  const filters: any = {};
-  if (query.search) {
-    const rx = new RegExp(query.search as string, "i");
-    filters.$or = [{ itemName: rx }, { itemCode: rx }, { location: rx }];
+export class FurnitureController {
+  /**
+   * Create a new furniture record
+   */
+  static async create(req: Request, res: Response): Promise<void> {
+    try {
+      const data = await FurnitureService.create(req.body);
+      const dto = toDto(FurnitureResponseDto, data);
+      const response = ResponseUtil.success(INFO_MESSAGES.FURNITURE.CREATED_SUCCESSFULLY, dto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
+    }
   }
-  if (query.category) filters.category = query.category;
-  if (query.status) filters.status = query.status;
-  if (query.location) filters.location = query.location;
-  return filters;
-};
 
-const handleDuplicateItemCode = (err: any, res: Response) => {
-  if (err.code === 11000 && (err.keyPattern?.itemCode || err.keyValue?.itemCode)) {
-    return sendError(res, 400, ERROR_MESSAGES.ITEMCODE_EXISTS);
+  /**
+   * Get all furniture with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await FurnitureService.getAll(req.query);
+      const furnitureDto = toDtoList(FurnitureResponseDto, result.furnitures);
+      const responseData = {
+        furnitures: furnitureDto,
+        pagination: result.pagination,
+        filters: result.filters
+      };
+      const response = ResponseUtil.success(INFO_MESSAGES.FURNITURE.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
+    }
   }
-  return null;
-};
 
-export const furnitureController = {
-  async create(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Get furniture by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const { error } = createFurnitureSchema.validate(req.body);
-      if (error) return sendError(res, 400, error.details[0].message);
-      const data = await furnitureService.create(req.body);
-      return sendCreated(res, SUCCESS_MESSAGES.FURNITURE_CREATED, data);
-    } catch (err: any) {
-      const dup = handleDuplicateItemCode(err, res);
-      if (dup) return dup;
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
+      const { id } = req.params;
+      const data = await FurnitureService.getById(id);
+      const dto = toDto(FurnitureResponseDto, data);
+      const response = ResponseUtil.success(INFO_MESSAGES.FURNITURE.RETRIEVED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
     }
-  },
+  }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Update furniture by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
     try {
-      const { error } = getFurnitureListSchema.validate(req.query);
-      if (error) return sendError(res, 400, error.details[0].message);
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const orderBy = (req.query.orderBy as string) || "createdAt";
-      const sortBy = (req.query.sortBy as "asc" | "desc") || "desc";
-      const filters = parseQueryFilters(req.query);
-      const { furnitures, pagination } = await furnitureService.getAll(page, limit, filters, orderBy, sortBy);
-      return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_LIST_FETCHED, { furnitures, pagination });
-    } catch (err: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
+      const { id } = req.params;
+      const data = await FurnitureService.update(id, req.body);
+      const dto = toDto(FurnitureResponseDto, data);
+      const response = ResponseUtil.success(INFO_MESSAGES.FURNITURE.UPDATED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
     }
-  },
+  }
 
-  async getById(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Delete furniture by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { error } = getFurnitureByIdSchema.validate(req.params);
-      if (error) return sendError(res, 400, error.details[0].message);
-      if (!validateObjectId(req.params.id)) return sendError(res, 400, ERROR_MESSAGES.INVALID_ID);
-      const data = await furnitureService.getById(req.params.id);
-      if (!data) return sendError(res, 404, ERROR_MESSAGES.FURNITURE_NOT_FOUND);
-      return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_FETCHED, data);
-    } catch (err: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
+      const { id } = req.params;
+      await FurnitureService.delete(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.FURNITURE.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
     }
-  },
-
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { error } = updateFurnitureSchema.validate(req.body);
-      if (error) return sendError(res, 400, error.details[0].message);
-      if (!validateObjectId(req.params.id)) return sendError(res, 400, ERROR_MESSAGES.INVALID_ID);
-      const data = await furnitureService.update(req.params.id, req.body);
-      if (!data) return sendError(res, 404, ERROR_MESSAGES.FURNITURE_NOT_FOUND);
-      return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_UPDATED, data);
-    } catch (err: any) {
-      const dup = handleDuplicateItemCode(err, res);
-      if (dup) return dup;
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
-    }
-  },
-
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      if (!validateObjectId(req.params.id)) return sendError(res, 400, ERROR_MESSAGES.INVALID_ID);
-      const deleted = await furnitureService.delete(req.params.id);
-      if (!deleted) return sendError(res, 404, ERROR_MESSAGES.FURNITURE_NOT_FOUND);
-      return sendSuccess(res, SUCCESS_MESSAGES.FURNITURE_DELETED);
-    } catch (err: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, err.message);
-    }
-  },
-};
+  }
+}

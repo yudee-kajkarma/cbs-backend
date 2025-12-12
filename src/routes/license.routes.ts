@@ -1,7 +1,6 @@
 import { Router } from "express";
-import multer from "multer";
 
-import * as LicenseController from "../controllers/license.controller";
+import { LicenseController } from "../controllers/license.controller";
 import {
   validateRequest,
   validateParams,
@@ -13,18 +12,13 @@ import {
   updateLicenseDto,
   licenseIdDto,
   licenseQueryDto,
-} from "../dto/license.dto";
+} from "../validators/license.dto";
 
 const router = Router();
-
-// MEMORY STORAGE for S3
-const upload = multer({ storage: multer.memoryStorage() });
-
 
 // ---------- CREATE ----------
 router.post(
   "/",
-  upload.single("document"),
   validateRequest(createLicenseDto),
   LicenseController.create
 );
@@ -33,7 +27,7 @@ router.post(
 // ---------- GET ALL ----------
 router.get(
   "/",
-  validateQuery(licenseQueryDto),     //  ✅ added pagination/search validation
+  validateQuery(licenseQueryDto),
   LicenseController.getAll
 );
 
@@ -42,14 +36,13 @@ router.get(
 router.get(
   "/:id",
   validateParams(licenseIdDto),
-  LicenseController.getOne
+  LicenseController.getById
 );
 
 
 // ---------- UPDATE ----------
 router.put(
   "/:id",
-  upload.single("document"),
   validateParams(licenseIdDto),
   validateRequest(updateLicenseDto),
   LicenseController.update
@@ -60,8 +53,7 @@ router.put(
 router.delete(
   "/:id",
   validateParams(licenseIdDto),
-  LicenseController.remove
+  LicenseController.delete
 );
-
 
 export default router;

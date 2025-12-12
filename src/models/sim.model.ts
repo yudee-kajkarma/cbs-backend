@@ -1,25 +1,7 @@
 import { Schema, model, Document } from "mongoose";
+import { ISim } from '../interfaces';
 
-export interface ISim extends Document {
-  simNumber: string;
-  phoneNumber?: string;
-  carrier: "Zain Kuwait" | "Ooredoo Kuwait" | "STC Kuwait" | "Other";
-  planType?: string;
-  monthlyFee?: number;
-  currency?: "KWD" | "USD" | "EUR" | "GBP" | "AED" | "SAR";
-  extraCharges?: number;
-  simCharges?: number;
-  dataLimit?: string;
-  activationDate?: Date | null;
-  expiryDate?: Date | null;
-  assignedTo?: string | null;
-  department?: string;
-  deviceImei?: string;
-  status: "Active" | "Inactive" | "Suspended" | "Expired";
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type { ISim };
 
 const SimSchema = new Schema<ISim>(
   {

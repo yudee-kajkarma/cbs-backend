@@ -1,50 +1,46 @@
 import { Router } from "express";
-import multer from "multer";
 
-import * as DocumentController from "../controllers/document.controller";
+import { DocumentController } from "../controllers/document.controller";
 
 import {
-  validateDocumentBody,
-  validateDocumentParams,
-  validateDocumentQuery,
-} from "../middlewares/document.middleware";
+  validateRequest,
+  validateParams,
+  validateQuery,
+} from "../middlewares/validate.middleware";
 
 import {
   createDocumentSchema,
   updateDocumentSchema,
   getDocumentByIdSchema,
   listDocumentQuerySchema,
-} from "../dto/document.dto";
+} from "../validators/document.dto";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
 // CREATE
 router.post(
   "/",
-  upload.single("file"),
-  validateDocumentBody(createDocumentSchema),
+  validateRequest(createDocumentSchema),
   DocumentController.create
 );
 
 // LIST
-router.get("/", validateDocumentQuery(listDocumentQuerySchema), DocumentController.list);
+router.get("/", validateQuery(listDocumentQuerySchema), DocumentController.getAll);
 
-router.get("/:id/download-url", validateDocumentParams(getDocumentByIdSchema), DocumentController.getDownloadUrl);
+router.get("/:id/download-url", validateParams(getDocumentByIdSchema), DocumentController.getDownloadUrl);
 
 // GET ONE
-router.get("/:id", validateDocumentParams(getDocumentByIdSchema), DocumentController.getOne);
+router.get("/:id", validateParams(getDocumentByIdSchema), DocumentController.getById);
 
 // UPDATE
 router.put(
   "/:id",
-  upload.single("file"),
-  validateDocumentParams(getDocumentByIdSchema),
-  validateDocumentBody(updateDocumentSchema),
+  validateParams(getDocumentByIdSchema),
+  validateRequest(updateDocumentSchema),
   DocumentController.update
 );
 
 // DELETE
-router.delete("/:id", validateDocumentParams(getDocumentByIdSchema), DocumentController.remove);
+router.delete("/:id", validateParams(getDocumentByIdSchema), DocumentController.delete);
 
 export default router;

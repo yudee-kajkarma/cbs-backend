@@ -1,39 +1,39 @@
 import { Router } from "express";
-import { supportController } from "../controllers/support.controller";
+import { SupportController } from "../controllers/support.controller";
 
 import {
-  supportValidateRequest,
-  supportValidateQuery,
-  supportValidateParams,
-} from "../middlewares/support.middleware";
+  validateRequest,
+  validateQuery,
+  validateParams,
+} from "../middlewares/validate.middleware";
 
 import {
   createSupportSchema,
   updateSupportSchema,
   getSupportListSchema,
   getSupportByIdSchema,
-} from "../dto/support.dto";
+} from "../validators/support.dto";
 
 const router = Router();
 
 // CREATE
-router.post("/", supportValidateRequest(createSupportSchema), supportController.create);
+router.post("/", validateRequest(createSupportSchema), SupportController.create);
 
 // GET ALL
-router.get("/", supportValidateQuery(getSupportListSchema), supportController.getAll);
+router.get("/", validateQuery(getSupportListSchema), SupportController.getAll);
 
 // GET BY ID
-router.get("/:id", supportValidateParams(getSupportByIdSchema), supportController.getById);
+router.get("/:id", validateParams(getSupportByIdSchema), SupportController.getById);
 
 // UPDATE
 router.put(
   "/:id",
-  supportValidateParams(getSupportByIdSchema),
-  supportValidateRequest(updateSupportSchema),
-  supportController.update
+  validateParams(getSupportByIdSchema),
+  validateRequest(updateSupportSchema),
+  SupportController.update
 );
 
 // DELETE
-router.delete("/:id", supportValidateParams(getSupportByIdSchema), supportController.delete);
+router.delete("/:id", validateParams(getSupportByIdSchema), SupportController.delete);
 
 export default router;

@@ -1,55 +1,106 @@
 import { NewHardwareModel } from "../models/newhardware.model";
-import { INewHardware } from "../models/newhardware.model";
-import { paginate, parseSortParams } from "../utils/pagination.util";
+import { NewHardware } from "../interfaces";
+import { PaginationService } from './pagination.service';
+import { throwError } from '../utils/errors.util';
+import { ErrorHandler } from '../utils/error-handler.util';
+import { ERROR_MESSAGES } from '../constants';
 
-export const newHardwareService = {
-  async create(data: INewHardware) {
-    return await NewHardwareModel.create(data);
-  },
-
-  async getAll(page: number, limit: number, filters: any = {}) {
-    const query: any = {};
-
-    // Search only added when search exists
-    if (filters.search && filters.search !== "") {
-      const re = new RegExp(filters.search as string, "i");
-      query.$or = [
-        { deviceName: re },
-        { serialNumber: re },
-        { assignedTo: re }
-      ];
+/**
+ * NewHardwareService
+ * @description Service for new hardware operations
+ */
+export class NewHardwareService {
+  /**
+   * Create a new hardware
+   * @param data - Hardware data
+   * @returns Created hardware
+   */
+  static async create(data: NewHardware) {
+    try {
+      return await NewHardwareModel.create(data);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'create', data });
     }
+  }
 
-    // These should only run if value exists
-    if (filters.type) query.type = filters.type;
-    if (filters.operatingSystem) query.operatingSystem = filters.operatingSystem;
-    if (filters.department) query.department = filters.department;
-    if (filters.status) query.status = filters.status;
+  /**
+   * Get all hardware with pagination
+   * @param query - Query parameters
+   * @returns Paginated hardware list
+   */
+  static async getAll(query: any) {
+    try {
+      const searchableFields = ['deviceName', 'serialNumber', 'assignedTo'];
+      const allowedSortFields = ['deviceName', 'serialNumber', 'type', 'operatingSystem', 'department', 'status', 'createdAt', 'updatedAt'];
+      const filterFields = ['type', 'operatingSystem', 'department', 'status'];
 
-    // Use pagination utility with sorting
-    const sortQuery = parseSortParams(filters.orderBy || 'createdAt', filters.sortBy || 'desc');
-    const { data: newHardwares, pagination } = await paginate(NewHardwareModel, query, {
-      page,
-      limit,
-      sort: sortQuery,
-      lean: false,
-    });
+      const result = await PaginationService.paginate(NewHardwareModel, query, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+      });
 
-    return {
-      newHardwares,
-      pagination,
-    };
-  },
+      return {
+        newHardwares: result.data,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'getAll', query });
+    }
+  }
 
-  async getById(id: string) {
-    return await NewHardwareModel.findById(id);
-  },
+  /**
+   * Get hardware by ID
+   * @param id - Hardware ID
+   * @returns Hardware details
+   */
+  static async getById(id: string) {
+    try {
+      const hardware = await NewHardwareModel.findById(id);
+      if (!hardware) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.HARDWARE_NOT_FOUND);
+      }
+      return hardware;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'getById', id });
+    }
+  }
 
-  async update(id: string, data: Partial<INewHardware>) {
-    return await NewHardwareModel.findByIdAndUpdate(id, data, { new: true });
-  },
+  /**
+   * Update hardware by ID
+   * @param id - Hardware ID
+   * @param data - Update data
+   * @returns Updated hardware
+   */
+  static async update(id: string, data: Partial<NewHardware>) {
+    try {
+      const updated = await NewHardwareModel.findByIdAndUpdate(id, data, { new: true });
+      if (!updated) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.HARDWARE_NOT_FOUND);
+      }
+      return updated;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'update', id, data });
+    }
+  }
 
-  async delete(id: string) {
-    return await NewHardwareModel.findByIdAndDelete(id);
-  },
-};
+  /**
+   * Delete hardware by ID
+   * @param id - Hardware ID
+   * @returns Success boolean
+   */
+  static async delete(id: string) {
+    try {
+      const deleted = await NewHardwareModel.findByIdAndDelete(id);
+      if (!deleted) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.HARDWARE_NOT_FOUND);
+      }
+      return true;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'delete', id });
+    }
+  }
+}
+
+

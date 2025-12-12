@@ -1,13 +1,5 @@
 import { Schema, model, Document } from "mongoose";
-
-export interface ISO extends Document {
-  certificateName: string;
-  isoStandard: string;
-  issueDate: Date;
-  expiryDate: Date;
-  certifyingBody: string;
-  fileKey: string;
-}
+import { ISO } from '../interfaces';
 
 const allowedStandards = [
   "ISO 9001:2015",
@@ -35,7 +27,7 @@ const ISOSchema = new Schema<ISO>(
   },
   { 
     timestamps: true,
-    versionKey: false   // <-- REMOVE __v COMPLETELY 
+    versionKey: false  
   }
 );
 

@@ -1,0 +1,96 @@
+/**
+ * Centralized success messages for API responses
+ */
+export const INFO_MESSAGES = {
+  AUDIT: {
+    CREATED_SUCCESSFULLY: 'Audit created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Audit retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Audit updated successfully',
+    DELETED_SUCCESSFULLY: 'Audit deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Audits list retrieved successfully',
+  },
+  DOCUMENT: {
+    CREATED_SUCCESSFULLY: 'Document created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Document retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Document updated successfully',
+    DELETED_SUCCESSFULLY: 'Document deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Documents list retrieved successfully',
+    DOWNLOAD_URL_GENERATED_SUCCESSFULLY: 'Download URL generated successfully',
+  },
+  FURNITURE: {
+    CREATED_SUCCESSFULLY: 'Furniture item created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Furniture item retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Furniture item updated successfully',
+    DELETED_SUCCESSFULLY: 'Furniture item deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Furniture items list retrieved successfully',
+  },
+  HARDWARE: {
+    CREATED_SUCCESSFULLY: 'Hardware created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Hardware retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Hardware updated successfully',
+    DELETED_SUCCESSFULLY: 'Hardware deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Hardware list retrieved successfully',
+  },
+  HARDWARE_TRANSFER: {
+    CREATED_SUCCESSFULLY: 'Hardware transfer created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Hardware transfer retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Hardware transfer updated successfully',
+    DELETED_SUCCESSFULLY: 'Hardware transfer deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Hardware transfers list retrieved successfully',
+  },
+  ISO: {
+    CREATED_SUCCESSFULLY: 'ISO certificate created successfully',
+    RETRIEVED_SUCCESSFULLY: 'ISO certificate retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'ISO certificate updated successfully',
+    DELETED_SUCCESSFULLY: 'ISO certificate deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'ISO certificates list retrieved successfully',
+  },
+  LICENSE: {
+    CREATED_SUCCESSFULLY: 'License created successfully',
+    RETRIEVED_SUCCESSFULLY: 'License retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'License updated successfully',
+    DELETED_SUCCESSFULLY: 'License deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Licenses list retrieved successfully',
+  },
+  NETWORK_EQUIPMENT: {
+    CREATED_SUCCESSFULLY: 'Network equipment created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Network equipment retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Network equipment updated successfully',
+    DELETED_SUCCESSFULLY: 'Network equipment deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Network equipment list retrieved successfully',
+  },
+  SIM: {
+    CREATED_SUCCESSFULLY: 'SIM created successfully',
+    RETRIEVED_SUCCESSFULLY: 'SIM retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'SIM updated successfully',
+    DELETED_SUCCESSFULLY: 'SIM deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'SIMs list retrieved successfully',
+  },
+  SOFTWARE: {
+    CREATED_SUCCESSFULLY: 'Software created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Software retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Software updated successfully',
+    DELETED_SUCCESSFULLY: 'Software deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Software list retrieved successfully',
+  },
+  SUPPORT: {
+    CREATED_SUCCESSFULLY: 'Support ticket created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Support ticket retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Support ticket updated successfully',
+    DELETED_SUCCESSFULLY: 'Support ticket deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Support tickets list retrieved successfully',
+  },
+  FILE_UPLOAD: {
+    PRESIGNED_URLS_GENERATED_SUCCESSFULLY: 'Presigned URLs generated successfully',
+    DOWNLOAD_URL_GENERATED_SUCCESSFULLY: 'Download URL generated successfully',
+    DELETED_SUCCESSFULLY: 'Files deleted successfully',
+    RETRIEVED_SUCCESSFULLY: 'File information retrieved successfully',
+  },
+  NEW_HARDWARE: {
+    CREATED_SUCCESSFULLY: 'New hardware created successfully',
+    RETRIEVED_SUCCESSFULLY: 'New hardware retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'New hardware updated successfully',
+    DELETED_SUCCESSFULLY: 'New hardware deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'New hardware list retrieved successfully',
+  },
+};

@@ -1,37 +1,105 @@
 import { FurnitureModel } from "../models/furniture.model";
-import { IFurniture } from "../models/furniture.model";
-import { FilterQuery } from "mongoose";
-import { paginate, parseSortParams } from "../utils/pagination.util";
+import { Furniture } from "../interfaces";
+import { PaginationService } from './pagination.service';
+import { throwError } from '../utils/errors.util';
+import { ErrorHandler } from '../utils/error-handler.util';
+import { ERROR_MESSAGES } from '../constants';
 
-export const furnitureService = {
-  async create(data: Partial<IFurniture>) {
-    return await FurnitureModel.create(data);
-  },
+/**
+ * FurnitureService
+ * @description Service for furniture operations
+ */
+export class FurnitureService {
+  /**
+   * Create a new furniture
+   * @param data - Furniture data
+   * @returns Created furniture
+   */
+  static async create(data: Partial<Furniture>) {
+    try {
+      return await FurnitureModel.create(data);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'create', data });
+    }
+  }
 
-  async getAll(page = 1, limit = 10, filters: FilterQuery<IFurniture> = {}, orderBy = "createdAt", sortBy: "asc" | "desc" = "desc") {
-    const sortQuery = parseSortParams(orderBy, sortBy);
-    const { data: furnitures, pagination } = await paginate(FurnitureModel, filters, {
-      page,
-      limit,
-      sort: sortQuery,
-      lean: false,
-    });
-    
-    return {
-      furnitures,
-      pagination,
-    };
-  },
+  /**
+   * Get all furniture with pagination
+   * @param query - Query parameters
+   * @returns Paginated furniture list
+   */
+  static async getAll(query: any) {
+    try {
+      const searchableFields = ['itemName', 'itemCode', 'location'];
+      const allowedSortFields = ['itemName', 'itemCode', 'category', 'status', 'location', 'createdAt', 'updatedAt'];
+      const filterFields = ['category', 'status', 'location'];
 
-  async getById(id: string) {
-    return await FurnitureModel.findById(id);
-  },
+      const result = await PaginationService.paginate(FurnitureModel, query, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+      });
 
-  async update(id: string, data: Partial<IFurniture>) {
-    return await FurnitureModel.findByIdAndUpdate(id, data, { new: true });
-  },
+      return {
+        furnitures: result.data,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'getAll', query });
+    }
+  }
 
-  async delete(id: string) {
-    return await FurnitureModel.findByIdAndDelete(id);
-  },
-};
+  /**
+   * Get furniture by ID
+   * @param id - Furniture ID
+   * @returns Furniture details
+   */
+  static async getById(id: string) {
+    try {
+      const furniture = await FurnitureModel.findById(id);
+      if (!furniture) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.FURNITURE_NOT_FOUND);
+      }
+      return furniture;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'getById', id });
+    }
+  }
+
+  /**
+   * Update furniture by ID
+   * @param id - Furniture ID
+   * @param data - Update data
+   * @returns Updated furniture
+   */
+  static async update(id: string, data: Partial<Furniture>) {
+    try {
+      const updated = await FurnitureModel.findByIdAndUpdate(id, data, { new: true });
+      if (!updated) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.FURNITURE_NOT_FOUND);
+      }
+      return updated;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'update', id, data });
+    }
+  }
+
+  /**
+   * Delete furniture by ID
+   * @param id - Furniture ID
+   * @returns Success boolean
+   */
+  static async delete(id: string) {
+    try {
+      const deleted = await FurnitureModel.findByIdAndDelete(id);
+      if (!deleted) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.FURNITURE_NOT_FOUND);
+      }
+      return true;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'delete', id });
+    }
+  }
+}
+

@@ -1,17 +1,7 @@
 import { Schema, model, Document } from "mongoose";
+import { ISupport } from '../interfaces';
 
-export interface ISupport extends Document {
-  ticketTitle: string;
-  category: string;
-  priority: string;
-  department: string;
-  assignTo: string;
-  description: string;
-  submittedBy: string;       // NEW
-  status: string;            // NEW
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type { ISupport };
 
 const SupportSchema = new Schema<ISupport>(
   {

@@ -1,29 +1,7 @@
 import { Schema, model, Document } from "mongoose";
+import { ISoftware } from '../interfaces';
 
-export interface ISoftware extends Document {
-  name: string;
-  vendor: string;
-  licenseType: "Subscription" | "Perpetual" | "Trial" | "Educational";
-  licenseKey: string;
-  totalSeats: number;
-  seatsUsed: number;
-  purchaseDate: Date;
-  expiryDate: Date;
-  renewalCost: string;
-  assignedDepartment:
-    | "All"
-    | "IT"
-    | "Finance"
-    | "HR"
-    | "Operations"
-    | "Sales"
-    | "Marketing"
-    | "Engineering"
-    | "Legal";
-  status: "Active" | "Expiring Soon" | "Expired" | "Suspended";
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type { ISoftware };
 
 const SoftwareSchema = new Schema<ISoftware>(
   {

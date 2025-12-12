@@ -1,60 +1,104 @@
 import { SoftwareModel, ISoftware } from "../models/software.model";
-import { FilterQuery } from "mongoose";
-import { paginate, parseSortParams, validatePaginationParams } from "../utils/pagination.util";
+import { PaginationService } from "./pagination.service";
+import { throwError } from "../utils/errors.util";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ERROR_MESSAGES } from "../constants";
 
-class SoftwareService {
-  async createSoftware(payload: Partial<ISoftware>): Promise<ISoftware> {
-    const doc = await SoftwareModel.create(payload);
-    return doc.toObject();
-  }
-
-  async getAll(
-    filter: FilterQuery<ISoftware> = {},
-    page = 1,
-    limit = 10,
-    orderBy?: string,
-    sortBy?: string
-  ) {
-    // Validate pagination parameters
-    const validation = validatePaginationParams(page, limit);
-    if (!validation.isValid) {
-      throw new Error(validation.error);
+/**
+ * SoftwareService
+ * @description Service for software operations
+ */
+export class SoftwareService {
+  /**
+   * Create a new software
+   * @param data - Software data
+   * @returns Created software
+   */
+  static async create(data: Partial<ISoftware>) {
+    try {
+      return await SoftwareModel.create(data);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'create', data });
     }
-
-    // Parse sorting
-    const sort = orderBy && sortBy
-      ? parseSortParams(orderBy, sortBy)
-      : { createdAt: -1 as const };
-
-    const { data: items, pagination } = await paginate(SoftwareModel, filter, {
-      page,
-      limit,
-      sort,
-      select: "-__v",
-    });
-
-    return {
-      items,
-      pagination,
-    };
   }
 
-  async getById(id: string) {
-    return SoftwareModel.findById(id).lean().select("-__v");
+  /**
+   * Get all software with pagination
+   * @param query - Query parameters
+   * @returns Paginated software list
+   */
+  static async getAll(query: any) {
+    try {
+      const searchableFields = ['softwareName', 'version', 'vendor'];
+      const allowedSortFields = ['softwareName', 'version', 'vendor', 'licenseType', 'status', 'createdAt', 'updatedAt'];
+      const filterFields = ['licenseType', 'status'];
+
+      const result = await PaginationService.paginate(SoftwareModel, query, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+      });
+
+      return {
+        softwares: result.data,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'getAll', query });
+    }
   }
 
-  async updateSoftware(id: string, payload: Partial<ISoftware>) {
-    return SoftwareModel.findByIdAndUpdate(id, payload, {
-      new: true,
-      runValidators: true,
-    })
-      .lean()
-      .select("-__v");
+  /**
+   * Get software by ID
+   * @param id - Software ID
+   * @returns Software details
+   */
+  static async getById(id: string) {
+    try {
+      const software = await SoftwareModel.findById(id);
+      if (!software) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SOFTWARE_NOT_FOUND);
+      }
+      return software;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'getById', id });
+    }
   }
 
-  async deleteSoftware(id: string) {
-    return SoftwareModel.findByIdAndDelete(id).lean().select("-__v");
+  /**
+   * Update software by ID
+   * @param id - Software ID
+   * @param data - Update data
+   * @returns Updated software
+   */
+  static async update(id: string, data: Partial<ISoftware>) {
+    try {
+      const updated = await SoftwareModel.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+      if (!updated) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SOFTWARE_NOT_FOUND);
+      }
+      return updated;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'update', id, data });
+    }
+  }
+
+  /**
+   * Delete software by ID
+   * @param id - Software ID
+   * @returns Success boolean
+   */
+  static async delete(id: string) {
+    try {
+      const deleted = await SoftwareModel.findByIdAndDelete(id);
+      if (!deleted) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SOFTWARE_NOT_FOUND);
+      }
+      return true;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'delete', id });
+    }
   }
 }
 
-export const softwareService = new SoftwareService();

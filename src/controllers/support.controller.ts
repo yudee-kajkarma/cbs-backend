@@ -1,88 +1,86 @@
-import { Request, Response, NextFunction } from "express";
-import { supportService } from "../services/support.service";
-import {
-  sendSuccess,
-  sendCreated,
-  sendError,
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../utils/response.util";
+import { Request, Response } from "express";
+import { SupportService } from "../services/support.service";
+import { SupportResponseDto } from "../dtos/support-dto";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ResponseUtil } from "../utils/response-formatter.util";
+import { toDto, toDtoList } from "../utils/dto-mapper.util";
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
-export const supportController = {
-  async create(req: Request, res: Response, next: NextFunction) {
+export class SupportController {
+  /**
+   * Create a new support ticket
+   */
+  static async create(req: Request, res: Response): Promise<void> {
     try {
-      const data = await supportService.create(req.body);
-      return sendCreated(res, SUCCESS_MESSAGES.SUPPORT_CREATED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const result = await SupportService.create(req.body);
+      const dto = toDto(SupportResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.SUPPORT.CREATED_SUCCESSFULLY, dto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
     }
-  },
+  }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Get all support tickets with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        page = 1,
-        limit = 10,
-        search,
-        category,
-        priority,
-        department,
-        status,
-        orderBy,
-        sortBy,
-      } = req.query;
-
-      const data = await supportService.getAll({
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        search: search as string,
-        category: category as string,
-        priority: priority as string,
-        department: department as string,
-        status: status as string,
-        orderBy: orderBy as string,
-        sortBy: sortBy as "asc" | "desc",
-      });
-
-      return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_LIST_FETCHED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const result = await SupportService.getAll(req.query);
+      const ticketsDto = toDtoList(SupportResponseDto, result.tickets);
+      const responseData = {
+        tickets: ticketsDto,
+        pagination: result.pagination,
+        filters: result.filters
+      };
+      const response = ResponseUtil.success(INFO_MESSAGES.SUPPORT.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
     }
-  },
+  }
 
-  async getById(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Get support ticket by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const data = await supportService.getById(req.params.id);
-      if (!data) {
-        return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
-      }
-      return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_FETCHED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const { id } = req.params;
+      const result = await SupportService.getById(id);
+      const dto = toDto(SupportResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.SUPPORT.RETRIEVED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
     }
-  },
+  }
 
-  async update(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Update support ticket by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
     try {
-      const data = await supportService.update(req.params.id, req.body);
-      if (!data) {
-        return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
-      }
-      return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_UPDATED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const { id } = req.params;
+      const result = await SupportService.update(id, req.body);
+      const dto = toDto(SupportResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.SUPPORT.UPDATED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
     }
-  },
+  }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Delete support ticket by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const deleted = await supportService.delete(req.params.id);
-      if (!deleted) {
-        return sendError(res, 404, ERROR_MESSAGES.SUPPORT_NOT_FOUND);
-      }
-      return sendSuccess(res, SUCCESS_MESSAGES.SUPPORT_DELETED);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const { id } = req.params;
+      await SupportService.delete(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.SUPPORT.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
     }
-  },
-};
+  }
+}

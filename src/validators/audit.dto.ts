@@ -1,12 +1,5 @@
 import Joi from "joi";
-
-export const allowedAuditTypes = [
-  "Financial Audit",
-  "Internal Audit",
-  "Compliance Audit",
-  "Tax Audit",
-  "Operational Audit"
-];
+import { allowedAuditTypes } from "../constants/audit.constants";
 
 export const auditIdDto = Joi.object({
   id: Joi.string().length(24).hex().required()

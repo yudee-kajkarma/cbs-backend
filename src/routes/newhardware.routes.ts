@@ -1,38 +1,38 @@
 import { Router } from "express";
-import { newHardwareController } from "../controllers/newhardware.controller";
+import { NewHardwareController } from "../controllers/newhardware.controller";
 import {
-  newHardwareValidateRequest,
-  newHardwareValidateQuery,
-  newHardwareValidateParams,
-} from "../middlewares/newhardware.middleware";
+  validateRequest,
+  validateQuery,
+  validateParams,
+} from "../middlewares/validate.middleware";
 
 import {
   createNewHardwareSchema,
   updateNewHardwareSchema,
   getNewHardwareListSchema,
   getNewHardwareByIdSchema,
-} from "../dto/newhardware.dto";
+} from "../validators/newhardware.dto";
 
 const router = Router();
 
 // CREATE
-router.post("/", newHardwareValidateRequest(createNewHardwareSchema), newHardwareController.create);
+router.post("/", validateRequest(createNewHardwareSchema), NewHardwareController.create);
 
 // GET ALL (list with filters)
-router.get("/", newHardwareValidateQuery(getNewHardwareListSchema), newHardwareController.getAll);
+router.get("/", validateQuery(getNewHardwareListSchema), NewHardwareController.getAll);
 
 // GET BY ID
-router.get("/:id", newHardwareValidateParams(getNewHardwareByIdSchema), newHardwareController.getById);
+router.get("/:id", validateParams(getNewHardwareByIdSchema), NewHardwareController.getById);
 
 // UPDATE
 router.put(
   "/:id",
-  newHardwareValidateParams(getNewHardwareByIdSchema),
-  newHardwareValidateRequest(updateNewHardwareSchema),
-  newHardwareController.update
+  validateParams(getNewHardwareByIdSchema),
+  validateRequest(updateNewHardwareSchema),
+  NewHardwareController.update
 );
 
 // DELETE
-router.delete("/:id", newHardwareValidateParams(getNewHardwareByIdSchema), newHardwareController.delete);
+router.delete("/:id", validateParams(getNewHardwareByIdSchema), NewHardwareController.delete);
 
 export default router;

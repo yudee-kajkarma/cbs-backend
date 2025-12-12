@@ -1,131 +1,107 @@
 import { Request, Response } from "express";
-import * as DocumentService from "../services/document.service";
-import {
-  sendSuccess,
-  sendCreated,
-  sendError,
-  ERROR_MESSAGES,
-  SUCCESS_MESSAGES,
-} from "../utils/response.util";
-import { handleControllerError } from "../utils/error.util";
+import { DocumentService } from "../services/document.service";
+import { DocumentResponseDto, GetAllDocumentsResponseDto } from "../dtos/document-dto";
+import { toDto, toDtoList } from "../utils/dto-mapper.util";
+import { ResponseUtil } from "../utils/response-formatter.util";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { INFO_MESSAGES } from "../constants/info-messages.constants";
 
-// ---------------------------------------------
-// CREATE DOCUMENT
-// ---------------------------------------------
-export const create = async (req: Request, res: Response) => {
-  try {
-    const result = await DocumentService.create(req.body, req.file);
-
-    return sendCreated(res, SUCCESS_MESSAGES.DOCUMENT_CREATED, {
-      document: result,
-    });
-  } catch (error: any) {
-    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+export class DocumentController {
+  /**
+   * Create a new document
+   */
+  static async create(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await DocumentService.create(req.body);
+      const documentDto = toDto(DocumentResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.DOCUMENT.CREATED_SUCCESSFULLY, documentDto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
+    }
   }
-};
 
-// ---------------------------------------------
-// LIST DOCUMENTS WITH FILTER + PAGINATION
-// ---------------------------------------------
-export const list = async (req: Request, res: Response) => {
-  try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-
-    // Collect filters
-const filters = {
-  search: req.query.search as string | undefined,
-  name: req.query.name as string | undefined,
-  category: req.query.category as string | undefined,
-  status: req.query.status as string | undefined,
-  orderBy: req.query.orderBy as string | undefined,
-  sortBy: req.query.sortBy as string | undefined,
-};
-
-
-    // Call service
-    const result = await DocumentService.getAll(page, limit, filters);
-
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_LIST_FETCHED, {
-      documents: result.documents,
-      pagination: result.pagination,
-    });
-  } catch (error: any) {
-    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+  /**
+   * Get document by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const result = await DocumentService.getOne(id);
+      const documentDto = toDto(DocumentResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.DOCUMENT.RETRIEVED_SUCCESSFULLY, documentDto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
+    }
   }
-};
 
-// ---------------------------------------------
-// GET SINGLE DOCUMENT
-// ---------------------------------------------
-export const getOne = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
+  /**
+   * Get all documents with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
+    try {
+      const query = res.locals.validatedQuery || req.query;
+      const result = await DocumentService.getAll(query);
 
-    const doc = await DocumentService.getOne(id);
-    if (!doc) return sendError(res, 404, ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
+      const documentsDto = toDtoList(DocumentResponseDto, result.documents);
 
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_FETCHED, {
-      document: doc,
-    });
-  } catch (error: any) {
-    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+      const responseData: GetAllDocumentsResponseDto = {
+        documents: documentsDto,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+
+      const response = ResponseUtil.success(INFO_MESSAGES.DOCUMENT.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
+    }
   }
-};
 
-// ---------------------------------------------
-// UPDATE DOCUMENT
-// ---------------------------------------------
-export const update = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
-
-    const updated = await DocumentService.update(id, req.body, req.file);
-    if (!updated) return sendError(res, 404, ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
-
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_UPDATED, {
-      document: updated,
-    });
-  } catch (error: any) {
-    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+  /**
+   * Update document by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const result = await DocumentService.update(id, req.body);
+      const documentDto = toDto(DocumentResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.DOCUMENT.UPDATED_SUCCESSFULLY, documentDto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
+    }
   }
-};
 
-// ---------------------------------------------
-// DELETE DOCUMENT
-// ---------------------------------------------
-// DELETE DOCUMENT
-// ---------------------------------------------
-export const remove = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
-
-    const deleted = await DocumentService.remove(id);
-    if (!deleted) return sendError(res, 404, ERROR_MESSAGES.DOCUMENT_NOT_FOUND);
-
-    return sendSuccess(res, SUCCESS_MESSAGES.DOCUMENT_DELETED, {
-      deleted: true,
-    });
-  } catch (error: any) {
-    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+  /**
+   * Delete document by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      await DocumentService.remove(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.DOCUMENT.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
+    }
   }
-};
 
-// ---------------------------------------------
-// GET DOWNLOAD URL (Optimized endpoint)
-// ---------------------------------------------
-export const getDownloadUrl = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id;
-
-    const url = await DocumentService.getDownloadUrl(id);
-    if (!url) return sendError(res, 404, "Document or file not found");
-
-    return sendSuccess(res, "Download URL generated successfully", {
-      url,
-      expiresIn: 900, // 15 minutes (default S3 expiry)
-    });
-  } catch (error: any) {
-    return handleControllerError(res, error, ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
+  /**
+   * Get download URL for document
+   */
+  static async getDownloadUrl(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const url = await DocumentService.getDownloadUrl(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.DOCUMENT.DOWNLOAD_URL_GENERATED_SUCCESSFULLY, {
+        url,
+        expiresIn: 900,
+      });
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getDownloadUrl', id: req.params.id });
+    }
   }
-};
+}

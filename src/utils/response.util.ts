@@ -74,7 +74,7 @@ export const SUCCESS_MESSAGES = {
   NETWORK_EQUIPMENT_UPDATED: "Network equipment updated successfully",
   NETWORK_EQUIPMENT_DELETED: "Network equipment deleted successfully",
 
-  // 🔥 Furniture (MOVE HERE)
+  //  Furniture (MOVE HERE)
   FURNITURE_CREATED: "Furniture item created successfully",
   FURNITURE_LIST_FETCHED: "Furniture list fetched successfully",
   FURNITURE_FETCHED: "Furniture fetched successfully",
@@ -96,7 +96,7 @@ export const ERROR_MESSAGES = {
 
   // -------- SOFTWARE ERRORS --------
   SOFTWARE_NOT_FOUND: "Software not found",
-  LICENSE_KEY_EXISTS: "License key already exists",   // <-- Added here
+  LICENSE_KEY_EXISTS: "License key already exists",   
 
   // Document
   DOCUMENT_NOT_FOUND: "Document not found",

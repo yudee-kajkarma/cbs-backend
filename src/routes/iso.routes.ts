@@ -1,16 +1,13 @@
 import { Router } from "express";
-import multer from "multer";
 
-import * as ISOController from "../controllers/iso.controller";
-import { validateRequest, validateParams, validateQuery } from "../middlewares/iso.middleware";
-import { createISODto, updateISODto, isoIdDto, isoQueryDto } from "../dto/iso.dto";
+import { ISOController } from "../controllers/iso.controller";
+import { validateRequest, validateParams, validateQuery } from "../middlewares/validate.middleware";
+import { createISODto, updateISODto, isoIdDto, isoQueryDto } from "../validators/iso.dto";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
 router.post(
   "/",
-  upload.single("file"),
   validateRequest(createISODto),
   ISOController.create
 );
@@ -24,12 +21,11 @@ router.get(
 router.get(
   "/:id",
   validateParams(isoIdDto),
-  ISOController.getOne
+  ISOController.getById
 );
 
 router.put(
   "/:id",
-  upload.single("file"),
   validateParams(isoIdDto),
   validateRequest(updateISODto),
   ISOController.update
@@ -38,7 +34,7 @@ router.put(
 router.delete(
   "/:id",
   validateParams(isoIdDto),
-  ISOController.remove
+  ISOController.delete
 );
 
 export default router;

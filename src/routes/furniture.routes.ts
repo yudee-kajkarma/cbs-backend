@@ -1,23 +1,23 @@
 import { Router } from "express";
-import { furnitureController } from "../controllers/furniture.controller";
+import { FurnitureController } from "../controllers/furniture.controller";
 import {
-  furnitureValidateRequest,
-  furnitureValidateQuery,
-  furnitureValidateParams,
-} from "../middlewares/furniture.middleware";
+  validateRequest,
+  validateQuery,
+  validateParams,
+} from "../middlewares/validate.middleware";
 import {
   createFurnitureSchema,
   updateFurnitureSchema,
   getFurnitureListSchema,
   getFurnitureByIdSchema,
-} from "../dto/furniture.dto";
+} from "../validators/furniture.dto";
 
 const router = Router();
 
-router.post("/", furnitureValidateRequest(createFurnitureSchema), furnitureController.create);
-router.get("/", furnitureValidateQuery(getFurnitureListSchema), furnitureController.getAll);
-router.get("/:id", furnitureValidateParams(getFurnitureByIdSchema), furnitureController.getById);
-router.put("/:id", furnitureValidateParams(getFurnitureByIdSchema), furnitureValidateRequest(updateFurnitureSchema), furnitureController.update);
-router.delete("/:id", furnitureValidateParams(getFurnitureByIdSchema), furnitureController.delete);
+router.post("/", validateRequest(createFurnitureSchema), FurnitureController.create);
+router.get("/", validateQuery(getFurnitureListSchema), FurnitureController.getAll);
+router.get("/:id", validateParams(getFurnitureByIdSchema), FurnitureController.getById);
+router.put("/:id", validateParams(getFurnitureByIdSchema), validateRequest(updateFurnitureSchema), FurnitureController.update);
+router.delete("/:id", validateParams(getFurnitureByIdSchema), FurnitureController.delete);
 
 export default router;

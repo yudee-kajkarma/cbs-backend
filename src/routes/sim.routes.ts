@@ -1,25 +1,23 @@
 import { Router } from "express";
-import { simController } from "../controllers/sim.controller";
-import { validateBody, validateParams, validateQuery } from "../middlewares/sim.middleware";
-import { createSimSchema, updateSimSchema, idParamSchema, getSimsQuerySchema } from "../dto/sim.dto";
+import { SimController } from "../controllers/sim.controller";
+import { validateBody, validateParams, validateQuery } from "../middlewares/validate.middleware";
+import { createSimSchema, updateSimSchema, idParamSchema, getSimsQuerySchema } from "../validators/sim.dto";
 
 const router = Router();
 
 // Create
-router.post("/", validateBody(createSimSchema), (req, res) => simController.create(req, res));
+router.post("/", validateBody(createSimSchema), SimController.create);
 
 // List with pagination & filters
-router.get("/", validateQuery(getSimsQuerySchema), (req, res) => simController.getAll(req, res));
+router.get("/", validateQuery(getSimsQuerySchema), SimController.getAll);
 
 // Get one
-router.get("/:id", validateParams(idParamSchema), (req, res) => simController.getOne(req, res));
+router.get("/:id", validateParams(idParamSchema), SimController.getById);
 
 // Update
-router.put("/:id", validateParams(idParamSchema), validateBody(updateSimSchema), (req, res) =>
-  simController.update(req, res)
-);
+router.put("/:id", validateParams(idParamSchema), validateBody(updateSimSchema), SimController.update);
 
 // Delete
-router.delete("/:id", validateParams(idParamSchema), (req, res) => simController.delete(req, res));
+router.delete("/:id", validateParams(idParamSchema), SimController.delete);
 
 export default router;

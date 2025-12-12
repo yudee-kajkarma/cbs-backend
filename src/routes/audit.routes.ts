@@ -1,7 +1,6 @@
 import { Router } from "express";
-import multer from "multer";
 
-import * as AuditController from "../controllers/audit.controller";
+import { AuditController } from "../controllers/audit.controller";
 
 import {
   validateRequest,
@@ -12,21 +11,19 @@ import {
   createAuditDto,
   updateAuditDto,
   auditIdDto
-} from "../dto/audit.dto";
+} from "../validators/audit.dto";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
 // CREATE
 router.post(
   "/",
-  upload.single("file"),
   validateRequest(createAuditDto),
   AuditController.create
 );
 
 // LIST
-router.get("/", AuditController.list);
+router.get("/", AuditController.getAll);
 
 // GET BY ID
 router.get(
@@ -38,7 +35,6 @@ router.get(
 // UPDATE
 router.put(
   "/:id",
-  upload.single("file"),
   validateParams(auditIdDto),
   validateRequest(updateAuditDto),
   AuditController.update
@@ -48,7 +44,7 @@ router.put(
 router.delete(
   "/:id",
   validateParams(auditIdDto),
-  AuditController.deleteAudit
+  AuditController.delete
 );
 
 export default router;

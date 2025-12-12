@@ -1,12 +1,5 @@
 import Joi from "joi";
-
-export const allowedISOStandards = [
-  "ISO 9001:2015",
-  "ISO 14001:2015",
-  "ISO 27001:2013",
-  "ISO 45001:2018",
-  "ISO 50001:2018"
-];
+import { allowedISOStandards } from "../constants/iso.constants";
 
 const isoBaseSchema = {
   certificateName: Joi.string(),
@@ -14,6 +7,7 @@ const isoBaseSchema = {
   issueDate: Joi.date(),
   expiryDate: Joi.date(),
   certifyingBody: Joi.string(),
+  fileKey: Joi.string(),
 };
 
 export const createISODto = Joi.object({
@@ -22,6 +16,7 @@ export const createISODto = Joi.object({
   issueDate: isoBaseSchema.issueDate.required(),
   expiryDate: isoBaseSchema.expiryDate.required(),
   certifyingBody: isoBaseSchema.certifyingBody.required(),
+  fileKey: isoBaseSchema.fileKey.required(),
 });
 
 export const updateISODto = Joi.object({
@@ -30,6 +25,7 @@ export const updateISODto = Joi.object({
   issueDate: isoBaseSchema.issueDate.optional(),
   expiryDate: isoBaseSchema.expiryDate.optional(),
   certifyingBody: isoBaseSchema.certifyingBody.optional(),
+  fileKey: isoBaseSchema.fileKey.optional(),
 }).min(1);
 
 export const isoIdDto = Joi.object({

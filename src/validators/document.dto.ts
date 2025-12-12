@@ -1,12 +1,5 @@
 import Joi from "joi";
-
-export const allowedDocumentCategories = [
-  "Contract",
-  "Template",
-  "Agreement",
-  "Policy",
-  "Other",
-] as const;
+import { allowedDocumentCategories } from "../constants/document.constants";
 
 export const createDocumentSchema = Joi.object({
   name: Joi.string().required(),

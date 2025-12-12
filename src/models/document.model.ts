@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { allowedDocumentCategories } from "../dto/document.dto";
+import { allowedDocumentCategories } from "../constants/document.constants";
 
 const documentSchema = new Schema(
   {

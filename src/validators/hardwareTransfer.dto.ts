@@ -6,7 +6,7 @@ import {
   HardwareList,
   TransferUserList,
   TransferStatus,
-} from "../models/hardwareTransfer.model";
+} from "../constants";
 
 // Base schema for reusability
 const hardwareTransferBaseSchema = {

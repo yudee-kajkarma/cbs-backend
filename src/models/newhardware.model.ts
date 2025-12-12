@@ -1,114 +1,95 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+import { HardwareType, OperatingSystem, RAM, Storage, Department, HardwareStatus } from "../constants";
+import { NewHardware, NewHardwareDocument } from '../interfaces';
 
-export type HardwareType = "Laptop" | "Desktop" | "Server" | "Tablet" | "Workstation";
-export type OperatingSystem =
-  | "Windows 11 Pro"
-  | "Windows 10 Pro"
-  | "macOS Sonoma"
-  | "Ubuntu Server 22.04"
-  | "Ubuntu Desktop 22.04"
-  | "Linux (Other)";
-export type RAMOption = "4GB" | "8GB" | "16GB" | "32GB" | "64GB" | "128GB";
-export type StorageOption =
-  | "128GB SSD"
-  | "256GB SSD"
-  | "512GB SSD"
-  | "1TB SSD"
-  | "2TB SSD"
-  | "2TB RAID"
-  | "4TB RAID";
-export type DepartmentOption = "IT" | "Finance" | "HR" | "Operations" | "Sales" | "Marketing" | "Legal";
-export type HardwareStatus = "Active" | "Inactive" | "Under Repair" | "Retired";
-
-export interface INewHardware extends Document {
-  deviceName: string;
-  type: HardwareType;
-  serialNumber: string;
-  operatingSystem: OperatingSystem;
-  processor?: string | null;
-  ram?: RAMOption | null;
-  storage?: StorageOption | null;
-  purchaseDate?: Date | null;
-  warrantyExpiry?: Date | null;
-  assignedTo?: string | null;
-  department?: DepartmentOption | null;
-  status: HardwareStatus;
-  submittedBy?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const NewHardwareSchema = new Schema<INewHardware>(
+const NewHardwareSchema = new Schema<NewHardwareDocument>(
   {
-    deviceName: { type: String, required: true },
+    deviceName: {
+      type: String,
+      required: [true, 'Device name is required'],
+      trim: true,
+      maxlength: [200, 'Device name cannot exceed 200 characters'],
+    },
     type: {
       type: String,
-      enum: ["Laptop", "Desktop", "Server", "Tablet", "Workstation"],
-      required: true,
+      enum: {
+        values: Object.values(HardwareType),
+        message: '{VALUE} is not a valid hardware type',
+      },
+      required: [true, 'Hardware type is required'],
     },
-    serialNumber: { type: String, required: true, unique: true },
+    serialNumber: {
+      type: String,
+      required: [true, 'Serial number is required'],
+      unique: true,
+      trim: true,
+      maxlength: [100, 'Serial number cannot exceed 100 characters'],
+    },
     operatingSystem: {
       type: String,
-      enum: [
-        "Windows 11 Pro",
-        "Windows 10 Pro",
-        "macOS Sonoma",
-        "Ubuntu Server 22.04",
-        "Ubuntu Desktop 22.04",
-        "Linux (Other)",
-      ],
-      required: true,
+      enum: {
+        values: Object.values(OperatingSystem),
+        message: '{VALUE} is not a valid operating system',
+      },
+      required: [true, 'Operating system is required'],
     },
-    processor: { type: String, default: null },
+    processor: {
+      type: String,
+      trim: true,
+      maxlength: [200, 'Processor description cannot exceed 200 characters'],
+    },
     ram: {
       type: String,
-      enum: ["4GB", "8GB", "16GB", "32GB", "64GB", "128GB"],
-      default: null,
+      enum: Object.values(RAM),
     },
     storage: {
       type: String,
-      enum: [
-        "128GB SSD",
-        "256GB SSD",
-        "512GB SSD",
-        "1TB SSD",
-        "2TB SSD",
-        "2TB RAID",
-        "4TB RAID",
-      ],
-      default: null,
+      enum: Object.values(Storage),
     },
-    purchaseDate: { type: Date, default: null },
-    warrantyExpiry: { type: Date, default: null },
-    assignedTo: { type: String, default: null },
+    purchaseDate: {
+      type: Date,
+    },
+    warrantyExpiry: {
+      type: Date,
+      validate: {
+        validator: function(this: NewHardwareDocument, value: Date) {
+          return !this.purchaseDate || !value || value >= this.purchaseDate;
+        },
+        message: 'Warranty expiry must be after purchase date',
+      },
+    },
+    assignedTo: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Assigned to cannot exceed 100 characters'],
+    },
     department: {
       type: String,
-      enum: ["IT", "Finance", "HR", "Operations", "Sales", "Marketing", "Legal"],
-      default: null,
+      enum: Object.values(Department),
     },
     status: {
       type: String,
-      enum: ["Active", "Inactive", "Under Repair", "Retired"],
-      required: true,
-      default: "Active",
+      enum: Object.values(HardwareStatus),
+      required: [true, 'Status is required'],
+      default: HardwareStatus.ACTIVE,
     },
-    submittedBy: { type: String, default: null },
+    submittedBy: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Submitted by cannot exceed 100 characters'],
+    },
   },
   {
     timestamps: true,
-    toJSON: {
-      transform(doc, ret) {
-        delete ret.__v;
-        return ret;
-      },
-    },
-    toObject: {
-      transform(doc, ret) {
-        delete ret.__v;
-        return ret;
-      },
-    },
+    versionKey: false,
   }
 );
 
-export const NewHardwareModel = model<INewHardware>("NewHardware", NewHardwareSchema);
+// Indexes for better query performance
+NewHardwareSchema.index({ serialNumber: 1 }, { name: 'idx_hardware_serial_unique', unique: true });
+NewHardwareSchema.index({ type: 1 }, { name: 'idx_hardware_type' });
+NewHardwareSchema.index({ status: 1 }, { name: 'idx_hardware_status' });
+NewHardwareSchema.index({ department: 1 }, { name: 'idx_hardware_department' });
+NewHardwareSchema.index({ status: 1, createdAt: -1 }, { name: 'idx_hardware_status_created' });
+
+export const NewHardwareModel = mongoose.model<NewHardwareDocument>("NewHardware", NewHardwareSchema);

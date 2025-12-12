@@ -1,66 +1,86 @@
-import { Request, Response, NextFunction } from "express";
-import { newHardwareService } from "../services/newhardware.service";
-import { sendSuccess, sendCreated, sendError, SUCCESS_MESSAGES, ERROR_MESSAGES } from "../utils/response.util";
+import { Request, Response } from "express";
+import { NewHardwareService } from "../services/newhardware.service";
+import { NewHardwareResponseDto, GetAllNewHardwareResponseDto } from "../dtos/newhardware-dto";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ResponseUtil } from "../utils/response-formatter.util";
+import { toDto, toDtoList } from "../utils/dto-mapper.util";
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
-export const newHardwareController = {
-  async create(req: Request, res: Response, next: NextFunction) {
+export class NewHardwareController {
+  /**
+   * Create a new hardware
+   */
+  static async create(req: Request, res: Response): Promise<void> {
     try {
-      const data = await newHardwareService.create(req.body);
-      return sendCreated(res, SUCCESS_MESSAGES.NEW_HARDWARE_CREATED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const result = await NewHardwareService.create(req.body);
+      const dto = toDto(NewHardwareResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.NEW_HARDWARE.CREATED_SUCCESSFULLY, dto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
     }
-  },
+  }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Get all hardware with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const page = parseInt((req.query.page as string) || "1", 10);
-      const limit = parseInt((req.query.limit as string) || "10", 10);
-      const filters = {
-        search: req.query.search,
-        type: req.query.type,
-        operatingSystem: req.query.operatingSystem,
-        department: req.query.department,
-        status: req.query.status,
-        orderBy: req.query.orderBy,
-        sortBy: req.query.sortBy,
+      const result = await NewHardwareService.getAll(req.query);
+      const hardwareDto = toDtoList(NewHardwareResponseDto, result.newHardwares);
+      const responseData = {
+        newHardwares: hardwareDto,
+        pagination: result.pagination,
+        filters: result.filters
       };
-
-
-      const { newHardwares, pagination } = await newHardwareService.getAll(page, limit, filters);
-      return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_LIST_FETCHED, { newHardwares, pagination });
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const response = ResponseUtil.success(INFO_MESSAGES.NEW_HARDWARE.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
     }
-  },
+  }
 
-  async getById(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Get hardware by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
     try {
-      const data = await newHardwareService.getById(req.params.id);
-      if (!data) return sendError(res, 404, ERROR_MESSAGES.HARDWARE_NOT_FOUND);
-      return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_FETCHED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const { id } = req.params;
+      const result = await NewHardwareService.getById(id);
+      const dto = toDto(NewHardwareResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.NEW_HARDWARE.RETRIEVED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
     }
-  },
+  }
 
-  async update(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Update hardware by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
     try {
-      const data = await newHardwareService.update(req.params.id, req.body);
-      if (!data) return sendError(res, 404, ERROR_MESSAGES.HARDWARE_NOT_FOUND);
-      return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_UPDATED, data);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const { id } = req.params;
+      const result = await NewHardwareService.update(id, req.body);
+      const dto = toDto(NewHardwareResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.NEW_HARDWARE.UPDATED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
     }
-  },
+  }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
+  /**
+   * Delete hardware by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const deleted = await newHardwareService.delete(req.params.id);
-      if (!deleted) return sendError(res, 404, ERROR_MESSAGES.HARDWARE_NOT_FOUND);
-      return sendSuccess(res, SUCCESS_MESSAGES.NEW_HARDWARE_DELETED);
-    } catch (error: any) {
-      return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
+      const { id } = req.params;
+      await NewHardwareService.delete(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.NEW_HARDWARE.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
     }
-  },
-};
+  }
+}

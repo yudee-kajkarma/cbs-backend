@@ -1,223 +1,167 @@
 import { ISOModel } from "../models/iso.model";
-import { allowedISOStandards } from "../dto/iso.dto";
-import {
-  uploadBufferToS3,
-  getPresignedUrl,
-  deleteFromS3,
-} from "../utils/s3.util";
-import { paginate, validatePaginationParams, parseSortParams } from "../utils/pagination.util";
+import { allowedISOStandards, ISOStandard } from "../constants/iso.constants";
+import { FileUploadService } from "./file-upload.service";
+import { validateS3Keys } from "../utils/aws.util";
+import { PaginationService } from "./pagination.service";
+import { throwError } from "../utils/errors.util";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ERROR_MESSAGES } from "../constants/error-messages.constants";
+import { calculateExpiryStatus } from "../utils/status.util";
 
-export interface CreateISOInput {
-  certificateName: string;
-  isoStandard: string;
-  issueDate: Date;
-  expiryDate: Date;
-  certifyingBody: string;
-}
-
-export interface UpdateISOInput {
-  certificateName?: string;
-  isoStandard?: string;
-  issueDate?: Date;
-  expiryDate?: Date;
-  certifyingBody?: string;
-}
-
-const calculateStatus = (expiryDate: Date): string => {
-  const now = new Date();
-  const expiry = new Date(expiryDate);
-  const diffDays = Math.ceil(
-    (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  );
-  if (diffDays <= 0) return "Expired";
-  if (diffDays <= 30) return "Expiring Soon";
-  return "Active";
-};
-
-export const create = async (
-  data: CreateISOInput,
-  file?: Express.Multer.File
-) => {
-  if (!allowedISOStandards.includes(data.isoStandard)) {
-    throw new Error("Invalid ISO Standard");
+export class ISOService {
+  /**
+   * Helper: Format ISO for list view (without S3 calls)
+   */
+  private static formatISOForList(iso: any) {
+    return {
+      ...iso,
+      status: calculateExpiryStatus(iso.expiryDate),
+      hasFile: !!iso.fileKey,
+    };
   }
 
-  if (!file) {
-    throw new Error("File is required");
+  /**
+   * Helper: Format ISO with S3 URL
+   */
+  private static async formatISO(iso: any) {
+    return {
+      ...iso,
+      status: calculateExpiryStatus(iso.expiryDate),
+      fileUrl: iso.fileKey ? await FileUploadService.generateDownloadUrl(iso.fileKey) : null,
+    };
   }
 
-  const fileKey = await uploadBufferToS3(
-    file.buffer,
-    file.originalname,
-    file.mimetype
-  );
-
-  const iso = await ISOModel.create({
-    ...data,
-    fileKey,
-  });
-
-  return iso.toObject();
-};
-
-export const getAll = async (page: number, limit: number, query: any) => {
-  // Validate pagination parameters
-  const validation = validatePaginationParams(page, limit);
-  if (!validation.isValid) {
-    throw new Error(validation.error);
-  }
-
-  const {
-    certificateName,
-    status,
-    isoStandard,
-    certifyingBody,
-    issueDateFrom,
-    issueDateTo,
-    expiryDateFrom,
-    expiryDateTo,
-    orderBy,
-    sortBy
-  } = query;
-
-  let filter: any = {};
-
-  if (certificateName) {
-    filter.certificateName = { $regex: certificateName, $options: "i" };
-  }
-
-  if (isoStandard) {
-    filter.isoStandard = isoStandard;
-  }
-
-  if (certifyingBody) {
-    filter.certifyingBody = { $regex: certifyingBody, $options: "i" };
-  }
-
-  // Issue Date Range
-  if (issueDateFrom || issueDateTo) {
-    filter.issueDate = {};
-    if (issueDateFrom) filter.issueDate.$gte = new Date(issueDateFrom);
-    if (issueDateTo) filter.issueDate.$lte = new Date(issueDateTo);
-  }
-
-  // Expiry Date Range - Build incrementally to avoid overwriting
-  if (expiryDateFrom || expiryDateTo || status) {
-    if (!filter.expiryDate) filter.expiryDate = {};
-
-    // User-provided date range
-    if (expiryDateFrom) filter.expiryDate.$gte = new Date(expiryDateFrom);
-    if (expiryDateTo) filter.expiryDate.$lte = new Date(expiryDateTo);
-
-    // Status filter - only apply if no explicit date range provided
-    if (status && !expiryDateFrom && !expiryDateTo) {
-      const now = new Date();
-      const soon = new Date();
-      soon.setDate(now.getDate() + 30);
-
-      if (status === "Expired") {
-        filter.expiryDate.$lte = now;
-      } else if (status === "Expiring Soon") {
-        filter.expiryDate.$gte = now;
-        filter.expiryDate.$lte = soon;
-      } else if (status === "Active") {
-        filter.expiryDate.$gt = soon;
-      }
-    }
-  }
-
-  // Parse sorting parameters
-  const sort = orderBy && sortBy 
-    ? parseSortParams(orderBy, sortBy) 
-    : { createdAt: -1 as const };
-
-  // Use pagination utility
-  const { data: isos, pagination } = await paginate(ISOModel, filter, {
-    page,
-    limit,
-    sort,
-  });
-
-  // Optimize: Don't generate presigned URLs for list view
-  const formatted = isos.map((iso) => ({
-    ...iso,
-    status: calculateStatus(iso.expiryDate),
-    hasFile: !!iso.fileKey, 
-  }));
-
-  return {
-    isos: formatted,
-    pagination,
-  };
-};
-
-
-export const getOne = async (id: string) => {
-  const iso = await ISOModel.findById(id).lean();
-  if (!iso) return null;
-
-  return {
-    ...iso,
-    status: calculateStatus(iso.expiryDate),
-    fileUrl: iso.fileKey ? await getPresignedUrl(iso.fileKey) : null,
-  };
-};
-
-export const update = async (
-  id: string,
-  data: UpdateISOInput,
-  file?: Express.Multer.File
-) => {
-  const existing = await ISOModel.findById(id);
-  if (!existing) return null;
-
-  if (data.isoStandard && !allowedISOStandards.includes(data.isoStandard)) {
-    throw new Error("Invalid ISO Standard");
-  }
-
-  let fileKey = existing.fileKey;
-
-  if (file) {
-    if (existing.fileKey) await deleteFromS3(existing.fileKey);
-    fileKey = await uploadBufferToS3(
-      file.buffer,
-      file.originalname,
-      file.mimetype
-    );
-  }
-
-  const updated = await ISOModel.findByIdAndUpdate(
-    id,
-    { ...data, fileKey },
-    { new: true, lean: true }
-  );
-
-  if (!updated) return null;
-
-  return {
-    ...updated,
-    status: calculateStatus(updated.expiryDate),
-    fileUrl: updated.fileKey ? await getPresignedUrl(updated.fileKey) : null,
-  };
-};
-
-export const remove = async (id: string) => {
-  const existing = await ISOModel.findById(id);
-  if (!existing) return null;
-
-  const fileKey = existing.fileKey;
-  
-  // Delete from DB first
-  await ISOModel.findByIdAndDelete(id);
-  
-  // Then delete from S3 (best effort)
-  if (fileKey) {
+  /**
+   * Create a new ISO certificate
+   */
+  static async create(data: any): Promise<any> {
     try {
-      await deleteFromS3(fileKey);
+      if (!allowedISOStandards.includes(data.isoStandard as ISOStandard)) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_ISO_STANDARD);
+      }
+
+      if (data.fileKey) {
+        await validateS3Keys([data.fileKey]);
+      }
+
+      const iso = await ISOModel.create(data);
+      return iso.toObject();
     } catch (error) {
-      console.error('Failed to delete S3 file:', fileKey, error);
+      ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'create', data });
     }
   }
 
-  return true;
-};
+  /**
+   * Get all ISO certificates with pagination and filtering
+   */
+  static async getAll(query: any): Promise<any> {
+    try {
+      const searchableFields = ['certificateName', 'isoStandard', 'certifyingBody'];
+      const allowedSortFields = ['certificateName', 'isoStandard', 'certifyingBody', 'issueDate', 'expiryDate', 'createdAt', 'updatedAt'];
+      const filterFields = ['isoStandard', 'status'];
+
+      const result = await PaginationService.paginate(ISOModel, query, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+      });
+
+      // Format ISOs without expensive S3 calls
+      const formatted = result.data.map((iso: any) => this.formatISOForList(iso));
+
+      return {
+        isos: formatted,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'getAll', query });
+    }
+  }
+
+  /**
+   * Get ISO certificate by ID
+   */
+  static async getOne(id: string): Promise<any> {
+    try {
+      const iso = await ISOModel.findById(id).lean();
+      
+      if (!iso) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
+      }
+
+      return await this.formatISO(iso);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'getOne', id });
+    }
+  }
+
+  /**
+   * Update ISO certificate by ID
+   */
+  static async update(id: string, data: any): Promise<any> {
+    try {
+      const existing = await ISOModel.findById(id);
+      
+      if (!existing) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
+      }
+
+      if (data.isoStandard && !allowedISOStandards.includes(data.isoStandard as ISOStandard)) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_ISO_STANDARD);
+      }
+
+      // Handle file update
+      if (data.fileKey && data.fileKey !== existing.fileKey) {
+        // Validate new file
+        await validateS3Keys([data.fileKey]);
+        
+        // Delete old file if it exists
+        if (existing.fileKey) {
+          await FileUploadService.deleteFiles([existing.fileKey]);
+        }
+      }
+
+      const updated = await ISOModel.findByIdAndUpdate(
+        id,
+        data,
+        { new: true, lean: true }
+      );
+
+      if (!updated) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
+      }
+
+      return await this.formatISO(updated);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'update', id, data });
+    }
+  }
+
+  /**
+   * Delete ISO certificate by ID
+   */
+  static async remove(id: string): Promise<void> {
+    try {
+      const existing = await ISOModel.findById(id);
+      
+      if (!existing) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
+      }
+
+      const fileKey = existing.fileKey;
+      
+      await ISOModel.findByIdAndDelete(id);
+      
+      if (fileKey) {
+        try {
+          await FileUploadService.deleteFiles([fileKey]);
+        } catch (error) {
+          console.error('Failed to delete S3 file:', fileKey, error);
+        }
+      }
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'remove', id });
+    }
+  }
+}
