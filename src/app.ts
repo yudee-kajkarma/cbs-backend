@@ -14,6 +14,7 @@ import auditRoutes from './routes/audit.routes';
 import simRoutes from './routes/sim.routes';
 import softwareRoutes from './routes/software.routes';
 import fileUploadRoutes from './routes/file-upload.routes';
+import propertyRoutes from './routes/property.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -46,6 +47,7 @@ app.use('/api/audits', auditRoutes);
 app.use('/api/sims', simRoutes);
 app.use('/api/software', softwareRoutes);
 app.use('/api/file-upload', fileUploadRoutes);
+app.use('/api/properties', propertyRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

@@ -98,6 +98,13 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Property Errors
+    PROPERTY_NOT_FOUND: {
+      code: 'CBS-4015',
+      message: 'Property not found',
+      status: 404
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',

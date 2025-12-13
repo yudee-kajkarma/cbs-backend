@@ -182,3 +182,29 @@ export interface IHardwareTransfer extends Document {
   additionalNotes?: string;
   status: string;
 }
+
+/**
+ * Property Interfaces
+ */
+export interface Property {
+  propertyName: string;
+  propertyType: string;
+  location: string;
+  area: number;
+  unit: string;
+  propertyUsage?: string;
+  numberOfFloors?: number;
+  ownershipType: string;
+  titleDeedNumber?: string;
+  purchaseDate?: Date;
+  purchaseValue?: number;
+  purchaseCurrency?: string;
+  currentValue?: number;
+  currentCurrency?: string;
+  annualMaintenanceCost?: number;
+  insuranceExpiryDate?: Date;
+  status: string;
+  notes?: string;
+}
+
+export interface PropertyDocument extends Property, Document {}

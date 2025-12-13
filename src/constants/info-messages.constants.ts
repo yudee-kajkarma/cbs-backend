@@ -93,4 +93,11 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'New hardware deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'New hardware list retrieved successfully',
   },
+  PROPERTY: {
+    CREATED_SUCCESSFULLY: 'Property created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Property retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Property updated successfully',
+    DELETED_SUCCESSFULLY: 'Property deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Properties list retrieved successfully',
+  },
 };

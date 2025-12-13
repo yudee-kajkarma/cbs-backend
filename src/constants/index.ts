@@ -20,5 +20,7 @@ export * from './support.constants';
 
 export * from './network-equipment.constants';
 
+export * from './property.constants';
+
 // Error Messages
 export * from './error-messages.constants';
