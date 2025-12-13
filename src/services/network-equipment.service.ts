@@ -1,5 +1,5 @@
 import { NetworkEquipmentModel } from "../models/network-equipment.model";
-import { INetworkEquipment } from "../interfaces";
+import { INetworkEquipment, NetworkEquipmentQuery, CreateNetworkEquipmentData, UpdateNetworkEquipmentData } from "../interfaces";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -15,7 +15,7 @@ export class NetworkEquipmentService {
    * @param data - Network equipment data
    * @returns Created network equipment
    */
-  static async create(data: Partial<INetworkEquipment>) {
+  static async create(data: CreateNetworkEquipmentData) {
     try {
       return await NetworkEquipmentModel.create(data);
     } catch (error) {
@@ -28,7 +28,7 @@ export class NetworkEquipmentService {
    * @param query - Query parameters
    * @returns Paginated network equipment list
    */
-  static async getAll(query: any) {
+  static async getAll(query: NetworkEquipmentQuery) {
     try {
       const searchableFields = ['deviceName', 'serialNumber', 'macAddress', 'ipAddress'];
       const allowedSortFields = ['deviceName', 'serialNumber', 'deviceType', 'status', 'location', 'createdAt', 'updatedAt'];

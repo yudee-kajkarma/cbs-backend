@@ -1,5 +1,5 @@
 import { VehicleModel } from "../models/vehicle.model";
-import { Vehicle } from "../interfaces";
+import { Vehicle, VehicleQuery, CreateVehicleData, UpdateVehicleData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -29,7 +29,7 @@ export class VehicleService {
    * @param query - Query parameters
    * @returns Paginated vehicle list
    */
-  static async getAll(query: any) {
+  static async getAll(query: VehicleQuery) {
     try {
       const searchableFields = ['vehicleName', 'makeBrand', 'vehicleModel', 'plateNumber', 'chassisNumber'];
       const allowedSortFields = [

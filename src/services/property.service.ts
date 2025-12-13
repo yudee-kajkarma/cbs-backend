@@ -1,5 +1,5 @@
 import { PropertyModel } from "../models/property.model";
-import { Property } from "../interfaces";
+import { Property, PropertyQuery, CreatePropertyData, UpdatePropertyData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -29,7 +29,7 @@ export class PropertyService {
    * @param query - Query parameters
    * @returns Paginated property list
    */
-  static async getAll(query: any) {
+  static async getAll(query: PropertyQuery) {
     try {
       const searchableFields = ['propertyName', 'location', 'titleDeedNumber'];
       const allowedSortFields = [

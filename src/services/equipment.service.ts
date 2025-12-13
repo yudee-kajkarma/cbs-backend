@@ -1,5 +1,5 @@
 import { EquipmentModel } from "../models/equipment.model";
-import { Equipment, EquipmentDocument } from "../interfaces/model.interface";
+import { Equipment, EquipmentDocument, EquipmentQuery, CreateEquipmentData, UpdateEquipmentData } from "../interfaces/model.interface";
 import { PaginationService } from './pagination.service';
 import { ERROR_MESSAGES } from "../constants";
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -21,7 +21,7 @@ export class EquipmentService {
   /**
    * Get all equipment with pagination, filtering, sorting, and search
    */
-  static async getAll(query: any) {
+  static async getAll(query: EquipmentQuery) {
     try {
       const searchableFields = [
         "equipmentName",

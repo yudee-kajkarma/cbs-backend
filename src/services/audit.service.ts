@@ -6,12 +6,18 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { calculateAuditStatus } from "../utils/status.util";
+import { 
+  AuditDocument, 
+  AuditQuery, 
+  CreateAuditData, 
+  UpdateAuditData 
+} from "../interfaces/model.interface";
 
 export class AuditService {
   /**
    * Helper: Format audit for list view (without S3 calls)
    */
-  private static formatAuditForList(item: any) {
+  private static formatAuditForList(item: AuditDocument) {
     return {
       ...item,
       status: calculateAuditStatus(item.periodStart, item.periodEnd, item.completionDate),
@@ -22,7 +28,7 @@ export class AuditService {
   /**
    * Helper: Format audit with S3 URL
    */
-  private static async formatAudit(item: any) {
+  private static async formatAudit(item: AuditDocument) {
     return {
       ...item,
       status: calculateAuditStatus(item.periodStart, item.periodEnd, item.completionDate),
@@ -33,7 +39,7 @@ export class AuditService {
   /**
    * Create a new audit
    */
-  static async create(data: any): Promise<any> {
+  static async create(data: CreateAuditData): Promise<AuditDocument> {
     try {
       if (data.fileKey) {
         await validateS3Keys([data.fileKey]);
@@ -41,9 +47,9 @@ export class AuditService {
 
       const audit = await Audit.create({
         ...data,
-        periodStart: new Date(data.periodStart),
-        periodEnd: new Date(data.periodEnd),
-        completionDate: new Date(data.completionDate),
+        periodStart: data.periodStart ? new Date(data.periodStart) : undefined,
+        periodEnd: data.periodEnd ? new Date(data.periodEnd) : undefined,
+        completionDate: data.completionDate ? new Date(data.completionDate) : undefined,
       });
 
       return audit.toObject();
@@ -63,7 +69,7 @@ export class AuditService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.AUDIT_NOT_FOUND);
       }
 
-      return await this.formatAudit(audit);
+      return await this.formatAudit(audit as AuditDocument);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'AuditService', method: 'getById', id });
     }
@@ -72,7 +78,7 @@ export class AuditService {
   /**
    * Get all audits with pagination and filtering
    */
-  static async getAll(query: any): Promise<any> {
+  static async getAll(query: AuditQuery): Promise<any> {
     try {
       const searchableFields = ['name', 'type', 'auditor'];
       const allowedSortFields = ['name', 'type', 'auditor', 'completionDate', 'periodStart', 'periodEnd', 'createdAt', 'updatedAt'];
@@ -85,7 +91,7 @@ export class AuditService {
       });
 
       // Format audits without expensive S3 calls
-      const formatted = result.data.map((a: any) => this.formatAuditForList(a));
+      const formatted = result.data.map((a: any) => this.formatAuditForList(a as AuditDocument));
 
       return {
         audits: formatted,
@@ -102,7 +108,7 @@ export class AuditService {
    */
   static async update(
     id: string,
-    data: any
+    data: UpdateAuditData
   ): Promise<any> {
     try {
       const existing = await Audit.findById(id);
@@ -139,7 +145,7 @@ export class AuditService {
         { new: true, lean: true }
       );
 
-      return await this.formatAudit(updated!);
+      return await this.formatAudit(updated as AuditDocument);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'AuditService', method: 'update', id, data });
     }

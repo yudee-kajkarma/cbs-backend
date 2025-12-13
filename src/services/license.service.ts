@@ -6,6 +6,7 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { calculateExpiryStatus } from "../utils/status.util";
+import { LicenseQuery, CreateLicenseData, UpdateLicenseData } from "../interfaces/model.interface";
 
 export class LicenseService {
   /**
@@ -35,7 +36,7 @@ export class LicenseService {
   /**
    * Create a new license
    */
-  static async create(data: any): Promise<any> {
+  static async create(data: CreateLicenseData): Promise<any> {
     try {
       if (data.documentKey) {
         await validateS3Keys([data.documentKey]);
@@ -51,7 +52,7 @@ export class LicenseService {
   /**
    * Get all licenses with pagination and filtering
    */
-  static async getAll(query: any): Promise<any> {
+  static async getAll(query: LicenseQuery): Promise<any> {
     try {
       const searchableFields = ['name', 'number', 'issuingAuthority'];
       const allowedSortFields = ['name', 'type', 'issueDate', 'expiryDate', 'createdAt', 'updatedAt'];
@@ -96,7 +97,7 @@ export class LicenseService {
   /**
    * Update license by ID
    */
-  static async update(id: string, data: any): Promise<any> {
+  static async update(id: string, data: UpdateLicenseData): Promise<any> {
     try {
       const existing = await License.findById(id);
       
