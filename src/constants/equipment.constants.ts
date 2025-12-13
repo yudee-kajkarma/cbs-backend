@@ -1,3 +1,5 @@
+import { Condition } from './common.constants';
+
 /**
  * Equipment Category Enum
  */
@@ -12,14 +14,9 @@ export enum EquipmentCategory {
 }
 
 /**
- * Equipment Condition Enum
+ * Use common Condition enum for equipment
  */
-export enum EquipmentCondition {
-  EXCELLENT = "Excellent",
-  GOOD = "Good",
-  FAIR = "Fair",
-  POOR = "Poor",
-}
+export { Condition as EquipmentCondition };
 
 /**
  * General Equipment Status Enum (for general equipment tracking)

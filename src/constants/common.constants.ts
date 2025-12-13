@@ -1,3 +1,6 @@
+/**
+ * Common Currency Enum
+ */
 export enum Currency {
   KWD = "KWD",
   USD = "USD",
@@ -7,6 +10,9 @@ export enum Currency {
   SAR = "SAR",
 }
 
+/**
+ * Common Department Enum
+ */
 export enum Department {
   ALL = "All",
   IT = "IT",
@@ -20,5 +26,37 @@ export enum Department {
   DESIGN = "Design",
 }
 
+/**
+ * Common Condition Enum (for physical assets)
+ */
+export enum Condition {
+  EXCELLENT = "Excellent",
+  GOOD = "Good",
+  FAIR = "Fair",
+  POOR = "Poor",
+  NON_FUNCTIONAL = "Non-Functional",
+}
+
+/**
+ * Common Status Values
+ */
+export enum CommonStatus {
+  ACTIVE = "Active",
+  INACTIVE = "Inactive",
+}
+
+/**
+ * Common Priority Enum
+ */
+export enum Priority {
+  LOW = "Low",
+  MEDIUM = "Medium",
+  HIGH = "High",
+  CRITICAL = "Critical",
+}
+
 export const allowedCurrencies = Object.values(Currency);
 export const allowedDepartments = Object.values(Department);
+export const allowedConditions = Object.values(Condition);
+export const allowedCommonStatuses = Object.values(CommonStatus);
+export const allowedPriorities = Object.values(Priority);

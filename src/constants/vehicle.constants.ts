@@ -32,9 +32,7 @@ export enum VehicleStatus {
   RETIRED = "Retired",
 }
 
-/**
- * Department Enum (reusing from common if needed)
- */
+
 export enum VehicleDepartment {
   FLEET = "Fleet",
   MANAGEMENT = "Management",
@@ -42,4 +40,7 @@ export enum VehicleDepartment {
   OPERATIONS = "Operations",
   MARKETING = "Marketing",
   MAINTENANCE = "Maintenance",
+  IT = "IT",
+  HR = "HR",
+  FINANCE = "Finance",
 }
