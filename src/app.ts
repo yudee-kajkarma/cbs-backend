@@ -15,6 +15,8 @@ import simRoutes from './routes/sim.routes';
 import softwareRoutes from './routes/software.routes';
 import fileUploadRoutes from './routes/file-upload.routes';
 import propertyRoutes from './routes/property.routes';
+import vehicleRoutes from './routes/vehicle.routes';
+import equipmentRoutes from './routes/equipment.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -48,6 +50,8 @@ app.use('/api/sims', simRoutes);
 app.use('/api/software', softwareRoutes);
 app.use('/api/file-upload', fileUploadRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/equipment', equipmentRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

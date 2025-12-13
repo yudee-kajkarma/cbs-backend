@@ -80,7 +80,7 @@ export interface NewHardware {
 export interface NewHardwareDocument extends NewHardware, Document {}
 
 /**
- * Other Model Interfaces
+ * Sim Model Interfaces
  */
 export interface ISim extends Document {
   simNumber: string;
@@ -208,3 +208,65 @@ export interface Property {
 }
 
 export interface PropertyDocument extends Property, Document {}
+
+/**
+ * Vehicle Interfaces
+ */
+export interface Vehicle {
+  vehicleName: string;
+  makeBrand: string;
+  vehicleModel?: string;
+  vehicleType: string;
+  year: number;
+  color?: string;
+  fuelType: string;
+  chassisNumber: string;
+  engineNumber?: string;
+  plateNumber: string;
+  registrationExpiry?: Date;
+  insuranceProvider?: string;
+  insuranceExpiry?: Date;
+  purchaseDate?: Date;
+  purchaseValue?: number;
+  purchaseCurrency?: string;
+  currentValue?: number;
+  currentCurrency?: string;
+  assignedTo?: string;
+  department?: string;
+  mileage?: number;
+  lastService?: Date;
+  nextService?: Date;
+  status: string;
+  notes?: string;
+}
+
+export interface VehicleDocument extends Vehicle, Document {}
+
+/**
+ * Equipment Interfaces
+ */
+export interface Equipment {
+  equipmentName: string;
+  category: string;
+  manufacturer?: string;
+  equipmentModel?: string;
+  serialNumber: string;
+  condition?: string;
+  location: string;
+  assignedTo?: string;
+  purchaseDate?: Date;
+  purchaseValue?: number;
+  purchaseCurrency?: string;
+  currentValue?: number;
+  currentCurrency?: string;
+  warrantyProvider?: string;
+  warrantyExpiry?: Date;
+  lastMaintenanceDate?: Date;
+  nextMaintenanceDate?: Date;
+  maintenanceContract?: string;
+  status: string;
+  technicalSpecifications?: string;
+  notes?: string;
+}
+
+export interface EquipmentDocument extends Equipment, Document {}

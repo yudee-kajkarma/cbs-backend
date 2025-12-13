@@ -100,4 +100,18 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Property deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Properties list retrieved successfully',
   },
+  VEHICLE: {
+    CREATED_SUCCESSFULLY: 'Vehicle created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Vehicle retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Vehicle updated successfully',
+    DELETED_SUCCESSFULLY: 'Vehicle deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Vehicles list retrieved successfully',
+  },
+  EQUIPMENT: {
+    CREATED_SUCCESSFULLY: 'Equipment created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Equipment retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Equipment updated successfully',
+    DELETED_SUCCESSFULLY: 'Equipment deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Equipment list retrieved successfully',
+  },
 };

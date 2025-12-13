@@ -1,0 +1,154 @@
+import mongoose, { Schema } from "mongoose";
+import { VehicleType, FuelType, VehicleStatus, VehicleDepartment } from "../constants/vehicle.constants";
+import { Currency } from "../constants/common.constants";
+import { Vehicle, VehicleDocument } from '../interfaces';
+
+const VehicleSchema = new Schema<VehicleDocument>(
+  {
+    vehicleName: {
+      type: String,
+      required: [true, 'Vehicle name is required'],
+      trim: true,
+      maxlength: [200, 'Vehicle name cannot exceed 200 characters'],
+    },
+    makeBrand: {
+      type: String,
+      required: [true, 'Make/Brand is required'],
+      trim: true,
+      maxlength: [100, 'Make/Brand cannot exceed 100 characters'],
+    },
+    vehicleModel: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Model cannot exceed 100 characters'],
+    },
+    vehicleType: {
+      type: String,
+      enum: {
+        values: Object.values(VehicleType),
+        message: '{VALUE} is not a valid vehicle type',
+      },
+      required: [true, 'Vehicle type is required'],
+    },
+    year: {
+      type: Number,
+      required: [true, 'Year is required'],
+      min: [1900, 'Year cannot be less than 1900'],
+      max: [new Date().getFullYear() + 1, 'Year cannot be in the future'],
+    },
+    color: {
+      type: String,
+      trim: true,
+      maxlength: [50, 'Color cannot exceed 50 characters'],
+    },
+    fuelType: {
+      type: String,
+      enum: {
+        values: Object.values(FuelType),
+        message: '{VALUE} is not a valid fuel type',
+      },
+      required: [true, 'Fuel type is required'],
+    },
+    chassisNumber: {
+      type: String,
+      required: [true, 'Chassis number (VIN) is required'],
+      unique: true,
+      trim: true,
+      maxlength: [50, 'Chassis number cannot exceed 50 characters'],
+    },
+    engineNumber: {
+      type: String,
+      trim: true,
+      maxlength: [50, 'Engine number cannot exceed 50 characters'],
+    },
+    plateNumber: {
+      type: String,
+      required: [true, 'Plate number is required'],
+      trim: true,
+      maxlength: [50, 'Plate number cannot exceed 50 characters'],
+    },
+    registrationExpiry: {
+      type: Date,
+    },
+    insuranceProvider: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Insurance provider cannot exceed 100 characters'],
+    },
+    insuranceExpiry: {
+      type: Date,
+    },
+    purchaseDate: {
+      type: Date,
+    },
+    purchaseValue: {
+      type: Number,
+      min: [0, 'Purchase value cannot be negative'],
+    },
+    purchaseCurrency: {
+      type: String,
+      enum: {
+        values: Object.values(Currency),
+        message: '{VALUE} is not a valid currency',
+      },
+    },
+    currentValue: {
+      type: Number,
+      min: [0, 'Current value cannot be negative'],
+    },
+    currentCurrency: {
+      type: String,
+      enum: {
+        values: Object.values(Currency),
+        message: '{VALUE} is not a valid currency',
+      },
+    },
+    assignedTo: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Assigned to cannot exceed 100 characters'],
+    },
+    department: {
+      type: String,
+      enum: {
+        values: Object.values(VehicleDepartment),
+        message: '{VALUE} is not a valid department',
+      },
+    },
+    mileage: {
+      type: Number,
+      min: [0, 'Mileage cannot be negative'],
+    },
+    lastService: {
+      type: Date,
+    },
+    nextService: {
+      type: Date,
+    },
+    status: {
+      type: String,
+      enum: {
+        values: Object.values(VehicleStatus),
+        message: '{VALUE} is not a valid status',
+      },
+      default: VehicleStatus.ACTIVE,
+    },
+    notes: {
+      type: String,
+      maxlength: [1000, 'Notes cannot exceed 1000 characters'],
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Create indexes
+VehicleSchema.index({ vehicleName: 1 });
+VehicleSchema.index({ chassisNumber: 1 });
+VehicleSchema.index({ plateNumber: 1 });
+VehicleSchema.index({ vehicleType: 1 });
+VehicleSchema.index({ status: 1 });
+VehicleSchema.index({ department: 1 });
+
+export const VehicleModel = mongoose.model<VehicleDocument>("Vehicle", VehicleSchema);
