@@ -119,6 +119,18 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Bank Account Errors
+    BANK_ACCOUNT_NOT_FOUND: {
+      code: 'CBS-4018',
+      message: 'Bank account not found',
+      status: 404
+    },
+    BANK_ACCOUNT_EXISTS: {
+      code: 'CBS-4019',
+      message: 'Bank account with this account number already exists',
+      status: 409
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',

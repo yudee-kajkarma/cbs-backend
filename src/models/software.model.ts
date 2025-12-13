@@ -1,48 +1,104 @@
-import { Schema, model, Document } from "mongoose";
-import { ISoftware } from '../interfaces';
+import { Schema, model } from "mongoose";
+import { ISoftware } from '../interfaces/model.interface';
+import { LicenseType, SoftwareStatus, allowedLicenseTypes, allowedSoftwareStatuses } from '../constants/software.constants';
+import { Department, allowedDepartments } from '../constants/common.constants';
 
-export type { ISoftware };
-
-const SoftwareSchema = new Schema<ISoftware>(
+const softwareSchema = new Schema<ISoftware>(
   {
-    name: { type: String, required: true, trim: true },
-
-    // vendor MUST be provided
-    vendor: { type: String, required: true, trim: true },
-
-    licenseType: { type: String, required: true },
-    licenseKey: { type: String, required: true, trim: true, unique: true },
-
-    // seats MUST be provided
-    totalSeats: { type: Number, required: true },
-    seatsUsed: { type: Number, required: true },
-
-    purchaseDate: { type: Date, required: true },
-    expiryDate: { type: Date, required: true },
-
-    renewalCost: { type: String, required: true },
-
-    assignedDepartment: { type: String, required: true },
-
-    status: { type: String, required: true }
+    name: { 
+      type: String, 
+      required: [true, 'Software name is required'], 
+      trim: true,
+      maxlength: [200, 'Software name cannot exceed 200 characters']
+    },
+    vendor: { 
+      type: String, 
+      required: [true, 'Vendor is required'], 
+      trim: true,
+      maxlength: [200, 'Vendor name cannot exceed 200 characters']
+    },
+    licenseType: { 
+      type: String,
+      enum: {
+        values: allowedLicenseTypes,
+        message: '{VALUE} is not a valid license type'
+      },
+      required: [true, 'License type is required']
+    },
+    licenseKey: { 
+      type: String, 
+      required: [true, 'License key is required'], 
+      trim: true, 
+      unique: true,
+      maxlength: [500, 'License key cannot exceed 500 characters']
+    },
+    totalSeats: { 
+      type: Number, 
+      required: [true, 'Total seats is required'],
+      min: [1, 'Total seats must be at least 1']
+    },
+    seatsUsed: { 
+      type: Number, 
+      required: [true, 'Seats used is required'],
+      min: [0, 'Seats used cannot be negative'],
+      validate: {
+        validator: function(this: ISoftware, value: number) {
+          return value <= this.totalSeats;
+        },
+        message: 'Seats used cannot exceed total seats'
+      }
+    },
+    purchaseDate: { 
+      type: Date, 
+      required: [true, 'Purchase date is required']
+    },
+    expiryDate: { 
+      type: Date, 
+      required: [true, 'Expiry date is required'],
+      validate: {
+        validator: function(this: ISoftware, value: Date) {
+          return value >= this.purchaseDate;
+        },
+        message: 'Expiry date must be after purchase date'
+      }
+    },
+    renewalCost: { 
+      type: String, 
+      required: [true, 'Renewal cost is required'],
+      trim: true
+    },
+    assignedDepartment: { 
+      type: String,
+      enum: {
+        values: allowedDepartments,
+        message: '{VALUE} is not a valid department'
+      },
+      required: [true, 'Assigned department is required']
+    },
+    status: { 
+      type: String,
+      enum: {
+        values: allowedSoftwareStatuses,
+        message: '{VALUE} is not a valid status'
+      },
+      required: [true, 'Status is required'],
+      default: SoftwareStatus.ACTIVE
+    }
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    versionKey: false
+  }
 );
 
-SoftwareSchema.set("toJSON", {
-  versionKey: false,
-  transform(_doc, ret) {
-    delete ret.__v;
-    return ret;
-  }
-});
+// Indexes for better query performance
+softwareSchema.index({ name: 1 }, { name: 'idx_software_name' });
+softwareSchema.index({ vendor: 1 }, { name: 'idx_software_vendor' });
+softwareSchema.index({ licenseKey: 1 }, { name: 'idx_software_license_key', unique: true });
+softwareSchema.index({ licenseType: 1 }, { name: 'idx_software_license_type' });
+softwareSchema.index({ assignedDepartment: 1 }, { name: 'idx_software_department' });
+softwareSchema.index({ status: 1 }, { name: 'idx_software_status' });
+softwareSchema.index({ expiryDate: 1 }, { name: 'idx_software_expiry' });
+softwareSchema.index({ createdAt: -1 }, { name: 'idx_software_created_desc' });
 
-SoftwareSchema.set("toObject", {
-  versionKey: false,
-  transform(_doc, ret) {
-    delete ret.__v;
-    return ret;
-  }
-});
-
-export const SoftwareModel = model<ISoftware>("Software", SoftwareSchema);
+export default model<ISoftware>("Software", softwareSchema);

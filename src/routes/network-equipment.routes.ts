@@ -6,7 +6,7 @@ import {
   updateNetworkEquipmentSchema,
   idParamSchema,
   listQuerySchema
-} from "../validators/network-equipment.dto";
+} from "../validators/network-equipment.validator";
 
 const router = Router();
 

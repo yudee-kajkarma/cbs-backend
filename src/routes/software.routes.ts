@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { SoftwareController } from "../controllers/software.controller";
 import { validateBody, validateParams, validateQuery } from "../middlewares/validate.middleware";
-import { createSoftwareSchema, updateSoftwareSchema, idParamSchema, listQuerySchema } from "../validators/software.dto";
+import { createSoftwareSchema, updateSoftwareSchema, idParamSchema, listQuerySchema } from "../validators/software.validator";
 
 const router = Router();
 

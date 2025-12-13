@@ -1,4 +1,4 @@
-import { NetworkEquipmentModel } from "../models/network-equipment.model";
+import  NetworkEquipmentModel  from "../models/network-equipment.model";
 import { INetworkEquipment, NetworkEquipmentQuery, CreateNetworkEquipmentData, UpdateNetworkEquipmentData } from "../interfaces";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";

@@ -1,5 +1,5 @@
-import { VehicleModel } from "../models/vehicle.model";
-import { Vehicle, VehicleQuery, CreateVehicleData, UpdateVehicleData } from "../interfaces";
+import  VehicleModel  from "../models/vehicle.model";
+import { Vehicle, VehicleQuery } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';

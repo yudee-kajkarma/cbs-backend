@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { PropertyType, PropertyUsage, Unit, OwnershipType, PropertyStatus } from "../constants/property.constants";
 import { Currency } from "../constants/common.constants";
-import { Property, PropertyDocument } from '../interfaces';
+import { PropertyDocument } from '../interfaces';
 
 const PropertySchema = new Schema<PropertyDocument>(
   {

@@ -1,5 +1,5 @@
-import { SupportModel, ISupport } from "../models/support.model";
-import { SupportQuery, CreateSupportData, UpdateSupportData } from "../interfaces/model.interface";
+import  SupportModel from "../models/support.model";
+import { SupportQuery, CreateSupportData, ISupport } from "../interfaces/model.interface";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";

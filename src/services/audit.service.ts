@@ -14,9 +14,7 @@ import {
 } from "../interfaces/model.interface";
 
 export class AuditService {
-  /**
-   * Helper: Format audit for list view (without S3 calls)
-   */
+  
   private static formatAuditForList(item: AuditDocument) {
     return {
       ...item,

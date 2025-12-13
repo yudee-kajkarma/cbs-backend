@@ -1,5 +1,5 @@
-import { SimModel, ISim } from "../models/sim.model";
-import { SimQuery, CreateSimData, UpdateSimData } from "../interfaces/model.interface";
+import  SimModel  from "../models/sim.model";
+import { SimQuery, CreateSimData, ISim } from "../interfaces/model.interface";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";

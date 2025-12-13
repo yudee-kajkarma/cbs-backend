@@ -11,7 +11,7 @@ import {
   updateNewHardwareSchema,
   getNewHardwareListSchema,
   getNewHardwareByIdSchema,
-} from "../validators/newhardware.dto";
+} from "../validators/newhardware.validator";
 
 const router = Router();
 

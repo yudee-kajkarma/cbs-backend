@@ -1,9 +1,9 @@
-import { SoftwareModel, ISoftware } from "../models/software.model";
+import  SoftwareModel from "../models/software.model";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants";
-import { CreateSoftwareData, SoftwareQuery } from "../interfaces";
+import { CreateSoftwareData, ISoftware, SoftwareQuery } from "../interfaces";
 
 /**
  * SoftwareService

@@ -8,18 +8,18 @@ import {
 } from "../middlewares/validate.middleware";
 
 import {
-  createLicenseDto,
-  updateLicenseDto,
-  licenseIdDto,
-  licenseQueryDto,
-} from "../validators/license.dto";
+  createLicenseSchema,
+  updateLicenseSchema,
+  licenseIdSchema,
+  licenseQuerySchema,
+} from "../validators/license.validator";
 
 const router = Router();
 
 // ---------- CREATE ----------
 router.post(
   "/",
-  validateRequest(createLicenseDto),
+  validateRequest(createLicenseSchema),
   LicenseController.create
 );
 
@@ -27,7 +27,7 @@ router.post(
 // ---------- GET ALL ----------
 router.get(
   "/",
-  validateQuery(licenseQueryDto),
+  validateQuery(licenseQuerySchema),
   LicenseController.getAll
 );
 
@@ -35,7 +35,7 @@ router.get(
 // ---------- GET ONE ----------
 router.get(
   "/:id",
-  validateParams(licenseIdDto),
+  validateParams(licenseIdSchema),
   LicenseController.getById
 );
 
@@ -43,8 +43,8 @@ router.get(
 // ---------- UPDATE ----------
 router.put(
   "/:id",
-  validateParams(licenseIdDto),
-  validateRequest(updateLicenseDto),
+  validateParams(licenseIdSchema),
+  validateRequest(updateLicenseSchema),
   LicenseController.update
 );
 
@@ -52,7 +52,7 @@ router.put(
 // ---------- DELETE ----------
 router.delete(
   "/:id",
-  validateParams(licenseIdDto),
+  validateParams(licenseIdSchema),
   LicenseController.delete
 );
 

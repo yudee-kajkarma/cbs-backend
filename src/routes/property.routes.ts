@@ -10,7 +10,7 @@ import {
   updatePropertySchema,
   getPropertyListSchema,
   getPropertyByIdSchema,
-} from "../validators/property.dto";
+} from "../validators/property.validator";
 
 const router = Router();
 

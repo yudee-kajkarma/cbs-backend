@@ -25,6 +25,12 @@ export class ISOResponseDto extends BaseDto {
 
   @Expose()
   status?: ISOStatus;
+
+  @Expose()
+  fileKey?: string;
+
+  @Expose()
+  fileUrl?: string;
 }
 
 /**

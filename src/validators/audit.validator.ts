@@ -1,26 +1,26 @@
 import Joi from "joi";
 import { allowedAuditTypes } from "../constants/audit.constants";
 
-export const auditIdDto = Joi.object({
+export const auditIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required()
 });
 
-export const createAuditDto = Joi.object({
+export const createAuditSchema = Joi.object({
   name: Joi.string().required(),
   type: Joi.string().valid(...allowedAuditTypes).required(),
   periodStart: Joi.date().required(),
   periodEnd: Joi.date().required(),
   auditor: Joi.string().required(),
   completionDate: Joi.date().required(),
-  file: Joi.any().optional()
+  fileKey: Joi.string().optional()
 });
 
-export const updateAuditDto = Joi.object({
+export const updateAuditSchema = Joi.object({
   name: Joi.string().optional(),
   type: Joi.string().valid(...allowedAuditTypes).optional(),
   periodStart: Joi.date().optional(),
   periodEnd: Joi.date().optional(),
   auditor: Joi.string().optional(),
   completionDate: Joi.date().optional(),
-  file: Joi.any().optional()
+  fileKey: Joi.string().optional()
 }).min(1);

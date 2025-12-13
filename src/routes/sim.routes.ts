@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { SimController } from "../controllers/sim.controller";
 import { validateBody, validateParams, validateQuery } from "../middlewares/validate.middleware";
-import { createSimSchema, updateSimSchema, idParamSchema, getSimsQuerySchema } from "../validators/sim.dto";
+import { createSimSchema, updateSimSchema, idParamSchema, getSimsQuerySchema } from "../validators/sim.validator";
 
 const router = Router();
 

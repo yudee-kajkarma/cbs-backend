@@ -5,7 +5,7 @@ import {
   updateEquipmentSchema,
   getEquipmentListSchema,
   getEquipmentByIdSchema,
-} from "../validators/equipment.dto";
+} from "../validators/equipment.validator";
 import {
   validateRequest,
   validateQuery,

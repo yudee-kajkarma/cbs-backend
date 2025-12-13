@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { FurnitureCategory, FurnitureCondition, Currency, FurnitureStatus } from "../constants";
-import { Furniture, FurnitureDocument } from '../interfaces';
+import { FurnitureDocument } from '../interfaces';
 
 const FurnitureSchema = new Schema<FurnitureDocument>(
   {
@@ -78,7 +78,7 @@ const FurnitureSchema = new Schema<FurnitureDocument>(
     purchaseCurrency: {
       type: String,
       enum: Object.values(Currency),
-      default: Currency.USD,
+      default: Currency.KWD,
     },
     currentUnitValue: {
       type: Number,
@@ -87,7 +87,7 @@ const FurnitureSchema = new Schema<FurnitureDocument>(
     currentCurrency: {
       type: String,
       enum: Object.values(Currency),
-      default: Currency.USD,
+      default: Currency.KWD,
     },
     warrantyExpiry: {
       type: Date,

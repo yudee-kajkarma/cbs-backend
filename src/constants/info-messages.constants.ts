@@ -114,4 +114,11 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Equipment deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Equipment list retrieved successfully',
   },
+  BANK_ACCOUNT: {
+    CREATED_SUCCESSFULLY: 'Bank account created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Bank account retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Bank account updated successfully',
+    DELETED_SUCCESSFULLY: 'Bank account deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Bank accounts list retrieved successfully',
+  },
 };

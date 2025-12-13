@@ -12,7 +12,7 @@ import {
   updateSupportSchema,
   getSupportListSchema,
   getSupportByIdSchema,
-} from "../validators/support.dto";
+} from "../validators/support.validator";
 
 const router = Router();
 

@@ -10,7 +10,7 @@ import {
   updateFurnitureSchema,
   getFurnitureListSchema,
   getFurnitureByIdSchema,
-} from "../validators/furniture.dto";
+} from "../validators/furniture.validator";
 
 const router = Router();
 

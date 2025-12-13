@@ -62,6 +62,14 @@ export interface UpdateAuditData extends Partial<Audit> {
 // DOCUMENT MODULE
 // ============================================================================
 
+export interface IDocument extends Document {
+  name: string;
+  category: string;
+  documentDate: Date;
+  partiesInvolved: string;
+  fileKey?: string;
+}
+
 export interface DocumentQuery extends BaseQuery {
   category?: string;
   status?: string;
@@ -70,9 +78,9 @@ export interface DocumentQuery extends BaseQuery {
 export interface CreateDocumentData {
   name: string;
   category: string;
-  status?: string;
+  documentDate: Date;
+  partiesInvolved: string;
   fileKey?: string;
-  description?: string;
 }
 
 export interface UpdateDocumentData extends Partial<CreateDocumentData> {}
@@ -277,7 +285,7 @@ export interface ILicense extends Document {
   issueDate: Date;
   expiryDate: Date;
   issuingAuthority: string;
-  documentKey?: string;
+  fileKey?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -460,3 +468,31 @@ export interface EquipmentQuery extends BaseQuery {
 
 export interface CreateEquipmentData extends Partial<Equipment> {}
 export interface UpdateEquipmentData extends Partial<Equipment> {}
+
+
+// ============================================================================
+// Bank Account MODULE
+// ============================================================================
+
+export interface BankAccount {
+  bankName: string;
+  branch?: string;
+  accountHolder: string;
+  accountNumber: string;
+  currency?: Currency;
+  currentChequeNumber?: string;
+  address?: string;
+  fileKey?: string;
+}
+
+export interface BankAccountDocument extends BankAccount, Document {}
+
+export interface BankAccountQuery extends BaseQuery {
+  bankName?: string;
+  branch?: string;
+  accountHolder?: string;
+  accountNumber?: string;
+}
+
+export interface CreateBankAccountData extends Partial<BankAccount> {}
+export interface UpdateBankAccountData extends Partial<BankAccount> {}

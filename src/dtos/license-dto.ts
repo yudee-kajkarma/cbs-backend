@@ -1,7 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { BaseDto } from './base-dto';
-import { FileDto, PaginationDto } from './common-dto';
-import { PaginationResult } from '../services/pagination.service';
+import { FileDto } from './common-dto';
+import { PaginationResult } from '../interfaces/pagination.interface';
 import { LicenseStatus } from '../constants';
 
 /**
@@ -24,11 +24,11 @@ export class LicenseResponseDto extends BaseDto {
   issuingAuthority!: string;
 
   @Expose()
-  documentKey?: string;
+  fileKey?: string;
 
   @Expose()
   @Type(() => FileDto)
-  document?: FileDto;
+  fileUrl?: FileDto;
 
   @Expose()
   status?: LicenseStatus;

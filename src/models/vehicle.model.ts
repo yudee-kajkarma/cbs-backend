@@ -1,9 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 import { VehicleType, FuelType, VehicleStatus, VehicleDepartment } from "../constants/vehicle.constants";
 import { Currency } from "../constants/common.constants";
-import { Vehicle, VehicleDocument } from '../interfaces';
+import { VehicleDocument } from '../interfaces/model.interface';
 
-const VehicleSchema = new Schema<VehicleDocument>(
+const vehicleSchema = new Schema<VehicleDocument>(
   {
     vehicleName: {
       type: String,
@@ -140,15 +140,17 @@ const VehicleSchema = new Schema<VehicleDocument>(
   },
   {
     timestamps: true,
+    versionKey: false
   }
 );
 
-// Create indexes
-VehicleSchema.index({ vehicleName: 1 });
-VehicleSchema.index({ chassisNumber: 1 });
-VehicleSchema.index({ plateNumber: 1 });
-VehicleSchema.index({ vehicleType: 1 });
-VehicleSchema.index({ status: 1 });
-VehicleSchema.index({ department: 1 });
+// Indexes for better query performance
+vehicleSchema.index({ vehicleName: 1 }, { name: 'idx_vehicle_name' });
+vehicleSchema.index({ chassisNumber: 1 }, { name: 'idx_vehicle_chassis', unique: true });
+vehicleSchema.index({ plateNumber: 1 }, { name: 'idx_vehicle_plate' });
+vehicleSchema.index({ vehicleType: 1 }, { name: 'idx_vehicle_type' });
+vehicleSchema.index({ status: 1 }, { name: 'idx_vehicle_status' });
+vehicleSchema.index({ department: 1 }, { name: 'idx_vehicle_department' });
+vehicleSchema.index({ createdAt: -1 }, { name: 'idx_vehicle_created_desc' });
 
-export const VehicleModel = mongoose.model<VehicleDocument>("Vehicle", VehicleSchema);
+export default mongoose.model<VehicleDocument>("Vehicle", vehicleSchema);

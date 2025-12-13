@@ -10,7 +10,7 @@ import {
   updateVehicleSchema,
   getVehicleListSchema,
   getVehicleByIdSchema,
-} from "../validators/vehicle.dto";
+} from "../validators/vehicle.validator";
 
 const router = Router();
 
