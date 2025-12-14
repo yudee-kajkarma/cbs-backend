@@ -1,101 +1,86 @@
 import { Request, Response } from "express";
-import * as LicenseService from "../services/license.service";
-import {
-  sendSuccess,
-  sendCreated,
-  sendError,
-  ERROR_MESSAGES,
-  SUCCESS_MESSAGES,
-} from "../utils/response.util";
+import { LicenseService } from "../services/license.service";
+import { LicenseResponseDto, GetAllLicensesResponseDto } from "../dtos/license-dto";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ResponseUtil } from "../utils/response-formatter.util";
+import { toDto, toDtoList } from "../utils/dto-mapper.util";
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
-// ------------------ CREATE ------------------
-export const create = async (req: Request, res: Response) => {
-  try {
-    const result = await LicenseService.create(req.body, req.file);
-    return sendCreated(res, SUCCESS_MESSAGES.LICENSE_CREATED, result);
-  } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
-  }
-};
-
-// ------------------ GET ALL ------------------
-// ------------------ GET ALL ------------------
-export const getAll = async (req: Request, res: Response) => {
-  try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-
-    const filters = {
-      search: req.query.search || "",
-      type: req.query.type || "",
-      name: req.query.name || "",
-      status: req.query.status || "",
-    };
-
-    // NEW — sorting
-    const orderBy = (req.query.orderBy as string) || "createdAt";
-    const sortBy = (req.query.sortBy as string) || "desc";
-
-    const result = await LicenseService.getAll(page, limit, filters, orderBy, sortBy);
-
-    return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_LIST_FETCHED, {
-      licenses: result.licenses,
-      pagination: result.pagination,
-    });
-
-  } catch (error: any) {
-    return sendError(
-      res,
-      500,
-      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-      error.message
-    );
-  }
-};
-
-
-
-// ------------------ GET ONE ------------------
-export const getOne = async (req: Request, res: Response) => {
-  try {
-    const result = await LicenseService.getOne(req.params.id);
-
-    if (!result) {
-      return sendError(res, 404, ERROR_MESSAGES.LICENSE_NOT_FOUND);
+export class LicenseController {
+  /**
+   * Create a new license
+   */
+  static async create(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await LicenseService.create(req.body);
+      const dto = toDto(LicenseResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.LICENSE.CREATED_SUCCESSFULLY, dto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
     }
-
-    return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_FETCHED, result);
-  } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
-};
 
-// ------------------ UPDATE ------------------
-export const update = async (req: Request, res: Response) => {
-  try {
-    const result = await LicenseService.update(req.params.id, req.body, req.file);
-
-    if (!result) {
-      return sendError(res, 404, ERROR_MESSAGES.LICENSE_NOT_FOUND);
+  /**
+   * Get all licenses with pagination and filtering
+   */
+  static async getAll(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await LicenseService.getAll(req.query);
+      const licenseDto = toDtoList(LicenseResponseDto, result.licenses);
+      const responseData = {
+        licenses: licenseDto,
+        pagination: result.pagination,
+        filters: result.filters
+      };
+      const response = ResponseUtil.success(INFO_MESSAGES.LICENSE.LIST_RETRIEVED_SUCCESSFULLY, responseData);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
     }
-
-    return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_UPDATED, result);
-  } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
-};
 
-// ------------------ DELETE ------------------
-export const remove = async (req: Request, res: Response) => {
-  try {
-    const result = await LicenseService.remove(req.params.id);
-
-    if (!result) {
-      return sendError(res, 404, ERROR_MESSAGES.LICENSE_NOT_FOUND);
+  /**
+   * Get license by ID
+   */
+  static async getById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const result = await LicenseService.getOne(id);
+      const dto = toDto(LicenseResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.LICENSE.RETRIEVED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getById', id: req.params.id });
     }
-
-    return sendSuccess(res, SUCCESS_MESSAGES.LICENSE_DELETED);
-  } catch (error: any) {
-    return sendError(res, 500, ERROR_MESSAGES.INTERNAL_SERVER_ERROR, error.message);
   }
-};
+
+  /**
+   * Update license by ID
+   */
+  static async update(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const result = await LicenseService.update(id, req.body);
+      const dto = toDto(LicenseResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.LICENSE.UPDATED_SUCCESSFULLY, dto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'update', id: req.params.id, data: req.body });
+    }
+  }
+
+  /**
+   * Delete license by ID
+   */
+  static async delete(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      await LicenseService.remove(id);
+      const response = ResponseUtil.success(INFO_MESSAGES.LICENSE.DELETED_SUCCESSFULLY, null);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
+    }
+  }
+}

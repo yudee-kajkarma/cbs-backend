@@ -1,189 +1,160 @@
-// src/services/license.service.ts
 import License from "../models/license.model";
-import {
-  uploadBufferToS3,
-  getPresignedUrl,
-  deleteFromS3,
-} from "../utils/s3.util";
+import { FileUploadService } from "./file-upload.service";
+import { validateS3Keys } from "../utils/aws.util";
+import { PaginationService } from "./pagination.service";
+import { throwError } from "../utils/errors.util";
+import { ErrorHandler } from "../utils/error-handler.util";
+import { ERROR_MESSAGES } from "../constants/error-messages.constants";
+import { calculateExpiryStatus } from "../utils/status.util";
 
-export const create = async (data: any, file?: Express.Multer.File) => {
-  let documentKey: string | undefined;
-
-  if (file) {
-    documentKey = await uploadBufferToS3(
-      file.buffer,
-      file.originalname,
-      file.mimetype
-    );
+export class LicenseService {
+  /**
+   * Helper: Format license for list view (without S3 calls)
+   */
+  private static formatLicenseForList(license: any) {
+    return {
+      ...license,
+      status: calculateExpiryStatus(license.expiryDate),
+      hasDocument: !!license.documentKey,
+    };
   }
 
-  const license = await License.create({
-    ...data,
-    documentKey,
-  });
-
-  return license.toObject();
-};
-
-// ------------------ GET ALL WITH PAGINATION + STATUS ------------------
-// src/services/license.service.ts
-
-export const getAll = async (
-  page: number,
-  limit: number,
-  filters: any,
-  orderBy: string,
-  sortBy: string
-) => {
-  const skip = (page - 1) * limit;
-
-  const query: any = {};
-
-  // Type filter
-  if (filters.type) {
-    query.type = { $regex: filters.type, $options: "i" };
+  /**
+   * Helper: Format license with S3 URL
+   */
+  private static async formatLicense(license: any) {
+    return {
+      ...license,
+      status: calculateExpiryStatus(license.expiryDate),
+      documentUrl: license.documentKey
+        ? await FileUploadService.generateDownloadUrl(license.documentKey)
+        : null,
+    };
   }
 
-  // Name filter
-  if (filters.name) {
-    query.name = { $regex: filters.name, $options: "i" };
+  /**
+   * Create a new license
+   */
+  static async create(data: any): Promise<any> {
+    try {
+      if (data.documentKey) {
+        await validateS3Keys([data.documentKey]);
+      }
+
+      const license = await License.create(data);
+      return license.toObject();
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'create', data });
+    }
   }
 
-  // Search filter
-  if (filters.search) {
-    const regex = new RegExp(filters.search, "i");
-    query.$or = [
-      { name: regex },
-      { number: regex },
-      { issuingAuthority: regex },
-    ];
-  }
+  /**
+   * Get all licenses with pagination and filtering
+   */
+  static async getAll(query: any): Promise<any> {
+    try {
+      const searchableFields = ['name', 'number', 'issuingAuthority'];
+      const allowedSortFields = ['name', 'type', 'issueDate', 'expiryDate', 'createdAt', 'updatedAt'];
+      const filterFields = ['type', 'status'];
 
-  // NEW — sorting logic
-  const sortOrder = sortBy === "asc" ? 1 : -1;
-  const sortQuery: any = {};
-  sortQuery[orderBy] = sortOrder;
+      const result = await PaginationService.paginate(License, query, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+      });
 
-  // Fetch data with sorting
-  const rawData = await License.find(query)
-    .skip(skip)
-    .limit(limit)
-    .sort(sortQuery)   // 👈 Sorting applied here
-    .lean();
-
-  const today = new Date();
-
-  // Compute status + URL
-  let data = await Promise.all(
-    rawData.map(async (item) => {
-      const expiry = new Date(item.expiryDate);
-      const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-      let status = "Active";
-      if (diffDays < 0) status = "Expired";
-      else if (diffDays <= 30) status = "Expiring Soon";
+      // Format licenses without expensive S3 calls
+      const formatted = result.data.map((license: any) => this.formatLicenseForList(license));
 
       return {
-        ...item,
-        status,
-        documentUrl: item.documentKey
-          ? await getPresignedUrl(item.documentKey)
-          : null,
+        licenses: formatted,
+        pagination: result.pagination,
+        filters: result.filters,
       };
-    })
-  );
-
-  // Filter by computed status
-  if (filters.status) {
-    data = data.filter(
-      (item) => item.status.toLowerCase() === filters.status.toLowerCase()
-    );
-  }
-
-  const total = data.length;
-  const totalPages = Math.ceil(total / limit);
-
-  return {
-    licenses: data,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    },
-  };
-};
-
-
-
-
-export const getOne = async (id: string) => {
-  const license = await License.findById(id).lean();
-  if (!license) return null;
-
-  const today = new Date();
-  const expiry = new Date(license.expiryDate);
-
-  let status = "Active";
-  const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) status = "Expired";
-  else if (diffDays <= 30) status = "Expiring Soon";
-
-  return {
-    ...license,
-    status,
-    documentUrl: license.documentKey
-      ? await getPresignedUrl(license.documentKey)
-      : null,
-  };
-};
-
-export const update = async (id: string, data: any, file?: Express.Multer.File) => {
-  const existing = await License.findById(id);
-  if (!existing) return null;
-
-  let documentKey = existing.documentKey;
-
-  if (file) {
-    if (existing.documentKey) {
-      await deleteFromS3(existing.documentKey);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'getAll', query });
     }
-
-    documentKey = await uploadBufferToS3(
-      file.buffer,
-      file.originalname,
-      file.mimetype
-    );
   }
 
-  const updated = await License.findByIdAndUpdate(
-    id,
-    { ...data, documentKey },
-    { new: true, lean: true }
-  );
+  /**
+   * Get license by ID
+   */
+  static async getOne(id: string): Promise<any> {
+    try {
+      const license = await License.findById(id).lean();
+      
+      if (!license) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
+      }
 
-  if (!updated) return null;
-
-  return {
-    ...updated,
-    documentUrl: updated.documentKey
-      ? await getPresignedUrl(updated.documentKey)
-      : null,
-  };
-};
-
-export const remove = async (id: string) => {
-  const existing = await License.findById(id);
-  if (!existing) return null;
-
-  if (existing.documentKey) {
-    await deleteFromS3(existing.documentKey);
+      return await this.formatLicense(license);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'getOne', id });
+    }
   }
 
-  await License.findByIdAndDelete(id);
+  /**
+   * Update license by ID
+   */
+  static async update(id: string, data: any): Promise<any> {
+    try {
+      const existing = await License.findById(id);
+      
+      if (!existing) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
+      }
 
-  return true;
-};
+      // Handle file update
+      if (data.documentKey && data.documentKey !== existing.documentKey) {
+        // Validate new file
+        await validateS3Keys([data.documentKey]);
+        
+        // Delete old file if it exists
+        if (existing.documentKey) {
+          await FileUploadService.deleteFiles([existing.documentKey]);
+        }
+      }
+
+      const updated = await License.findByIdAndUpdate(
+        id,
+        data,
+        { new: true, lean: true }
+      );
+
+      if (!updated) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
+      }
+
+      return await this.formatLicense(updated);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'update', id, data });
+    }
+  }
+
+  /**
+   * Delete license by ID
+   */
+  static async remove(id: string): Promise<void> {
+    try {
+      const existing = await License.findById(id);
+      
+      if (!existing) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
+      }
+
+      const documentKey = existing.documentKey;
+      
+      await License.findByIdAndDelete(id);
+      
+      if (documentKey) {
+        try {
+          await FileUploadService.deleteFiles([documentKey]);
+        } catch (error) {
+          console.error('Failed to delete S3 file:', documentKey, error);
+        }
+      }
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'remove', id });
+    }
+  }
+}

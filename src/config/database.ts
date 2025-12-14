@@ -1,18 +1,20 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-dotenv.config();
+import { config } from '../config/config';
 
-const MONGO_URI = process.env.MONGO_URI;
-if (!MONGO_URI) {
-  throw new Error('MONGO_URI not set in environment');
-}
-
-export const connectDB = async (): Promise<void> => {
+export const connectToDatabase = async (): Promise<void> => {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('MongoDB connected');
-  } catch (err) {
-    console.error('MongoDB connection failed:', err);
+    await mongoose.connect(config.mongodb.uri);
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
     process.exit(1);
   }
 };
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+mongoose.connection.on('error', (error) => {
+  console.error('MongoDB error:', error);
+});

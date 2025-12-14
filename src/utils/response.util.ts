@@ -1,145 +1,131 @@
-// import { Response } from "express";
-
-// // -------- SUCCESS MESSAGES --------
-// export const SUCCESS_MESSAGES = {
-//   // License
-//   LICENSE_CREATED: "License created successfully",
-//   LICENSE_LIST_FETCHED: "License list fetched successfully",
-//   LICENSE_FETCHED: "License fetched successfully",
-//   LICENSE_UPDATED: "License updated successfully",
-//   LICENSE_DELETED: "License deleted successfully",
-
-//   // Document
-//   DOCUMENT_CREATED: "Document created successfully",
-//   DOCUMENT_LIST_FETCHED: "Document list fetched successfully",
-//   DOCUMENT_FETCHED: "Document fetched successfully",
-//   DOCUMENT_UPDATED: "Document updated successfully",
-//   DOCUMENT_DELETED: "Document deleted successfully",
-
-//   // ISO
-//   ISO_CREATED: "ISO document created successfully",
-//   ISO_LIST_FETCHED: "ISO document list fetched successfully",
-//   ISO_FETCHED: "ISO document fetched successfully",
-//   ISO_UPDATED: "ISO document updated successfully",
-//   ISO_DELETED: "ISO document deleted successfully",
-// };
-
-// // -------- ERROR MESSAGES --------
-// export const ERROR_MESSAGES = {
-//   INTERNAL_SERVER_ERROR: "Something went wrong",
-//   VALIDATION_FAILED: "Validation failed",
-//   INVALID_ID: "Invalid ID format",
-
-//   // License
-//   LICENSE_NOT_FOUND: "License not found",
-
-//   // Document
-//   DOCUMENT_NOT_FOUND: "Document not found",
-//   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
-//   DOCUMENT_DELETE_FAILED: "Document delete failed",
-
-//   // ISO
-//   ISO_NOT_FOUND: "ISO document not found",
-//   ISO_UPLOAD_FAILED: "ISO document upload failed",
-//   ISO_DELETE_FAILED: "ISO document delete failed",
-// };
-
-// // -------- SUCCESS (200) --------
-// export const sendSuccess = (
-//   res: Response,
-//   message: string,
-//   data: any = null
-// ) => {
-//   return res.status(200).json({
-//     success: true,
-//     statusCode: 200,
-//     message,
-//     data,
-//   });
-// };
-
-// // -------- CREATED (201) --------
-// export const sendCreated = (
-//   res: Response,
-//   message: string,
-//   data: any = null
-// ) => {
-//   return res.status(201).json({
-//     success: true,
-//     statusCode: 201,
-//     message,
-//     data,
-//   });
-// };
-
-// // -------- ERROR (custom status) --------
-// export const sendError = (
-//   res: Response,
-//   statusCode: number,
-//   message: string,
-//   error: any = null
-// ) => {
-//   return res.status(statusCode).json({
-//     success: false,
-//     statusCode,
-//     message,
-//     error,
-//   });
-// };
-
-// // -------- JOI VALIDATION ERROR THROWER --------
-// export const throwJoiValidationError = (message: string) => {
-//   const error: any = new Error(message);
-//   error.type = "JoiValidationError";
-//   error.statusCode = 400;
-//   return error;
-// };
-
-// src/utils/response.util.ts
 import { Response } from "express";
 
-// -------- SUCCESS MESSAGES --------
+// ---------------- SUCCESS MESSAGES ----------------
 export const SUCCESS_MESSAGES = {
-  // License
   LICENSE_CREATED: "License created successfully",
   LICENSE_LIST_FETCHED: "License list fetched successfully",
   LICENSE_FETCHED: "License fetched successfully",
   LICENSE_UPDATED: "License updated successfully",
   LICENSE_DELETED: "License deleted successfully",
 
-  // Document
+  // -------- SOFTWARE MESSAGES --------
+  SOFTWARE_CREATED: "Software created successfully",
+  SOFTWARE_LIST_FETCHED: "Software list fetched successfully",
+  SOFTWARE_FETCHED: "Software fetched successfully",
+  SOFTWARE_UPDATED: "Software updated successfully",
+  SOFTWARE_DELETED: "Software deleted successfully",
+
+
   DOCUMENT_CREATED: "Document created successfully",
   DOCUMENT_LIST_FETCHED: "Document list fetched successfully",
   DOCUMENT_FETCHED: "Document fetched successfully",
   DOCUMENT_UPDATED: "Document updated successfully",
   DOCUMENT_DELETED: "Document deleted successfully",
 
-  // ISO
+  // New Hardware
+  NEW_HARDWARE_CREATED: "New hardware created successfully",
+  NEW_HARDWARE_LIST_FETCHED: "New hardware list fetched successfully",
+  NEW_HARDWARE_FETCHED: "New hardware fetched successfully",
+  NEW_HARDWARE_UPDATED: "New hardware updated successfully",
+  NEW_HARDWARE_DELETED: "New hardware deleted successfully",
+
+
+
+  // Support
+  SUPPORT_CREATED: "Support ticket created successfully",
+  SUPPORT_LIST_FETCHED: "Support ticket list fetched successfully",
+  SUPPORT_FETCHED: "Support ticket fetched successfully",
+  SUPPORT_UPDATED: "Support ticket updated successfully",
+  SUPPORT_DELETED: "Support ticket deleted successfully",
+
+
+
   ISO_CREATED: "ISO document created successfully",
   ISO_LIST_FETCHED: "ISO document list fetched successfully",
   ISO_FETCHED: "ISO document fetched successfully",
   ISO_UPDATED: "ISO document updated successfully",
   ISO_DELETED: "ISO document deleted successfully",
+
+  // -------- AUDIT --------
+  AUDIT_CREATED: "Audit created successfully",
+  AUDIT_LIST_FETCHED: "Audit list fetched successfully",
+  AUDIT_FETCHED: "Audit fetched successfully",
+  AUDIT_UPDATED: "Audit updated successfully",
+  AUDIT_DELETED: "Audit deleted successfully",
+
+  // -------- SIM --------
+  SIM_CREATED: "SIM created successfully",
+  SIM_LIST_FETCHED: "SIM list fetched successfully",
+  SIM_FETCHED: "SIM fetched successfully",
+  SIM_UPDATED: "SIM updated successfully",
+  SIM_DELETED: "SIM deleted successfully",
+
+  // -------- HARDWARE TRANSFER --------
+  HARDWARE_TRANSFER_CREATED: "Hardware transfer created successfully",
+  HARDWARE_TRANSFER_LIST_FETCHED: "Hardware transfer list fetched successfully",
+  HARDWARE_TRANSFER_FETCHED: "Hardware transfer fetched successfully",
+  HARDWARE_TRANSFER_UPDATED: "Hardware transfer updated successfully",
+  HARDWARE_TRANSFER_DELETED: "Hardware transfer deleted successfully",
+
+  // Network Equipment
+  NETWORK_EQUIPMENT_CREATED: "Network equipment created successfully",
+  NETWORK_EQUIPMENT_LIST_FETCHED: "Network equipment list fetched successfully",
+  NETWORK_EQUIPMENT_FETCHED: "Network equipment fetched successfully",
+  NETWORK_EQUIPMENT_UPDATED: "Network equipment updated successfully",
+  NETWORK_EQUIPMENT_DELETED: "Network equipment deleted successfully",
+
+  //  Furniture (MOVE HERE)
+  FURNITURE_CREATED: "Furniture item created successfully",
+  FURNITURE_LIST_FETCHED: "Furniture list fetched successfully",
+  FURNITURE_FETCHED: "Furniture fetched successfully",
+  FURNITURE_UPDATED: "Furniture updated successfully",
+  FURNITURE_DELETED: "Furniture deleted successfully",
+
+
 };
 
-// -------- ERROR MESSAGES --------
+// ---------------- ERROR MESSAGES ----------------
 export const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: "Something went wrong",
   VALIDATION_FAILED: "Validation failed",
   INVALID_ID: "Invalid ID format",
+  SUPPORT_NOT_FOUND: "Support ticket not found",
+  INVALID_DATE_FORMAT: "Invalid date format. Use DD-MM-YYYY",
 
-  // License
   LICENSE_NOT_FOUND: "License not found",
+
+  // -------- SOFTWARE ERRORS --------
+  SOFTWARE_NOT_FOUND: "Software not found",
+  LICENSE_KEY_EXISTS: "License key already exists",   
 
   // Document
   DOCUMENT_NOT_FOUND: "Document not found",
   DOCUMENT_UPLOAD_FAILED: "Document upload failed",
   DOCUMENT_DELETE_FAILED: "Document delete failed",
 
-  // ISO
+  // Furniture
+  FURNITURE_NOT_FOUND: "Furniture item not found",
+  ITEMCODE_EXISTS: "Item code already exists",
+
   ISO_NOT_FOUND: "ISO document not found",
-  ISO_UPLOAD_FAILED: "ISO document upload failed",
-  ISO_DELETE_FAILED: "ISO document delete failed",
+  ISO_UPLOAD_FAILED: "ISO upload failed",
+  ISO_DELETE_FAILED: "ISO delete failed",
+
+  // Audit
+  AUDIT_NOT_FOUND: "Audit not found",
+
+  // SIM
+  SIM_NOT_FOUND: "SIM not found",
+
+  // Hardware Transfer
+  HARDWARE_TRANSFER_NOT_FOUND: "Hardware transfer not found",
+
+  // Network Equipment
+  NETWORK_EQUIPMENT_NOT_FOUND: "Network equipment not found",
+  NETWORK_EQUIPMENT_EXISTS: "Network equipment already exists",
+
+  // Hardware (NEW)
+  HARDWARE_NOT_FOUND: "Hardware ticket not found",
 };
 
 // -------- SUCCESS (200) --------
@@ -153,7 +139,11 @@ export const sendSuccess = (res: Response, message: string, data: any = null) =>
 };
 
 // -------- CREATED (201) --------
-export const sendCreated = (res: Response, message: string, data: any = null) => {
+export const sendCreated = (
+  res: Response,
+  message: string,
+  data: any = null
+) => {
   return res.status(201).json({
     success: true,
     message,
@@ -177,7 +167,8 @@ export const sendError = (
   });
 };
 
-// -------- JOI VALIDATION ERROR THROWER --------
+
+// -------- JOI VALIDATION ERROR --------
 export const throwJoiValidationError = (message: string) => {
   const error: any = new Error(message);
   error.type = "JoiValidationError";
