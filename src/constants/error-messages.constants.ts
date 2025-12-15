@@ -131,6 +131,13 @@ export const ERROR_MESSAGES = {
       status: 409
     },
     
+    // Payee Errors
+    PAYEE_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Payee not found',
+      status: 404
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',
