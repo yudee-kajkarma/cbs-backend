@@ -131,6 +131,18 @@ export const ERROR_MESSAGES = {
       status: 409
     },
     
+    // Cheque Errors
+    CHEQUE_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Cheque not found',
+      status: 404
+    },
+    CHEQUE_NUMBER_EXISTS: {
+      code: 'CBS-4021',
+      message: 'Cheque number already exists for this bank account',
+      status: 409
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',
