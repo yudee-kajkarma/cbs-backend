@@ -13,7 +13,7 @@ import {
   updateDocumentSchema,
   getDocumentByIdSchema,
   listDocumentQuerySchema,
-} from "../validators/document.dto";
+} from "../validators/document.validator";
 
 const router = Router();
 

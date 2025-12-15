@@ -1,6 +1,5 @@
 import { Expose, Type } from 'class-transformer';
 import { BaseDto } from './base-dto';
-import { PaginationDto } from './common-dto';
 import { PaginationResult } from '../services/pagination.service';
 
 export enum HardwareList {

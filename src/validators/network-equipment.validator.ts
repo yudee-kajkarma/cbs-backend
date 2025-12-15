@@ -55,7 +55,6 @@ export const updateNetworkEquipmentSchema = Joi.object({
   status: networkEquipmentBaseSchema.status.optional(),
 }).min(1);
 
-// ===============================
 export const idParamSchema = Joi.object({
   id: Joi.string().hex().length(24).required()
 });
@@ -64,7 +63,6 @@ export const listQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
 
-  // Search (applies to multiple fields)
   search: Joi.string().trim().optional(),
 
   // Filters for individual fields

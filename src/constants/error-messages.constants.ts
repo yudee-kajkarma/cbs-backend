@@ -98,6 +98,39 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Property Errors
+    PROPERTY_NOT_FOUND: {
+      code: 'CBS-4015',
+      message: 'Property not found',
+      status: 404
+    },
+    
+    // Vehicle Errors
+    VEHICLE_NOT_FOUND: {
+      code: 'CBS-4016',
+      message: 'Vehicle not found',
+      status: 404
+    },
+    
+    // Equipment Errors
+    EQUIPMENT_NOT_FOUND: {
+      code: 'CBS-4017',
+      message: 'Equipment not found',
+      status: 404
+    },
+    
+    // Bank Account Errors
+    BANK_ACCOUNT_NOT_FOUND: {
+      code: 'CBS-4018',
+      message: 'Bank account not found',
+      status: 404
+    },
+    BANK_ACCOUNT_EXISTS: {
+      code: 'CBS-4019',
+      message: 'Bank account with this account number already exists',
+      status: 409
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',
@@ -105,34 +138,34 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     INVALID_ID: {
-      code: 'CBS-4015',
+      code: 'CBS-4018',
       message: 'Invalid ID format',
       status: 400
     },
     INVALID_DATE_FORMAT: {
-      code: 'CBS-4016',
+      code: 'CBS-4019',
       message: 'Invalid date format. Use DD-MM-YYYY',
       status: 400
     },
     
     // File Upload Errors
     INVALID_FILE_METADATA: {
-      code: 'CBS-4017',
+      code: 'CBS-4020',
       message: 'Invalid file metadata',
       status: 400
     },
     INVALID_FILE_TYPE: {
-      code: 'CBS-4018',
+      code: 'CBS-4021',
       message: 'Invalid file type',
       status: 400
     },
     FILE_TOO_LARGE: {
-      code: 'CBS-4019',
+      code: 'CBS-4022',
       message: 'File too large',
       status: 400
     },
     INVALID_FILE_FORMAT: {
-      code: 'CBS-4020',
+      code: 'CBS-4023',
       message: 'Invalid file format',
       status: 400
     },

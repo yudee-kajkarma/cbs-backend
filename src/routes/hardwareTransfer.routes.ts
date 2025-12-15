@@ -8,47 +8,47 @@ import {
 } from "../middlewares/validate.middleware";
 
 import {
-  createHardwareTransferDto,
-  updateHardwareTransferDto,
-  hardwareTransferIdDto,
-  hardwareTransferQueryDto,
-} from "../validators/hardwareTransfer.dto";
+  createHardwareTransferSchema,
+  updateHardwareTransferSchema,
+  hardwareTransferIdSchema,
+  hardwareTransferQuerySchema,
+} from "../validators/hardwareTransfer.validator";
 
 const router = Router();
 
 // ---------- CREATE ----------
 router.post(
   "/",
-  validateRequest(createHardwareTransferDto),
+  validateRequest(createHardwareTransferSchema),
   HardwareTransferController.create
 );
 
 // ---------- GET ALL ----------
 router.get(
   "/",
-  validateQuery(hardwareTransferQueryDto),
+  validateQuery(hardwareTransferQuerySchema),
   HardwareTransferController.getAll
 );
 
 // ---------- GET ONE ----------
 router.get(
   "/:id",
-  validateParams(hardwareTransferIdDto),
+  validateParams(hardwareTransferIdSchema),
   HardwareTransferController.getById
 );
 
 // ---------- UPDATE ----------
 router.put(
   "/:id",
-  validateParams(hardwareTransferIdDto),
-  validateRequest(updateHardwareTransferDto),
+  validateParams(hardwareTransferIdSchema),
+  validateRequest(updateHardwareTransferSchema),
   HardwareTransferController.update
 );
 
 // ---------- DELETE ----------
 router.delete(
   "/:id",
-  validateParams(hardwareTransferIdDto),
+  validateParams(hardwareTransferIdSchema),
   HardwareTransferController.delete
 );
 

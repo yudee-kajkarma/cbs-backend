@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { HardwareType, OperatingSystem, RAM, Storage, Department, HardwareStatus } from "../constants";
-import { NewHardware, NewHardwareDocument } from '../interfaces';
+import { NewHardwareDocument } from '../interfaces';
 
 const NewHardwareSchema = new Schema<NewHardwareDocument>(
   {

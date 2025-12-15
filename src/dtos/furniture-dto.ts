@@ -1,7 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { BaseDto } from './base-dto';
 import { Currency } from './common-dto';
-import { PaginationResult } from '../services/pagination.service';
+import { PaginationResult } from '../interfaces/pagination.interface';
 import { FurnitureCategory, FurnitureCondition, FurnitureStatus } from '../constants';
 
 /**

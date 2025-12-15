@@ -1,7 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { BaseDto } from './base-dto';
-import { FileDto, PaginationDto } from './common-dto';
-import { PaginationResult } from '../services/pagination.service';
+import { FileDto } from './common-dto';
+import { PaginationResult } from '../interfaces/pagination.interface';
 import { AuditType } from '../constants';
 
 /**
@@ -28,7 +28,7 @@ export class AuditResponseDto extends BaseDto {
 
   @Expose()
   @Type(() => FileDto)
-  file?: FileDto;
+  fileKey?: FileDto;
 
   @Expose()
   status?: string;

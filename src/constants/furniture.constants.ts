@@ -1,3 +1,5 @@
+import { Condition } from './common.constants';
+
 export enum FurnitureCategory {
   OFFICE_FURNITURE = "Office Furniture",
   MEETING_ROOM_FURNITURE = "Meeting Room Furniture",
@@ -7,12 +9,8 @@ export enum FurnitureCategory {
   OUTDOOR_FURNITURE = "Outdoor Furniture",
 }
 
-export enum FurnitureCondition {
-  EXCELLENT = "Excellent",
-  GOOD = "Good",
-  FAIR = "Fair",
-  POOR = "Poor",
-}
+// Use common Condition enum
+export { Condition as FurnitureCondition };
 
 export enum FurnitureStatus {
   ACTIVE = "Active",
@@ -22,5 +20,5 @@ export enum FurnitureStatus {
 }
 
 export const allowedFurnitureCategories = Object.values(FurnitureCategory);
-export const allowedFurnitureConditions = Object.values(FurnitureCondition);
+export const allowedFurnitureConditions = Object.values(Condition);
 export const allowedFurnitureStatuses = Object.values(FurnitureStatus);

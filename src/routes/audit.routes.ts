@@ -8,17 +8,17 @@ import {
 } from "../middlewares/validate.middleware";
 
 import {
-  createAuditDto,
-  updateAuditDto,
-  auditIdDto
-} from "../validators/audit.dto";
+  createAuditSchema,
+  updateAuditSchema,
+  auditIdSchema
+} from "../validators/audit.validator";
 
 const router = Router();
 
 // CREATE
 router.post(
   "/",
-  validateRequest(createAuditDto),
+  validateRequest(createAuditSchema),
   AuditController.create
 );
 
@@ -28,22 +28,22 @@ router.get("/", AuditController.getAll);
 // GET BY ID
 router.get(
   "/:id",
-  validateParams(auditIdDto),
+  validateParams(auditIdSchema),
   AuditController.getById
 );
 
 // UPDATE
 router.put(
   "/:id",
-  validateParams(auditIdDto),
-  validateRequest(updateAuditDto),
+  validateParams(auditIdSchema),
+  validateRequest(updateAuditSchema),
   AuditController.update
 );
 
 // DELETE
 router.delete(
   "/:id",
-  validateParams(auditIdDto),
+  validateParams(auditIdSchema),
   AuditController.delete
 );
 

@@ -4,16 +4,14 @@ export enum EquipmentType {
   FIREWALL = "Firewall",
   ACCESS_POINT = "Access Point",
   LOAD_BALANCER = "Load Balancer",
-  MODEM = "Modem",
-  OTHER = "Other",
+  GATEWAY = "Gateway"
 }
 
 export enum EquipmentStatus {
-  ACTIVE = "Active",
-  INACTIVE = "Inactive",
+  ONLINE = "Online",
+  OFFLINE = "Offline",
   MAINTENANCE = "Maintenance",
-  FAULTY = "Faulty",
-  RETIRED = "Retired",
+  DECOMMISSIONED = "Decommissioned",
 }
 
 export const allowedEquipmentTypes = Object.values(EquipmentType);

@@ -1,4 +1,5 @@
-import { SupportModel, ISupport } from "../models/support.model";
+import  SupportModel from "../models/support.model";
+import { SupportQuery, CreateSupportData, ISupport } from "../interfaces/model.interface";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -14,7 +15,7 @@ export class SupportService {
    * @param data - Support ticket data
    * @returns Created support ticket
    */
-  static async create(data: ISupport) {
+  static async create(data: CreateSupportData) {
     try {
       return await SupportModel.create(data);
     } catch (error) {
@@ -27,7 +28,7 @@ export class SupportService {
    * @param query - Query parameters
    * @returns Paginated support ticket list
    */
-  static async getAll(query: any) {
+  static async getAll(query: SupportQuery) {
     try {
       const searchableFields = ['ticketTitle', 'description'];
       const allowedSortFields = ['ticketTitle', 'category', 'priority', 'department', 'status', 'createdAt', 'updatedAt'];

@@ -1,8 +1,9 @@
-import { SoftwareModel, ISoftware } from "../models/software.model";
+import  SoftwareModel from "../models/software.model";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants";
+import { CreateSoftwareData, ISoftware, SoftwareQuery } from "../interfaces";
 
 /**
  * SoftwareService
@@ -14,7 +15,7 @@ export class SoftwareService {
    * @param data - Software data
    * @returns Created software
    */
-  static async create(data: Partial<ISoftware>) {
+  static async create(data: CreateSoftwareData) {
     try {
       return await SoftwareModel.create(data);
     } catch (error) {
@@ -27,7 +28,7 @@ export class SoftwareService {
    * @param query - Query parameters
    * @returns Paginated software list
    */
-  static async getAll(query: any) {
+  static async getAll(query: SoftwareQuery) {
     try {
       const searchableFields = ['softwareName', 'version', 'vendor'];
       const allowedSortFields = ['softwareName', 'version', 'vendor', 'licenseType', 'status', 'createdAt', 'updatedAt'];

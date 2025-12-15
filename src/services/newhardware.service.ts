@@ -1,5 +1,5 @@
 import { NewHardwareModel } from "../models/newhardware.model";
-import { NewHardware } from "../interfaces";
+import { NewHardware, NewHardwareQuery, CreateNewHardwareData, UpdateNewHardwareData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -28,7 +28,7 @@ export class NewHardwareService {
    * @param query - Query parameters
    * @returns Paginated hardware list
    */
-  static async getAll(query: any) {
+  static async getAll(query: NewHardwareQuery) {
     try {
       const searchableFields = ['deviceName', 'serialNumber', 'assignedTo'];
       const allowedSortFields = ['deviceName', 'serialNumber', 'type', 'operatingSystem', 'department', 'status', 'createdAt', 'updatedAt'];

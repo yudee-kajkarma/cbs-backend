@@ -8,6 +8,7 @@ export const createDocumentSchema = Joi.object({
     .required(),
   documentDate: Joi.date().required(),
   partiesInvolved: Joi.string().required(),
+  fileKey: Joi.string().optional(), 
 });
 
 export const updateDocumentSchema = Joi.object({
@@ -15,6 +16,7 @@ export const updateDocumentSchema = Joi.object({
   category: Joi.string().valid(...allowedDocumentCategories).optional(),
   documentDate: Joi.date().optional(),
   partiesInvolved: Joi.string().optional(),
+  fileKey: Joi.string().optional(),
 });
 
 export const getDocumentByIdSchema = Joi.object({
@@ -25,16 +27,15 @@ export const listDocumentQuerySchema = Joi.object({
   search: Joi.string().optional(),
   name: Joi.string().optional(),
   category: Joi.string().optional(),
-
   status: Joi.string().valid("Active", "Archived").optional(),
 
   // Sorting fields
   orderBy: Joi.string().valid(
-  "name",
-  "category",
-  "createdAt",
-  "updatedAt"
-).optional(),
+    "name",
+    "category",
+    "createdAt",
+    "updatedAt"
+  ).optional(),
 
 
   sortBy: Joi.string().valid("asc", "desc").optional(),

@@ -35,7 +35,8 @@ export enum TransferUserList {
 export enum TransferStatus {
   ACTIVE = "Active",
   RETURNED = "Returned",
-  PERMANENT = "Permanent",
+  PERMANENT_TRANSFER = "Permanent Transfer",
+  PENDING = "Pending",
 }
 
 export const allowedTransferTypes = Object.values(TransferType);

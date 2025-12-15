@@ -93,4 +93,32 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'New hardware deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'New hardware list retrieved successfully',
   },
+  PROPERTY: {
+    CREATED_SUCCESSFULLY: 'Property created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Property retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Property updated successfully',
+    DELETED_SUCCESSFULLY: 'Property deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Properties list retrieved successfully',
+  },
+  VEHICLE: {
+    CREATED_SUCCESSFULLY: 'Vehicle created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Vehicle retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Vehicle updated successfully',
+    DELETED_SUCCESSFULLY: 'Vehicle deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Vehicles list retrieved successfully',
+  },
+  EQUIPMENT: {
+    CREATED_SUCCESSFULLY: 'Equipment created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Equipment retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Equipment updated successfully',
+    DELETED_SUCCESSFULLY: 'Equipment deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Equipment list retrieved successfully',
+  },
+  BANK_ACCOUNT: {
+    CREATED_SUCCESSFULLY: 'Bank account created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Bank account retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Bank account updated successfully',
+    DELETED_SUCCESSFULLY: 'Bank account deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Bank accounts list retrieved successfully',
+  },
 };

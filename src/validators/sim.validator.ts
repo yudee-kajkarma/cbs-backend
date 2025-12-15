@@ -1,7 +1,6 @@
 import Joi, { ObjectSchema } from "joi";
 
 const carrierEnum = ["Zain Kuwait", "Ooredoo Kuwait", "STC Kuwait", "Other"];
-const currencyEnum = ["KWD", "USD", "EUR", "GBP", "AED", "SAR"];
 const departmentEnum = [
   "IT",
   "Sales",
@@ -21,7 +20,7 @@ const simBaseSchema = {
   carrier: Joi.string().valid(...carrierEnum),
   planType: Joi.string().trim(),
   monthlyFee: Joi.number().min(0),
-  currency: Joi.string().valid(...currencyEnum),
+  currency: Joi.string().valid(...["KWD", "USD", "EUR", "GBP", "JPY", "AED"]),
   extraCharges: Joi.number().min(0),
   simCharges: Joi.number().min(0),
   dataLimit: Joi.string().trim(),

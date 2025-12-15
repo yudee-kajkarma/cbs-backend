@@ -6,28 +6,30 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { calculateExpiryStatus } from "../utils/status.util";
+import { 
+  ILicense,
+  LicenseQuery, 
+  CreateLicenseData, 
+  UpdateLicenseData 
+} from "../interfaces/model.interface";
 
 export class LicenseService {
-  /**
-   * Helper: Format license for list view (without S3 calls)
-   */
-  private static formatLicenseForList(license: any) {
+  
+  private static formatLicenseForList(license: ILicense) {
     return {
       ...license,
       status: calculateExpiryStatus(license.expiryDate),
-      hasDocument: !!license.documentKey,
+      hasDocument: !!license.fileKey,
     };
   }
 
-  /**
-   * Helper: Format license with S3 URL
-   */
-  private static async formatLicense(license: any) {
+ 
+  private static async formatLicense(license: ILicense) {
     return {
       ...license,
       status: calculateExpiryStatus(license.expiryDate),
-      documentUrl: license.documentKey
-        ? await FileUploadService.generateDownloadUrl(license.documentKey)
+      fileUrl: license.fileKey
+        ? await FileUploadService.generateDownloadUrl(license.fileKey)
         : null,
     };
   }
@@ -35,10 +37,10 @@ export class LicenseService {
   /**
    * Create a new license
    */
-  static async create(data: any): Promise<any> {
+  static async create(data: CreateLicenseData): Promise<ILicense> {
     try {
-      if (data.documentKey) {
-        await validateS3Keys([data.documentKey]);
+      if (data.fileKey) {
+        await validateS3Keys([data.fileKey]);
       }
 
       const license = await License.create(data);
@@ -51,7 +53,7 @@ export class LicenseService {
   /**
    * Get all licenses with pagination and filtering
    */
-  static async getAll(query: any): Promise<any> {
+  static async getAll(query: LicenseQuery): Promise<any> {
     try {
       const searchableFields = ['name', 'number', 'issuingAuthority'];
       const allowedSortFields = ['name', 'type', 'issueDate', 'expiryDate', 'createdAt', 'updatedAt'];
@@ -64,7 +66,7 @@ export class LicenseService {
       });
 
       // Format licenses without expensive S3 calls
-      const formatted = result.data.map((license: any) => this.formatLicenseForList(license));
+      const formatted = result.data.map((license) => this.formatLicenseForList(license as ILicense));
 
       return {
         licenses: formatted,
@@ -87,7 +89,7 @@ export class LicenseService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
       }
 
-      return await this.formatLicense(license);
+      return await this.formatLicense(license as ILicense);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'getOne', id });
     }
@@ -96,7 +98,7 @@ export class LicenseService {
   /**
    * Update license by ID
    */
-  static async update(id: string, data: any): Promise<any> {
+  static async update(id: string, data: UpdateLicenseData): Promise<any> {
     try {
       const existing = await License.findById(id);
       
@@ -105,13 +107,13 @@ export class LicenseService {
       }
 
       // Handle file update
-      if (data.documentKey && data.documentKey !== existing.documentKey) {
+      if (data.fileKey && data.fileKey !== existing.fileKey) {
         // Validate new file
-        await validateS3Keys([data.documentKey]);
+        await validateS3Keys([data.fileKey]);
         
         // Delete old file if it exists
-        if (existing.documentKey) {
-          await FileUploadService.deleteFiles([existing.documentKey]);
+        if (existing.fileKey) {
+          await FileUploadService.deleteFiles([existing.fileKey]);
         }
       }
 
@@ -125,7 +127,7 @@ export class LicenseService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
       }
 
-      return await this.formatLicense(updated);
+      return await this.formatLicense(updated as ILicense);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'LicenseService', method: 'update', id, data });
     }
@@ -142,15 +144,15 @@ export class LicenseService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LICENSE_NOT_FOUND);
       }
 
-      const documentKey = existing.documentKey;
+      const fileKey = existing.fileKey;
       
       await License.findByIdAndDelete(id);
       
-      if (documentKey) {
+      if (fileKey) {
         try {
-          await FileUploadService.deleteFiles([documentKey]);
+          await FileUploadService.deleteFiles([fileKey]);
         } catch (error) {
-          console.error('Failed to delete S3 file:', documentKey, error);
+          console.error('Failed to delete S3 file:', fileKey, error);
         }
       }
     } catch (error) {

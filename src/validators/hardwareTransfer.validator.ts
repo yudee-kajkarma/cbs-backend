@@ -25,7 +25,7 @@ const hardwareTransferBaseSchema = {
 };
 
 // CREATE DTO
-export const createHardwareTransferDto = Joi.object({
+export const createHardwareTransferSchema = Joi.object({
   hardwareName: hardwareTransferBaseSchema.hardwareName.required(),
   serialNumber: hardwareTransferBaseSchema.serialNumber.required(),
   fromUser: hardwareTransferBaseSchema.fromUser.required(),
@@ -41,7 +41,7 @@ export const createHardwareTransferDto = Joi.object({
 });
 
 // UPDATE DTO
-export const updateHardwareTransferDto = Joi.object({
+export const updateHardwareTransferSchema = Joi.object({
   hardwareName: hardwareTransferBaseSchema.hardwareName.optional(),
   serialNumber: hardwareTransferBaseSchema.serialNumber.optional(),
   fromUser: hardwareTransferBaseSchema.fromUser.optional(),
@@ -57,12 +57,12 @@ export const updateHardwareTransferDto = Joi.object({
 }).min(1);
 
 // PARAMS DTO (/:id)
-export const hardwareTransferIdDto = Joi.object({
+export const hardwareTransferIdSchema = Joi.object({
   id: Joi.string().hex().length(24).required(),
 });
 
 // QUERY DTO
-export const hardwareTransferQueryDto = Joi.object({
+export const hardwareTransferQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
 

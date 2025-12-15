@@ -2,38 +2,38 @@ import { Router } from "express";
 
 import { ISOController } from "../controllers/iso.controller";
 import { validateRequest, validateParams, validateQuery } from "../middlewares/validate.middleware";
-import { createISODto, updateISODto, isoIdDto, isoQueryDto } from "../validators/iso.dto";
+import { createISOSchema, updateISOSchema, isoIdSchema, isoQuerySchema } from "../validators/iso.validator";
 
 const router = Router();
 
 router.post(
   "/",
-  validateRequest(createISODto),
+  validateRequest(createISOSchema),
   ISOController.create
 );
 
 router.get(
   "/",
-  validateQuery(isoQueryDto),
+  validateQuery(isoQuerySchema),
   ISOController.getAll
 );
 
 router.get(
   "/:id",
-  validateParams(isoIdDto),
+  validateParams(isoIdSchema),
   ISOController.getById
 );
 
 router.put(
   "/:id",
-  validateParams(isoIdDto),
-  validateRequest(updateISODto),
+  validateParams(isoIdSchema),
+  validateRequest(updateISOSchema),
   ISOController.update
 );
 
 router.delete(
   "/:id",
-  validateParams(isoIdDto),
+  validateParams(isoIdSchema),
   ISOController.delete
 );
 

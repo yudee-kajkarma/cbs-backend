@@ -10,7 +10,7 @@ const isoBaseSchema = {
   fileKey: Joi.string(),
 };
 
-export const createISODto = Joi.object({
+export const createISOSchema = Joi.object({
   certificateName: isoBaseSchema.certificateName.required(),
   isoStandard: isoBaseSchema.isoStandard.required(),
   issueDate: isoBaseSchema.issueDate.required(),
@@ -19,7 +19,7 @@ export const createISODto = Joi.object({
   fileKey: isoBaseSchema.fileKey.required(),
 });
 
-export const updateISODto = Joi.object({
+export const updateISOSchema = Joi.object({
   certificateName: isoBaseSchema.certificateName.optional(),
   isoStandard: isoBaseSchema.isoStandard.optional(),
   issueDate: isoBaseSchema.issueDate.optional(),
@@ -28,11 +28,11 @@ export const updateISODto = Joi.object({
   fileKey: isoBaseSchema.fileKey.optional(),
 }).min(1);
 
-export const isoIdDto = Joi.object({
+export const isoIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required(),
 });
 
-export const isoQueryDto = Joi.object({
+export const isoQuerySchema = Joi.object({
   page: Joi.number().min(1).default(1),
   limit: Joi.number().min(1).max(100).default(10),
 

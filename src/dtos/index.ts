@@ -12,3 +12,5 @@ export * from './newhardware-dto';
 export * from './sim-dto';
 export * from './software-dto';
 export * from './support-dto';
+export * from './property-dto';
+export * from './vehicle-dto';

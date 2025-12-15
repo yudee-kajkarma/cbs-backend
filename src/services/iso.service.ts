@@ -1,4 +1,4 @@
-import { ISOModel } from "../models/iso.model";
+import  ISOModel from "../models/iso.model";
 import { allowedISOStandards, ISOStandard } from "../constants/iso.constants";
 import { FileUploadService } from "./file-upload.service";
 import { validateS3Keys } from "../utils/aws.util";
@@ -7,12 +7,13 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { calculateExpiryStatus } from "../utils/status.util";
+import { ISO, ISOQuery, CreateISOData, UpdateISOData } from "../interfaces/model.interface";
 
 export class ISOService {
   /**
    * Helper: Format ISO for list view (without S3 calls)
    */
-  private static formatISOForList(iso: any) {
+  private static formatISOForList(iso: ISO) {
     return {
       ...iso,
       status: calculateExpiryStatus(iso.expiryDate),
@@ -23,7 +24,7 @@ export class ISOService {
   /**
    * Helper: Format ISO with S3 URL
    */
-  private static async formatISO(iso: any) {
+  private static async formatISO(iso: ISO) {
     return {
       ...iso,
       status: calculateExpiryStatus(iso.expiryDate),
@@ -34,7 +35,7 @@ export class ISOService {
   /**
    * Create a new ISO certificate
    */
-  static async create(data: any): Promise<any> {
+  static async create(data: CreateISOData): Promise<ISO> {
     try {
       if (!allowedISOStandards.includes(data.isoStandard as ISOStandard)) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_ISO_STANDARD);
@@ -54,7 +55,7 @@ export class ISOService {
   /**
    * Get all ISO certificates with pagination and filtering
    */
-  static async getAll(query: any): Promise<any> {
+  static async getAll(query: ISOQuery): Promise<any> {
     try {
       const searchableFields = ['certificateName', 'isoStandard', 'certifyingBody'];
       const allowedSortFields = ['certificateName', 'isoStandard', 'certifyingBody', 'issueDate', 'expiryDate', 'createdAt', 'updatedAt'];
@@ -67,7 +68,7 @@ export class ISOService {
       });
 
       // Format ISOs without expensive S3 calls
-      const formatted = result.data.map((iso: any) => this.formatISOForList(iso));
+      const formatted = result.data.map((iso) => this.formatISOForList(iso as ISO));
 
       return {
         isos: formatted,
@@ -90,7 +91,7 @@ export class ISOService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
       }
 
-      return await this.formatISO(iso);
+      return await this.formatISO(iso as unknown as ISO);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'getOne', id });
     }
@@ -99,7 +100,7 @@ export class ISOService {
   /**
    * Update ISO certificate by ID
    */
-  static async update(id: string, data: any): Promise<any> {
+  static async update(id: string, data: UpdateISOData): Promise<any> {
     try {
       const existing = await ISOModel.findById(id);
       
@@ -132,7 +133,7 @@ export class ISOService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
       }
 
-      return await this.formatISO(updated);
+      return await this.formatISO(updated as unknown as ISO);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'update', id, data });
     }

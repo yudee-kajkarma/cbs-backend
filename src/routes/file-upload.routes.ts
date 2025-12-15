@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { FileUploadController } from '../controllers/file-upload.controller';
 import { validateRequest } from '../middlewares/validate.middleware';
-import { presignedUrlRequestSchema, downloadUrlRequestSchema } from '../validators/file-upload.dto';
+import { presignedUrlRequestSchema, downloadUrlRequestSchema } from '../validators/file-upload.validator';
 
 const router = Router();
 

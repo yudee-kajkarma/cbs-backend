@@ -1,4 +1,4 @@
-import { HardwareTransferModel } from "../models/hardwareTransfer.model";
+import  HardwareTransferModel  from "../models/hardwareTransfer.model";
 import { IHardwareTransfer } from "../interfaces";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";

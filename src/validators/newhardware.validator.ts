@@ -1,31 +1,23 @@
 import Joi, { ObjectSchema } from "joi";
+import { HardwareStatus, HardwareType, OperatingSystem, RAM, Storage } from "../constants";
 
-// small helper for dd-mm-yyyy validation (string) if you accept string dates.
-// But we prefer ISO date in body. Here we allow either ISO or dd-mm-yyyy string parse is handled in controller/service if needed.
 
 export const createNewHardwareSchema: ObjectSchema = Joi.object({
   deviceName: Joi.string().required(),
   type: Joi.string()
-    .valid("Laptop", "Desktop", "Server", "Tablet", "Workstation")
+    .valid(...Object.values(HardwareType))
     .required(),
   serialNumber: Joi.string().required(),
   operatingSystem: Joi.string()
-    .valid(
-      "Windows 11 Pro",
-      "Windows 10 Pro",
-      "macOS Sonoma",
-      "Ubuntu Server 22.04",
-      "Ubuntu Desktop 22.04",
-      "Linux (Other)"
-    )
+    .valid(...Object.values(OperatingSystem))
     .required(),
   processor: Joi.string().optional().allow(null, ""),
   ram: Joi.string()
-    .valid("4GB", "8GB", "16GB", "32GB", "64GB", "128GB")
+    .valid(...Object.values(RAM))
     .optional()
     .allow(null),
   storage: Joi.string()
-    .valid("128GB SSD", "256GB SSD", "512GB SSD", "1TB SSD", "2TB SSD", "2TB RAID", "4TB RAID")
+    .valid(...Object.values(Storage))
     .optional()
     .allow(null),
   purchaseDate: Joi.date().iso().optional().allow(null), // prefer ISO date (yyyy-mm-dd)
@@ -35,34 +27,27 @@ export const createNewHardwareSchema: ObjectSchema = Joi.object({
     .valid("IT", "Finance", "HR", "Operations", "Sales", "Marketing", "Legal")
     .optional()
     .allow(null),
-  status: Joi.string().valid("Active", "Inactive", "Under Repair", "Retired").required(),
+  status: Joi.string().valid(...Object.values(HardwareStatus)).required(),
   submittedBy: Joi.string().optional().allow(null, ""),
 });
 
 // Update — all optional, but enums still restricted
 export const updateNewHardwareSchema: ObjectSchema = Joi.object({
   deviceName: Joi.string().optional(),
-  type: Joi.string()
-    .valid("Laptop", "Desktop", "Server", "Tablet", "Workstation")
+   type: Joi.string()
+    .valid(...Object.values(HardwareType))
     .optional(),
   serialNumber: Joi.string().optional(),
   operatingSystem: Joi.string()
-    .valid(
-      "Windows 11 Pro",
-      "Windows 10 Pro",
-      "macOS Sonoma",
-      "Ubuntu Server 22.04",
-      "Ubuntu Desktop 22.04",
-      "Linux (Other)"
-    )
+    .valid(...Object.values(OperatingSystem))
     .optional(),
   processor: Joi.string().optional().allow(null, ""),
   ram: Joi.string()
-    .valid("4GB", "8GB", "16GB", "32GB", "64GB", "128GB")
+    .valid(...Object.values(RAM))
     .optional()
     .allow(null),
   storage: Joi.string()
-    .valid("128GB SSD", "256GB SSD", "512GB SSD", "1TB SSD", "2TB SSD", "2TB RAID", "4TB RAID")
+    .valid(...Object.values(Storage))
     .optional()
     .allow(null),
   purchaseDate: Joi.date().iso().optional().allow(null),
@@ -72,12 +57,10 @@ export const updateNewHardwareSchema: ObjectSchema = Joi.object({
     .valid("IT", "Finance", "HR", "Operations", "Sales", "Marketing", "Legal")
     .optional()
     .allow(null),
-  status: Joi.string().valid("Active", "Inactive", "Under Repair", "Retired").optional(),
+  status: Joi.string().valid(...Object.values(HardwareStatus)).optional(),
   submittedBy: Joi.string().optional().allow(null, ""),
 });
 
-// List schema (pagination + filters)
-// List schema (pagination + filters + sorting)
 export const getNewHardwareListSchema: ObjectSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),
@@ -85,18 +68,11 @@ export const getNewHardwareListSchema: ObjectSchema = Joi.object({
   search: Joi.string().optional().allow(""),
 
   type: Joi.string()
-    .valid("Laptop", "Desktop", "Server", "Tablet", "Workstation")
+    .valid(...Object.values(HardwareType))
     .optional(),
 
   operatingSystem: Joi.string()
-    .valid(
-      "Windows 11 Pro",
-      "Windows 10 Pro",
-      "macOS Sonoma",
-      "Ubuntu Server 22.04",
-      "Ubuntu Desktop 22.04",
-      "Linux (Other)"
-    )
+    .valid(...Object.values(OperatingSystem))
     .optional(),
 
   department: Joi.string()
@@ -104,7 +80,7 @@ export const getNewHardwareListSchema: ObjectSchema = Joi.object({
     .optional(),
 
   status: Joi.string()
-    .valid("Active", "Inactive", "Under Repair", "Retired")
+    .valid(...Object.values(HardwareStatus))
     .optional(),
 
   orderBy: Joi.string()

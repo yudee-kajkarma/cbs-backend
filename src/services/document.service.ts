@@ -5,6 +5,7 @@ import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
 import { ERROR_MESSAGES } from '../constants/error-messages.constants';
+import { IDocument, DocumentQuery, CreateDocumentData, UpdateDocumentData } from '../interfaces/model.interface';
 
 export class DocumentService {
   /**
@@ -19,37 +20,30 @@ export class DocumentService {
   /**
    * Helper: Format document for list view (without S3 calls)
    */
-  private static formatDocumentForList(doc: any) {
-    const status = this.getStatus(doc.documentDate);
-    const { fileKey, ...rest } = doc;
-
+  private static formatDocumentForList(doc: IDocument) {
     return {
-      ...rest,
-      status,
-      hasFile: !!fileKey,
+      ...doc,
+     status: this.getStatus(doc.documentDate),
+     hasFile: !!doc.fileKey,
     };
+
   }
 
   /**
    * Helper: Format document with S3 URL
    */
-  private static async formatDocument(doc: any) {
-    const status = this.getStatus(doc.documentDate);
-    const fileUrl = doc.fileKey ? await FileUploadService.generateDownloadUrl(doc.fileKey) : null;
-    const { fileKey, ...rest } = doc;
-
+  private static async formatDocument(doc: IDocument) {
     return {
-      ...rest,
-      fileKey,
-      status,
-      fileUrl,
-    };
+      ...doc,
+     status: this.getStatus(doc.documentDate),
+    fileUrl: doc.fileKey ? await FileUploadService.generateDownloadUrl(doc.fileKey) : null,
+  }
   }
 
   /**
    * Create a new document
    */
-  static async create(data: any): Promise<any> {
+  static async create(data: CreateDocumentData): Promise<IDocument> {
     try {
       if (data.fileKey) {
         await validateS3Keys([data.fileKey]);
@@ -65,7 +59,7 @@ export class DocumentService {
   /**
    * Get all documents with pagination and filtering
    */
-  static async getAll(query: any): Promise<any> {
+  static async getAll(query: DocumentQuery): Promise<any> {
     try {
       const searchableFields = ['name', 'partiesInvolved'];
       const allowedSortFields = ['name', 'category', 'documentDate', 'createdAt', 'updatedAt'];
@@ -78,7 +72,7 @@ export class DocumentService {
       });
 
       // Format documents without expensive S3 calls
-      const formatted = result.data.map((d: any) => this.formatDocumentForList(d));
+      const formatted = result.data.map((d) => this.formatDocumentForList(d as IDocument));
 
       return {
         documents: formatted,
@@ -101,7 +95,7 @@ export class DocumentService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.DOCUMENT_NOT_FOUND);
       }
 
-      return await this.formatDocument(doc);
+      return await this.formatDocument(doc as unknown as IDocument);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'getOne', id });
     }
@@ -110,7 +104,7 @@ export class DocumentService {
   /**
    * Update document by ID
    */
-  static async update(id: string, data: any): Promise<any> {
+  static async update(id: string, data: UpdateDocumentData): Promise<any> {
     try {
       const existing = await DocumentModel.findById(id);
       
@@ -139,7 +133,7 @@ export class DocumentService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.DOCUMENT_NOT_FOUND);
       }
 
-      return await this.formatDocument(updated);
+      return await this.formatDocument(updated as unknown as IDocument);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'update', id, data });
     }

@@ -1,4 +1,5 @@
 import Joi, { ObjectSchema } from "joi";
+import { Currency } from "../constants";
 
 const categoryEnum = [
   "Office Furniture",
@@ -10,7 +11,6 @@ const categoryEnum = [
 ];
 
 const conditionEnum = ["Excellent", "Good", "Fair", "Poor"];
-const currencyEnum = ["KWD", "USD", "EUR", "GBP"];
 const statusEnum = ["Active", "Under Repair", "Inactive", "Disposed"];
 
 // CREATE
@@ -28,9 +28,9 @@ export const createFurnitureSchema: ObjectSchema = Joi.object({
   supplier: Joi.string().optional().allow(""),
   purchaseDate: Joi.date().iso().optional().allow(null),
   unitValue: Joi.number().precision(2).optional().allow(null),
-  purchaseCurrency: Joi.string().valid(...currencyEnum).optional(),
+  purchaseCurrency: Joi.string().valid(...Object.values(Currency)).optional(),
   currentUnitValue: Joi.number().precision(2).optional().allow(null),
-  currentCurrency: Joi.string().valid(...currencyEnum).optional(),
+  currentCurrency: Joi.string().valid(...Object.values(Currency)).optional(),
   warrantyExpiry: Joi.date().iso().optional().allow(null),
   lastInspection: Joi.date().iso().optional().allow(null),
   status: Joi.string().valid(...statusEnum).default("Active"),
@@ -52,9 +52,9 @@ export const updateFurnitureSchema: ObjectSchema = Joi.object({
   supplier: Joi.string().optional().allow(""),
   purchaseDate: Joi.date().iso().optional().allow(null),
   unitValue: Joi.number().precision(2).optional().allow(null),
-  purchaseCurrency: Joi.string().valid(...currencyEnum).optional(),
+  purchaseCurrency: Joi.string().valid(...Object.values(Currency)).optional(),
   currentUnitValue: Joi.number().precision(2).optional().allow(null),
-  currentCurrency: Joi.string().valid(...currencyEnum).optional(),
+  currentCurrency: Joi.string().valid(...Object.values(Currency)).optional(),
   warrantyExpiry: Joi.date().iso().optional().allow(null),
   lastInspection: Joi.date().iso().optional().allow(null),
   status: Joi.string().valid(...statusEnum).optional(),

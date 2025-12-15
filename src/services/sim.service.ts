@@ -1,4 +1,5 @@
-import { SimModel, ISim } from "../models/sim.model";
+import  SimModel  from "../models/sim.model";
+import { SimQuery, CreateSimData, ISim } from "../interfaces/model.interface";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -14,7 +15,7 @@ export class SimService {
    * @param data - SIM data
    * @returns Created SIM
    */
-  static async create(data: Partial<ISim>) {
+  static async create(data: CreateSimData) {
     try {
       return await SimModel.create(data);
     } catch (error) {
@@ -27,7 +28,7 @@ export class SimService {
    * @param query - Query parameters
    * @returns Paginated SIM list
    */
-  static async getAll(query: any) {
+  static async getAll(query: SimQuery) {
     try {
       const searchableFields = ['simNumber', 'carrier', 'assignedTo'];
       const allowedSortFields = ['simNumber', 'carrier', 'assignedTo', 'status', 'createdAt', 'updatedAt'];

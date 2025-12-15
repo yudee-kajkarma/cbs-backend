@@ -1,13 +1,7 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 import { ISO } from '../interfaces';
+import { allowedISOStandards } from "../constants";
 
-const allowedStandards = [
-  "ISO 9001:2015",
-  "ISO 14001:2015",
-  "ISO 27001:2013",
-  "ISO 45001:2018",
-  "ISO 50001:2018"
-];
 const ISOSchema = new Schema<ISO>(
   {
     certificateName: { type: String, required: true },
@@ -15,7 +9,7 @@ const ISOSchema = new Schema<ISO>(
     isoStandard: {
       type: String,
       required: true,
-      enum: allowedStandards
+      enum: allowedISOStandards
     },
 
     issueDate: { type: Date, required: true },
@@ -31,6 +25,4 @@ const ISOSchema = new Schema<ISO>(
   }
 );
 
-
-export const ISOModel = model<ISO>("ISO", ISOSchema);
-export { allowedStandards };
+export default model<ISO>("ISO", ISOSchema);

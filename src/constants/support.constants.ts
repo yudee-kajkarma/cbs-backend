@@ -1,3 +1,5 @@
+import { Priority } from './common.constants';
+
 export enum SupportCategory {
   HARDWARE = "Hardware",
   SOFTWARE = "Software",
@@ -8,13 +10,7 @@ export enum SupportCategory {
   PHONE = "Phone",
   OTHER = "Other",
 }
-
-export enum Priority {
-  LOW = "Low",
-  MEDIUM = "Medium",
-  HIGH = "High",
-  CRITICAL = "Critical",
-}
+export { Priority };
 
 export enum SupportAssignee {
   UNASSIGNED = "Unassigned",
@@ -31,6 +27,5 @@ export enum SupportStatus {
 }
 
 export const allowedSupportCategories = Object.values(SupportCategory);
-export const allowedPriorities = Object.values(Priority);
 export const allowedSupportAssignees = Object.values(SupportAssignee);
 export const allowedSupportStatuses = Object.values(SupportStatus);

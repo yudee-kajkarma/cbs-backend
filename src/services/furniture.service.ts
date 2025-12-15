@@ -1,5 +1,5 @@
 import { FurnitureModel } from "../models/furniture.model";
-import { Furniture } from "../interfaces";
+import { Furniture, FurnitureQuery, CreateFurnitureData, UpdateFurnitureData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -15,7 +15,7 @@ export class FurnitureService {
    * @param data - Furniture data
    * @returns Created furniture
    */
-  static async create(data: Partial<Furniture>) {
+  static async create(data: CreateFurnitureData) {
     try {
       return await FurnitureModel.create(data);
     } catch (error) {
@@ -28,7 +28,7 @@ export class FurnitureService {
    * @param query - Query parameters
    * @returns Paginated furniture list
    */
-  static async getAll(query: any) {
+  static async getAll(query: FurnitureQuery) {
     try {
       const searchableFields = ['itemName', 'itemCode', 'location'];
       const allowedSortFields = ['itemName', 'itemCode', 'category', 'status', 'location', 'createdAt', 'updatedAt'];
@@ -73,7 +73,7 @@ export class FurnitureService {
    * @param data - Update data
    * @returns Updated furniture
    */
-  static async update(id: string, data: Partial<Furniture>) {
+  static async update(id: string, data: UpdateFurnitureData) {
     try {
       const updated = await FurnitureModel.findByIdAndUpdate(id, data, { new: true });
       if (!updated) {

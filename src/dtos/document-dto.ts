@@ -25,7 +25,13 @@ export class DocumentResponseDto extends BaseDto {
 
   @Expose()
   @Type(() => FileDto)
-  file?: FileDto;
+  fileKey?: FileDto;
+
+  @Expose()
+  hasFile?: boolean;
+
+  @Expose()
+  fileUrl?: string;
 }
 
 /**
