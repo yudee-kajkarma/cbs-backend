@@ -121,4 +121,12 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Bank account deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Bank accounts list retrieved successfully',
   },
+  FORECAST: {
+    CREATED_SUCCESSFULLY: 'Forecast entry created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Forecast entry retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Forecast entry updated successfully',
+    DELETED_SUCCESSFULLY: 'Forecast entry deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Forecast entries list retrieved successfully',
+    SUMMARY_RETRIEVED_SUCCESSFULLY: 'Forecast summary retrieved successfully',
+  },
 };

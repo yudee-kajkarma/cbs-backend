@@ -131,6 +131,13 @@ export const ERROR_MESSAGES = {
       status: 409
     },
     
+    // Forecast Errors
+    FORECAST_NOT_FOUND: {
+      code: 'CBS-4022',
+      message: 'Forecast entry not found',
+      status: 404
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',
