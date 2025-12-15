@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import { Currency } from "../constants/common.constants";
 import { 
   ForecastType, 
   ForecastStatus, 
@@ -36,14 +35,14 @@ const forecastSchema = new Schema<ForecastDocument>(
     },
     currency: {
       type: String,
-      enum: Object.values(Currency),
-      default: Currency.KWD,
+      default: 'KWD',
       required: [true, 'Currency is required'],
+      trim: true,
     },
     bankAccount: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'BankAccount',
+      type: String,
       required: [true, 'Bank account is required'],
+      trim: true,
     },
     status: {
       type: String,

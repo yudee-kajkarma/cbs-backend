@@ -11,6 +11,7 @@ import {
   forecastIdSchema,
   getForecastListSchema,
   getForecastSummarySchema,
+  importForecastCSVSchema,
 } from "../validators/forecast.validator";
 
 const router = Router();
@@ -25,6 +26,18 @@ router.get(
   "/summary",
   validateQuery(getForecastSummarySchema),
   ForecastController.getSummary
+);
+
+router.get(
+  "/export",
+  validateQuery(getForecastListSchema),
+  ForecastController.exportCSV
+);
+
+router.post(
+  "/import",
+  validateRequest(importForecastCSVSchema),
+  ForecastController.importCSV
 );
 
 router.get(

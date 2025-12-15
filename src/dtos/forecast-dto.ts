@@ -2,19 +2,6 @@ import { Expose, Type } from "class-transformer";
 import { BaseDto } from './base-dto';
 import { PaginationResult } from '../services/pagination.service';
 import { ForecastType, ForecastStatus, ForecastCategory } from '../constants/forecast.constants';
-import { Currency } from '../constants/common.constants';
-
-/**
- * Nested DTO for Bank Account in Forecast response
- */
-export class ForecastBankAccountDto {
-    @Expose({ name: '_id' })
-    id!: string;
-
-    @Expose()
-    bankName!: string;
-    
-}
 
 /**
  * Response DTO for Forecast entity
@@ -36,11 +23,10 @@ export class ForecastResponseDto extends BaseDto {
     amount!: number;
 
     @Expose()
-    currency!: Currency;
+    currency!: string;
 
     @Expose()
-    @Type(() => ForecastBankAccountDto)
-    bankAccount!: ForecastBankAccountDto;
+    bankAccount!: string;
 
     @Expose()
     status!: ForecastStatus;
@@ -75,7 +61,7 @@ export class ForecastSummaryDto {
     netAmount!: number;
 
     @Expose()
-    currency!: Currency;
+    currency!: string;
 
     @Expose()
     currentCashBalance?: number;

@@ -137,6 +137,16 @@ export const ERROR_MESSAGES = {
       message: 'Forecast entry not found',
       status: 404
     },
+    INVALID_CSV_FORMAT: {
+      code: 'CBS-4023',
+      message: 'Invalid CSV format. Please ensure the file contains proper headers and data.',
+      status: 400
+    },
+    INVALID_CSV_HEADERS: {
+      code: 'CBS-4024',
+      message: 'Invalid CSV headers. Required headers: Date, Type, Category, Description, Amount, Currency, Bank Account, Status',
+      status: 400
+    },
     
     // Validation Errors
     VALIDATION_FAILED: {

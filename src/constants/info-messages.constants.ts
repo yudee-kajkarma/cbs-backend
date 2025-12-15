@@ -128,5 +128,7 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Forecast entry deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Forecast entries list retrieved successfully',
     SUMMARY_RETRIEVED_SUCCESSFULLY: 'Forecast summary retrieved successfully',
+    EXPORTED_SUCCESSFULLY: 'Forecasts exported to CSV successfully',
+    IMPORTED_SUCCESSFULLY: 'Forecasts imported from CSV successfully',
   },
 };

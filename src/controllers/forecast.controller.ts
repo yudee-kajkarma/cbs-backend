@@ -97,4 +97,41 @@ export class ForecastController {
       ErrorHandler.handleControllerError(error, res, { method: 'getSummary', query: req.query });
     }
   }
+
+  /**
+   * Export forecasts to CSV
+   */
+  static async exportCSV(req: Request, res: Response): Promise<void> {
+    try {
+      const csv = await ForecastService.exportToCSV(req.query);
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="forecasts_${new Date().toISOString().split('T')[0]}.csv"`);
+      res.status(200).send(csv);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'exportCSV', query: req.query });
+    }
+  }
+
+  /**
+   * Import forecasts from CSV
+   */
+  static async importCSV(req: Request, res: Response): Promise<void> {
+    try {
+      const { csvData } = req.body;
+      if (!csvData) {
+        const response = ResponseUtil.error('CBS-4000', 'CSV data is required');
+        res.status(400).json(response);
+        return;
+      }
+
+      const result = await ForecastService.importFromCSV(csvData);
+      const response = ResponseUtil.success(
+        INFO_MESSAGES.FORECAST.IMPORTED_SUCCESSFULLY,
+        result
+      );
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'importCSV' });
+    }
+  }
 }

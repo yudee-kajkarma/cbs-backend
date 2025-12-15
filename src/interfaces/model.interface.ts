@@ -508,7 +508,7 @@ export interface Forecast {
   description: string;
   amount: number;
   currency: string;
-  bankAccount: Types.ObjectId | string;
+  bankAccount: string;
   status: string;
 }
 
@@ -530,7 +530,7 @@ export interface CreateForecastData {
   description: string;
   amount: number;
   currency?: string;
-  bankAccount: Types.ObjectId | string;
+  bankAccount: string;
   status?: string;
 }
 

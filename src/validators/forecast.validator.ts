@@ -1,6 +1,5 @@
 import Joi from "joi";
 import { ForecastType, ForecastStatus, ForecastCategory } from "../constants/forecast.constants";
-import { Currency } from "../constants/common.constants";
 
 export const forecastIdSchema = Joi.object({
     id: Joi.string().length(24).hex().required(),
@@ -12,8 +11,8 @@ export const createForecastSchema = Joi.object({
     category: Joi.string().valid(...Object.values(ForecastCategory)).required(),
     description: Joi.string().max(500).required(),
     amount: Joi.number().min(0.01).required(),
-    currency: Joi.string().valid(...Object.values(Currency)).default(Currency.KWD),
-    bankAccount: Joi.string().length(24).hex().required(),
+    currency: Joi.string().trim().default('KWD'),
+    bankAccount: Joi.string().trim().required(),
     status: Joi.string().valid(...Object.values(ForecastStatus)).default(ForecastStatus.PLANNED),
 });
 
@@ -23,8 +22,8 @@ export const updateForecastSchema = Joi.object({
     category: Joi.string().valid(...Object.values(ForecastCategory)).optional(),
     description: Joi.string().max(500).optional(),
     amount: Joi.number().min(0.01).optional(),
-    currency: Joi.string().valid(...Object.values(Currency)).optional(),
-    bankAccount: Joi.string().length(24).hex().optional(),
+    currency: Joi.string().trim().optional(),
+    bankAccount: Joi.string().trim().optional(),
     status: Joi.string().valid(...Object.values(ForecastStatus)).optional(),
 }).min(1);
 
@@ -35,7 +34,7 @@ export const getForecastListSchema = Joi.object({
     type: Joi.string().valid(...Object.values(ForecastType)).optional(),
     category: Joi.string().valid(...Object.values(ForecastCategory)).optional(),
     status: Joi.string().valid(...Object.values(ForecastStatus)).optional(),
-    bankAccount: Joi.string().length(24).hex().optional(),
+    bankAccount: Joi.string().optional(),
     startDate: Joi.date().iso().optional(),
     endDate: Joi.date().iso().optional(),
     orderBy: Joi.string()
@@ -55,8 +54,12 @@ export const getForecastListSchema = Joi.object({
 });
 
 export const getForecastSummarySchema = Joi.object({
-    bankAccount: Joi.string().length(24).hex().optional(),
+    bankAccount: Joi.string().optional(),
     status: Joi.string().valid(...Object.values(ForecastStatus)).optional(),
     startDate: Joi.date().iso().optional(),
     endDate: Joi.date().iso().optional(),
+});
+
+export const importForecastCSVSchema = Joi.object({
+    csvData: Joi.string().required().min(10),
 });
