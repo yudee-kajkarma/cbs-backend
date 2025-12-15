@@ -14,4 +14,8 @@ export interface IConfig {
     s3BucketName: string;
     urlExpiry: number;
   };
+  currencyApi: {
+    apiKey: string;
+    baseUrl: string;
+  };
 }

@@ -21,4 +21,8 @@ export const config: IConfig = {
     s3BucketName: process.env.S3_BUCKET_NAME || '',
     urlExpiry: parseInt(process.env.S3_URL_EXPIRY || '900', 10),
   },
+  currencyApi: {
+    apiKey: process.env.CURRENCY_API_KEY || '106f5e7fc36d4ac4df539713',
+    baseUrl: process.env.CURRENCY_API_BASE_URL || 'https://v6.exchangerate-api.com/v6',
+  },
 };

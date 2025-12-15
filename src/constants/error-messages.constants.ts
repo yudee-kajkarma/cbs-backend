@@ -130,6 +130,13 @@ export const ERROR_MESSAGES = {
       message: 'Bank account with this account number already exists',
       status: 409
     },
+
+    // Bank Balance Errors
+    BANK_BALANCE_NOT_FOUND: {
+      code: 'CBS-4025',
+      message: 'Bank balance entry not found',
+      status: 404
+    },
     
     // Validation Errors
     VALIDATION_FAILED: {
