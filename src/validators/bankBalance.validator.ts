@@ -46,7 +46,7 @@ export const getBankBalanceListSchema = Joi.object({
   type: Joi.string().valid(...Object.values(AccountType)).optional(),
   status: Joi.string().valid(...Object.values(BankBalanceStatus)).optional(),
   currency: Joi.string().optional(),
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "account",
       "bank",
@@ -58,7 +58,7 @@ export const getBankBalanceListSchema = Joi.object({
       "updatedAt"
     )
     .default("createdAt"),
-  sortBy: Joi.string()
+  sortOrder: Joi.string()
     .valid("asc", "desc")
     .default("desc"),
 });
