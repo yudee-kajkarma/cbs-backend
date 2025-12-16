@@ -25,7 +25,7 @@ const licenseSchema = new Schema<ILicense>(
       required: [true, 'Expiry date is required'],
       validate: {
         validator: function(this: ILicense, value: Date) {
-          return value >= this.issueDate;
+          return !this.issueDate || value >= this.issueDate;
         },
         message: 'Expiry date must be after issue date'
       }
