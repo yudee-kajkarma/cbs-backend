@@ -12,6 +12,8 @@ export * from './hardware.constants';
 
 export * from './transfer.constants';
 
+export * from './telex-transfer.constants';
+
 export * from './sim.constants';
 
 export * from './software.constants';

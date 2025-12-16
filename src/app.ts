@@ -18,6 +18,7 @@ import propertyRoutes from './routes/property.routes';
 import vehicleRoutes from './routes/vehicle.routes';
 import equipmentRoutes from './routes/equipment.routes';
 import bankAccountRoutes from './routes/bankAccount.routes';
+import telexTransferRoutes from './routes/telex-transfer.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -54,6 +55,7 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
+app.use('/api/telex-transfers', telexTransferRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

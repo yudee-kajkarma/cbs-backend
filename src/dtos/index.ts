@@ -5,6 +5,7 @@ export * from './audit-dto';
 export * from './document-dto';
 export * from './furniture-dto';
 export * from './hardwareTransfer-dto';
+export * from './telex-transfer-dto';
 export * from './iso-dto';
 export * from './license-dto';
 export * from './network-equipment-dto';

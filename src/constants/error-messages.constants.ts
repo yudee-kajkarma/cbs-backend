@@ -131,6 +131,13 @@ export const ERROR_MESSAGES = {
       status: 409
     },
     
+    // Telex Transfer Errors
+    TELEX_TRANSFER_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Telex transfer not found',
+      status: 404
+    },
+    
     // Validation Errors
     VALIDATION_FAILED: {
       code: 'CBS-4000',
