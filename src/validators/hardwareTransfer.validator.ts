@@ -82,7 +82,7 @@ export const hardwareTransferQuerySchema = Joi.object({
   expectedReturnDateTo: Joi.date().optional(),
 
   // Sorting
-  orderBy: Joi.string().valid(
+  sortBy: Joi.string().valid(
     "hardwareName",
     "serialNumber",
     "fromUser",
@@ -95,5 +95,5 @@ export const hardwareTransferQuerySchema = Joi.object({
     "createdAt",
     "updatedAt"
   ).optional(),
-  sortBy: Joi.string().valid("asc", "desc").optional(),
+  sortOrder: Joi.string().valid("asc", "desc").optional(),
 });

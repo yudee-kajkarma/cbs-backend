@@ -70,7 +70,7 @@ export const getFurnitureListSchema: ObjectSchema = Joi.object({
   status: Joi.string().valid(...statusEnum).optional(),
   location: Joi.string().optional().allow(""),
   
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "itemName",
       "itemCode",
@@ -87,7 +87,7 @@ export const getFurnitureListSchema: ObjectSchema = Joi.object({
     )
     .default("createdAt"),
 
-  sortBy: Joi.string()
+  sortOrder: Joi.string()
     .valid("asc", "desc")
     .default("desc"),
 });
