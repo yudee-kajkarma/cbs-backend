@@ -28,7 +28,7 @@ export const getChequeListSchema = Joi.object({
     printStatus: Joi.string().valid(...Object.values(ChequePrintStatus)).optional(),
     transactionStatus: Joi.string().valid(...Object.values(ChequeTransactionStatus)).optional(),
     orientation: Joi.string().valid(...Object.values(ChequeOrientation)).optional(),
-    orderBy: Joi.string()
+    sortBy: Joi.string()
         .valid(
             "chequeNumber",
             "payeeName",
@@ -40,7 +40,7 @@ export const getChequeListSchema = Joi.object({
             "updatedAt"
         )
         .default("chequeDate"),
-    sortBy: Joi.string()
+    sortOrder: Joi.string()
         .valid("asc", "desc")
         .default("desc"),
 });
