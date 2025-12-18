@@ -13,6 +13,7 @@ import {
   getForecastSummarySchema,
   importForecastCSVSchema,
 } from "../validators/forecast.validator";
+import { upload } from "../middlewares/multer.middleware";
 
 const router = Router();
 
@@ -35,9 +36,9 @@ router.get(
 );
 
 router.post(
-  "/import",
-  validateRequest(importForecastCSVSchema),
-  ForecastController.importCSV
+  "/upload-csv",
+  upload.single('file'),
+  ForecastController.uploadCsvFile
 );
 
 router.get(

@@ -130,6 +130,8 @@ export const INFO_MESSAGES = {
     SUMMARY_RETRIEVED_SUCCESSFULLY: 'Forecast summary retrieved successfully',
     EXPORTED_SUCCESSFULLY: 'Forecasts exported to CSV successfully',
     IMPORTED_SUCCESSFULLY: 'Forecasts imported from CSV successfully',
+    CSV_VALIDATION_COMPLETED: 'CSV validation completed successfully',
+    BULK_CREATE_COMPLETED: 'Bulk forecast creation completed successfully',
   },
   PAYEE: {
     CREATED_SUCCESSFULLY: 'Payee created successfully',

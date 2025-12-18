@@ -9,6 +9,7 @@ import {
   UpdateForecastData 
 } from "../interfaces/model.interface";
 import { ForecastType } from "../constants/forecast.constants";
+import { parseForecastCsv } from "../utils/forecast-csv-parser.util";
 
 export class ForecastService {
   /**
@@ -212,106 +213,47 @@ export class ForecastService {
   }
 
   /**
-   * Import forecasts from CSV
+   * Parse and validate CSV file content
    */
-  static async importFromCSV(csvData: string): Promise<{ created: number; errors: string[] }> {
+  static async parseAndValidateCsvFile(csvContent: string): Promise<any> {
     try {
-      const lines = csvData.split('\n').filter(line => line.trim());
-      if (lines.length < 2) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_CSV_FORMAT);
-      }
-
-      const headers = lines[0].split(',').map(h => h.trim());
-      const requiredHeaders = ['Date', 'Type', 'Category', 'Description', 'Amount', 'Currency', 'Bank Account', 'Status'];
+      const result = await parseForecastCsv(csvContent);
       
-      const hasAllHeaders = requiredHeaders.every(rh => 
-        headers.some(h => h.toLowerCase() === rh.toLowerCase())
-      );
-      
-      if (!hasAllHeaders) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_CSV_HEADERS);
-      }
-
-      const validatedData: any[] = [];
-      const errors: string[] = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        try {
-          const values = this.parseCSVLine(lines[i]);
-          if (values.length < 8) {
-            errors.push(`Line ${i + 1}: Insufficient columns`);
-            continue;
-          }
-
-          const [dateStr, type, category, description, amountStr, currency, bankAccountName, status] = values;
-
-          const date = new Date(dateStr.trim());
-          if (isNaN(date.getTime())) {
-            errors.push(`Line ${i + 1}: Invalid date format`);
-            continue;
-          }
-
-          const amount = parseFloat(amountStr.trim());
-          if (isNaN(amount) || amount <= 0) {
-            errors.push(`Line ${i + 1}: Invalid amount`);
-            continue;
-          }
-
-          validatedData.push({
-            date,
-            type: type.trim(),
-            category: category.trim(),
-            description: description.trim(),
-            amount,
-            currency: currency.trim(),
-            bankAccount: bankAccountName.trim(),
-            status: status.trim(),
-          });
-        } catch (err: any) {
-          errors.push(`Line ${i + 1}: ${err.message}`);
-        }
-      }
-
-      // If any errors, don't import anything
-      if (errors.length > 0) {
-        return { created: 0, errors };
-      }
-
-      // Second pass: Insert all validated data
-      const created = await Forecast.insertMany(validatedData);
-
-      return { created: created.length, errors: [] };
+      return {
+        valid: result.errors.length === 0,
+        forecasts: result.json,
+        errors: result.errors,
+        warnings: result.warnings,
+        summary: {
+          totalRows: result.json.length + result.errors.filter((e: any) => e.type === 'row').length,
+          validRows: result.json.length,
+          invalidRows: result.errors.filter((e: any) => e.type === 'row').length,
+          hasColumnErrors: result.errors.some((e: any) => e.type === 'column'),
+        },
+      };
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'importFromCSV' });
+      ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'parseAndValidateCsvFile' });
     }
   }
 
   /**
-   * Helper: Parse CSV line handling quoted values
+   * Bulk create forecasts from validated CSV data
    */
-  private static parseCSVLine(line: string): string[] {
-    const result: string[] = [];
-    let current = '';
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      
-      if (char === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          current += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (char === ',' && !inQuotes) {
-        result.push(current);
-        current = '';
-      } else {
-        current += char;
+  static async bulkCreateFromCsv(data: CreateForecastData[]): Promise<any> {
+    try {
+      if (!data || data.length === 0) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.VALIDATION_FAILED);
       }
+
+      const forecasts = await Forecast.insertMany(data);
+      
+      return {
+        created: forecasts.length,
+        forecasts: forecasts.map(f => f.toObject()),
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'bulkCreateFromCsv' });
     }
-    result.push(current);
-    return result;
   }
+
 }

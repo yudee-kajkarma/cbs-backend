@@ -5,6 +5,8 @@ import { ErrorHandler } from "../utils/error-handler.util";
 import { ResponseUtil } from "../utils/response-formatter.util";
 import { toDto, toDtoList } from "../utils/dto-mapper.util";
 import { INFO_MESSAGES } from '../constants/info-messages.constants';
+import { ERROR_MESSAGES } from '../constants/error-messages.constants';
+import { throwError } from '../utils/errors.util';
 
 export class ForecastController {
   /**
@@ -113,25 +115,35 @@ export class ForecastController {
   }
 
   /**
-   * Import forecasts from CSV
+   * Upload and import CSV file
+   * Validates CSV and creates database entries
    */
-  static async importCSV(req: Request, res: Response): Promise<void> {
+  static async uploadCsvFile(req: Request, res: Response): Promise<void> {
     try {
-      const { csvData } = req.body;
-      if (!csvData) {
-        const response = ResponseUtil.error('CBS-4000', 'CSV data is required');
-        res.status(400).json(response);
+      if (!req.file) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.VALIDATION_FAILED);
+      }
+
+      const csvContent = req.file.buffer.toString('utf-8');
+      const validationResult = await ForecastService.parseAndValidateCsvFile(csvContent);
+
+      if (validationResult.errors.length > 0) {
+        const response = ResponseUtil.success('CSV file contains validation errors', validationResult);
+        res.status(200).json(response);
         return;
       }
 
-      const result = await ForecastService.importFromCSV(csvData);
-      const response = ResponseUtil.success(
-        INFO_MESSAGES.FORECAST.IMPORTED_SUCCESSFULLY,
-        result
-      );
-      res.status(200).json(response);
+      const result = await ForecastService.bulkCreateFromCsv(validationResult.forecasts);
+      const forecastDto = toDtoList(ForecastResponseDto, result.forecasts);
+      const responseData = {
+        created: result.created,
+        forecasts: forecastDto,
+      };
+      const response = ResponseUtil.success(INFO_MESSAGES.FORECAST.IMPORTED_SUCCESSFULLY, responseData);
+      res.status(201).json(response);
     } catch (error) {
-      ErrorHandler.handleControllerError(error, res, { method: 'importCSV' });
+      ErrorHandler.handleControllerError(error, res, { method: 'uploadCsvFile' });
     }
   }
+
 }
