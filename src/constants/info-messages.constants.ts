@@ -128,4 +128,11 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Cheque deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Cheques list retrieved successfully',
   },
-};
+  PAYEE: {
+    CREATED_SUCCESSFULLY: 'Payee created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Payee retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Payee updated successfully',
+    DELETED_SUCCESSFULLY: 'Payee deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Payees list retrieved successfully',
+  },
+}

@@ -80,11 +80,6 @@ const supportSchema = new Schema<ISupport>(
 
 // Indexes for better query performance
 supportSchema.index({ ticketTitle: 1 }, { name: 'idx_support_title' });
-supportSchema.index({ category: 1 }, { name: 'idx_support_category' });
-supportSchema.index({ priority: 1 }, { name: 'idx_support_priority' });
-supportSchema.index({ department: 1 }, { name: 'idx_support_department' });
-supportSchema.index({ assignTo: 1 }, { name: 'idx_support_assign_to' });
-supportSchema.index({ status: 1 }, { name: 'idx_support_status' });
 supportSchema.index({ submittedBy: 1 }, { name: 'idx_support_submitted_by' });
 supportSchema.index({ createdAt: -1 }, { name: 'idx_support_created_desc' });
 

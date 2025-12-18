@@ -71,7 +71,7 @@ export const getVehicleListSchema: ObjectSchema = Joi.object({
   department: Joi.string().valid(...Object.values(VehicleDepartment)).optional(),
   assignedTo: Joi.string().optional().allow(""),
   
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "vehicleName",
       "makeBrand",
@@ -92,7 +92,7 @@ export const getVehicleListSchema: ObjectSchema = Joi.object({
     )
     .default("createdAt"),
 
-  sortBy: Joi.string()
+  sortOrder: Joi.string()
     .valid("asc", "desc")
     .default("desc"),
 });

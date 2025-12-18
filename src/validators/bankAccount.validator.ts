@@ -32,7 +32,7 @@ export const getBankAccountListSchema = Joi.object({
     limit: Joi.number().integer().min(1).max(200).default(10),
     search: Joi.string().optional().allow(""),
     currency: Joi.string().valid(...Object.values(Currency)).optional(),
-    orderBy: Joi.string()
+    sortBy: Joi.string()
         .valid(
             "bankName",
             "accountHolder",
@@ -41,7 +41,7 @@ export const getBankAccountListSchema = Joi.object({
             "updatedAt"
         )
         .default("createdAt"),
-    sortBy: Joi.string()
+    sortOrder: Joi.string()
         .valid("asc", "desc")
         .default("desc"),
 });

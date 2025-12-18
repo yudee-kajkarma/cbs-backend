@@ -43,7 +43,7 @@ const softwareSchema = new Schema<ISoftware>(
       min: [0, 'Seats used cannot be negative'],
       validate: {
         validator: function(this: ISoftware, value: number) {
-          return value <= this.totalSeats;
+          return this.totalSeats === undefined || value <= this.totalSeats;
         },
         message: 'Seats used cannot exceed total seats'
       }
@@ -57,7 +57,7 @@ const softwareSchema = new Schema<ISoftware>(
       required: [true, 'Expiry date is required'],
       validate: {
         validator: function(this: ISoftware, value: Date) {
-          return value >= this.purchaseDate;
+          return !this.purchaseDate || value >= this.purchaseDate;
         },
         message: 'Expiry date must be after purchase date'
       }

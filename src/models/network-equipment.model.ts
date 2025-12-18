@@ -55,7 +55,7 @@ const networkEquipmentSchema = new Schema<INetworkEquipment>(
       required: [true, 'Warranty expiry is required'],
       validate: {
         validator: function(this: INetworkEquipment, value: Date) {
-          return value >= this.purchaseDate;
+          return !this.purchaseDate || value >= this.purchaseDate;
         },
         message: 'Warranty expiry must be after purchase date'
       }

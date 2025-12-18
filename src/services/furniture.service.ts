@@ -32,7 +32,7 @@ export class FurnitureService {
     try {
       const searchableFields = ['itemName', 'itemCode', 'location'];
       const allowedSortFields = ['itemName', 'itemCode', 'category', 'status', 'location', 'createdAt', 'updatedAt'];
-      const filterFields = ['category', 'status', 'location'];
+      const filterFields = ['category', 'status', 'location', 'createdAt', 'updatedAt'];
 
       const result = await PaginationService.paginate(FurnitureModel, query, {
         searchFields: searchableFields,

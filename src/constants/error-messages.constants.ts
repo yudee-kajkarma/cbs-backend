@@ -142,6 +142,12 @@ export const ERROR_MESSAGES = {
       message: 'Cheque number already exists for this bank account',
       status: 409
     },
+    // Payee Errors
+    PAYEE_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Payee not found',
+      status: 404
+    },
     
     // Validation Errors
     VALIDATION_FAILED: {

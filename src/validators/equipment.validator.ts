@@ -63,7 +63,7 @@ export const getEquipmentListSchema: ObjectSchema = Joi.object({
   location: Joi.string().optional().allow(""),
   assignedTo: Joi.string().optional().allow(""),
   
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "equipmentName",
       "category",
@@ -81,7 +81,7 @@ export const getEquipmentListSchema: ObjectSchema = Joi.object({
     )
     .default("createdAt"),
 
-  sortBy: Joi.string()
+  sortOrder: Joi.string()
     .valid("asc", "desc")
     .default("desc"),
 });
