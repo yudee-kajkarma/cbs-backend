@@ -48,8 +48,7 @@ export const isoQuerySchema = Joi.object({
 
   status: Joi.string().valid("Active", "Expired", "Expiring Soon").optional(),
 
-  // ✅ Added sorting controls
-  orderBy: Joi.string().valid(
+  sortBy: Joi.string().valid(
     "certificateName",
     "isoStandard",
     "certifyingBody",
@@ -60,6 +59,6 @@ export const isoQuerySchema = Joi.object({
     "updatedAt"
   ).optional(),
 
-  sortBy: Joi.string().valid("asc", "desc").optional()
+  sortOrder: Joi.string().valid("asc", "desc").optional()
 });
 

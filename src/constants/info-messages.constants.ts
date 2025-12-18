@@ -130,4 +130,11 @@ export const INFO_MESSAGES = {
     BULK_UPDATED_SUCCESSFULLY: 'Bank balances bulk updated successfully',
     SUMMARY_RETRIEVED_SUCCESSFULLY: 'Bank balance summary retrieved successfully',
   },
+  PAYEE: {
+    CREATED_SUCCESSFULLY: 'Payee created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Payee retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Payee updated successfully',
+    DELETED_SUCCESSFULLY: 'Payee deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Payees list retrieved successfully',
+  },
 };

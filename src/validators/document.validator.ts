@@ -30,7 +30,7 @@ export const listDocumentQuerySchema = Joi.object({
   status: Joi.string().valid("Active", "Archived").optional(),
 
   // Sorting fields
-  orderBy: Joi.string().valid(
+  sortBy: Joi.string().valid(
     "name",
     "category",
     "createdAt",
@@ -38,7 +38,7 @@ export const listDocumentQuerySchema = Joi.object({
   ).optional(),
 
 
-  sortBy: Joi.string().valid("asc", "desc").optional(),
+  sortOrder: Joi.string().valid("asc", "desc").optional(),
 
   page: Joi.number().integer().min(1).default(1),
   limit: Joi.number().integer().min(1).max(100).default(10),

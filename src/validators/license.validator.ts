@@ -50,12 +50,11 @@ export const licenseQuerySchema = Joi.object({
   name: Joi.string().optional(),
   status: Joi.string().valid("Active", "Expired", "Expiring Soon").optional(),
   
-  // NEW: SORTING
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid("name", "number", "issueDate", "expiryDate", "issuingAuthority", "createdAt")
     .default("createdAt"),
 
-  sortBy: Joi.string().valid("asc", "desc").default("desc"),
+  sortOrder: Joi.string().valid("asc", "desc").default("desc"),
 });
 
 

@@ -57,7 +57,7 @@ export const getPropertyListSchema: ObjectSchema = Joi.object({
   status: Joi.string().valid(...Object.values(PropertyStatus)).optional(),
   location: Joi.string().optional().allow(""),
   
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "propertyName",
       "propertyType",
@@ -74,7 +74,7 @@ export const getPropertyListSchema: ObjectSchema = Joi.object({
     )
     .default("createdAt"),
 
-  sortBy: Joi.string()
+  sortOrder: Joi.string()
     .valid("asc", "desc")
     .default("desc"),
 });
