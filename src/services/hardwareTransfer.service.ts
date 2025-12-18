@@ -4,7 +4,6 @@ import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants";
-import { calculateTransferStatus } from "../utils/status.util";
 
 /**
  * HardwareTransferService
@@ -18,12 +17,7 @@ export class HardwareTransferService {
    */
   static async create(data: Partial<IHardwareTransfer>) {
     try {
-      const status = calculateTransferStatus(
-        data.transferDate!,
-        data.expectedReturnDate || null,
-        data.transferType!
-      );
-      return await HardwareTransferModel.create({ ...data, status });
+      return await HardwareTransferModel.create(data);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'HardwareTransferService', method: 'create', data });
     }
@@ -81,14 +75,9 @@ export class HardwareTransferService {
    */
   static async update(id: string, data: Partial<IHardwareTransfer>) {
     try {
-      const status = calculateTransferStatus(
-        data.transferDate!,
-        data.expectedReturnDate || null,
-        data.transferType!
-      );
       const updated = await HardwareTransferModel.findByIdAndUpdate(
         id,
-        { ...data, status },
+        data,
         { new: true, runValidators: true }
       );
       if (!updated) {

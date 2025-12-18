@@ -25,8 +25,8 @@ import {
 export interface BaseQuery {
   page?: number;
   limit?: number;
-  orderBy?: string;
-  sortBy?: 'asc' | 'desc';
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   search?: string;
 }
 
