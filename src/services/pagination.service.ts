@@ -40,13 +40,13 @@ export class PaginationService {
     const params: PaginationParams = {
       page: parseInt(query.page as string, 10) || 1,
       limit: parseInt(query.limit as string, 10) || 10,
-      sortBy: query.sortBy || query.orderBy || 'createdAt',
+      sortBy: query.sortBy || 'createdAt',
       sortOrder: query.sortOrder || 'desc',
       search: query.search || undefined,
     };
 
     Object.keys(query).forEach(key => {
-      if (!['page', 'limit', 'sortBy', 'sortOrder', 'orderBy', 'search'].includes(key)) {
+      if (!['page', 'limit', 'sortBy', 'sortOrder', 'search'].includes(key)) {
         params[key] = query[key];
       }
     });

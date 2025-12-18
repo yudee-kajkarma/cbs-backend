@@ -25,8 +25,8 @@ import {
 export interface BaseQuery {
   page?: number;
   limit?: number;
-  orderBy?: string;
-  sortBy?: 'asc' | 'desc';
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   search?: string;
 }
 
@@ -525,3 +525,31 @@ export interface TelexTransferQuery extends BaseQuery {
 
 export interface CreateTelexTransferData extends Partial<TelexTransfer> {}
 export interface UpdateTelexTransferData extends Partial<TelexTransfer> {}
+export interface UpdateBankAccountData extends Partial<BankAccount> {}
+
+// ============================================================================
+// PAYEE MODULE
+// ============================================================================
+
+export interface Payee {
+  name: string;
+  company?: string;
+  category: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  notes?: string;
+}
+
+export interface PayeeDocument extends Payee, Document {}
+
+export interface PayeeQuery extends BaseQuery {
+  name?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  category?: string;
+}
+
+export interface CreatePayeeData extends Partial<Payee> {}
+export interface UpdatePayeeData extends Partial<Payee> {}

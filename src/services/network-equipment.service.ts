@@ -30,9 +30,9 @@ export class NetworkEquipmentService {
    */
   static async getAll(query: NetworkEquipmentQuery) {
     try {
-      const searchableFields = ['deviceName', 'serialNumber', 'macAddress', 'ipAddress'];
-      const allowedSortFields = ['deviceName', 'serialNumber', 'deviceType', 'status', 'location', 'createdAt', 'updatedAt'];
-      const filterFields = ['deviceType', 'status', 'location'];
+      const searchableFields = ['equipmentName', 'serialNumber', 'macAddress', 'ipAddress', 'location'];
+      const allowedSortFields = ['equipmentName', 'equipmentType', 'serialNumber', 'macAddress', 'ipAddress', 'location', 'status', 'purchaseDate', 'warrantyExpiry', 'firmwareVersion', 'numberOfPorts', 'createdAt', 'updatedAt'];
+      const filterFields = ['equipmentType', 'status', 'location', 'createdAt', 'updatedAt'];
 
       const result = await PaginationService.paginate(NetworkEquipmentModel, query, {
         searchFields: searchableFields,

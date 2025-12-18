@@ -28,5 +28,7 @@ export * from './vehicle.constants';
 
 export * from './equipment.constants';
 
+export * from './payee.constants';
+
 // Error Messages
 export * from './error-messages.constants';

@@ -88,8 +88,7 @@ export const getSimsQuerySchema: ObjectSchema = Joi.object({
   activationDate: Joi.string().trim(),
   expiryDate: Joi.string().trim(),
 
-  // ⭐ Added sorting fields
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "simNumber",
       "phoneNumber",
@@ -103,7 +102,7 @@ export const getSimsQuerySchema: ObjectSchema = Joi.object({
     )
     .default("createdAt"),
 
-  sortBy: Joi.string().valid("asc", "desc").default("desc")
+  sortOrder: Joi.string().valid("asc", "desc").default("desc")
 });
 
 
