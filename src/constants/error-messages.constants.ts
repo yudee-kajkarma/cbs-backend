@@ -147,6 +147,12 @@ export const ERROR_MESSAGES = {
       message: 'Invalid CSV headers. Required headers: Date, Type, Category, Description, Amount, Currency, Bank Account, Status',
       status: 400
     },
+    // Payee Errors
+    PAYEE_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Payee not found',
+      status: 404
+    },
     
     // Validation Errors
     VALIDATION_FAILED: {

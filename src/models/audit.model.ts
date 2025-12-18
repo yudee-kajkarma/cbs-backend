@@ -27,7 +27,7 @@ const auditSchema = new Schema<AuditDocument>(
       required: [true, 'Period end date is required'],
       validate: {
         validator: function(this: AuditDocument, value: Date) {
-          return value >= this.periodStart;
+          return !this.periodStart || value >= this.periodStart;
         },
         message: 'Period end date must be after period start date',
       },

@@ -83,7 +83,7 @@ export const getNewHardwareListSchema: ObjectSchema = Joi.object({
     .valid(...Object.values(HardwareStatus))
     .optional(),
 
-  orderBy: Joi.string()
+  sortBy: Joi.string()
     .valid(
       "deviceName",
       "type",
@@ -98,7 +98,7 @@ export const getNewHardwareListSchema: ObjectSchema = Joi.object({
     .optional()
     .default("createdAt"),
 
-  sortBy: Joi.string().valid("asc", "desc").optional().default("desc"),
+  sortOrder: Joi.string().valid("asc", "desc").optional().default("desc"),
 });
 
 

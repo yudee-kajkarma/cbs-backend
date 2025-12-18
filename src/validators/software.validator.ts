@@ -58,7 +58,7 @@ export const listQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(10),
 
   // ORDER & SORT
-  orderBy: Joi.string().valid(
+  sortBy: Joi.string().valid(
     "name",
     "vendor",
     "licenseType",
@@ -74,7 +74,7 @@ export const listQuerySchema = Joi.object({
     "updatedAt"
   ).optional(),
 
-  sortBy: Joi.string().valid("asc", "desc").optional(),
+  sortOrder: Joi.string().valid("asc", "desc").optional(),
 
   // STRING FILTERS
   name: Joi.string().trim().optional(),

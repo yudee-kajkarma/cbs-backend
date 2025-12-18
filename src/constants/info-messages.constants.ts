@@ -131,4 +131,11 @@ export const INFO_MESSAGES = {
     EXPORTED_SUCCESSFULLY: 'Forecasts exported to CSV successfully',
     IMPORTED_SUCCESSFULLY: 'Forecasts imported from CSV successfully',
   },
+  PAYEE: {
+    CREATED_SUCCESSFULLY: 'Payee created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Payee retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Payee updated successfully',
+    DELETED_SUCCESSFULLY: 'Payee deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Payees list retrieved successfully',
+  },
 };

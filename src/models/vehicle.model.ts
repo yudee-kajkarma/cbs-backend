@@ -148,8 +148,6 @@ const vehicleSchema = new Schema<VehicleDocument>(
 vehicleSchema.index({ vehicleName: 1 }, { name: 'idx_vehicle_name' });
 vehicleSchema.index({ chassisNumber: 1 }, { name: 'idx_vehicle_chassis', unique: true });
 vehicleSchema.index({ plateNumber: 1 }, { name: 'idx_vehicle_plate' });
-vehicleSchema.index({ vehicleType: 1 }, { name: 'idx_vehicle_type' });
-vehicleSchema.index({ status: 1 }, { name: 'idx_vehicle_status' });
 vehicleSchema.index({ department: 1 }, { name: 'idx_vehicle_department' });
 vehicleSchema.index({ createdAt: -1 }, { name: 'idx_vehicle_created_desc' });
 

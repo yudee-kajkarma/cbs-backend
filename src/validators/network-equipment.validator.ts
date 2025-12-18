@@ -79,7 +79,7 @@ export const listQuerySchema = Joi.object({
   status: Joi.string().valid(...statusEnum).optional(),
 
   // Sorting
-  orderBy: Joi.string().valid(
+  sortBy: Joi.string().valid(
     "equipmentName",
     "equipmentType",
     "ipAddress",
@@ -95,5 +95,5 @@ export const listQuerySchema = Joi.object({
     "updatedAt"
   ).optional(),
 
-  sortBy: Joi.string().valid("asc", "desc").optional()
+  sortOrder: Joi.string().valid("asc", "desc").optional()
 });
