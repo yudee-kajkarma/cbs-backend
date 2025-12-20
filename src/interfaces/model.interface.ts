@@ -498,6 +498,43 @@ export interface CreateBankAccountData extends Partial<BankAccount> {}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
 
 // ============================================================================
+// FORECAST MODULE
+// ============================================================================
+
+export interface Forecast {
+  date: Date;
+  type: string;
+  category: string;
+  description: string;
+  amount: number;
+  currency: string;
+  bankAccount: string;
+  status: string;
+}
+
+export interface ForecastDocument extends Forecast, Document {}
+
+export interface ForecastQuery extends BaseQuery {
+  type?: string;
+  category?: string;
+  status?: string;
+  bankAccount?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface CreateForecastData {
+  date: Date;
+  type: string;
+  category: string;
+  description: string;
+  amount: number;
+  currency?: string;
+  bankAccount: string;
+  status?: string;
+}
+
+export interface UpdateForecastData extends Partial<Forecast> {}
 // CHEQUE MODULE
 // ============================================================================
 
