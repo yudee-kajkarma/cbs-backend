@@ -130,6 +130,25 @@ export const INFO_MESSAGES = {
     BULK_UPDATED_SUCCESSFULLY: 'Bank balances bulk updated successfully',
     SUMMARY_RETRIEVED_SUCCESSFULLY: 'Bank balance summary retrieved successfully',
   },
+  FORECAST: {
+    CREATED_SUCCESSFULLY: 'Forecast entry created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Forecast entry retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Forecast entry updated successfully',
+    DELETED_SUCCESSFULLY: 'Forecast entry deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Forecast entries list retrieved successfully',
+    SUMMARY_RETRIEVED_SUCCESSFULLY: 'Forecast summary retrieved successfully',
+    EXPORTED_SUCCESSFULLY: 'Forecasts exported to CSV successfully',
+    IMPORTED_SUCCESSFULLY: 'Forecasts imported from CSV successfully',
+    CSV_VALIDATION_COMPLETED: 'CSV validation completed successfully',
+    BULK_CREATE_COMPLETED: 'Bulk forecast creation completed successfully',
+  },
+  CHEQUE: {
+    CREATED_SUCCESSFULLY: 'Cheque created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Cheque retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Cheque updated successfully',
+    DELETED_SUCCESSFULLY: 'Cheque deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Cheques list retrieved successfully',
+  },
   PAYEE: {
     CREATED_SUCCESSFULLY: 'Payee created successfully',
     RETRIEVED_SUCCESSFULLY: 'Payee retrieved successfully',
@@ -137,4 +156,4 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Payee deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Payees list retrieved successfully',
   },
-};
+}

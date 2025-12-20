@@ -19,6 +19,8 @@ import vehicleRoutes from './routes/vehicle.routes';
 import equipmentRoutes from './routes/equipment.routes';
 import bankAccountRoutes from './routes/bankAccount.routes';
 import bankBalanceRoutes from './routes/bankBalance.routes';
+import forecastRoutes from './routes/forecast.routes';
+import chequeRoutes from './routes/cheque.routes';
 import payeeRoutes from './routes/payee.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
@@ -57,6 +59,8 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
 app.use('/api/bank-balances', bankBalanceRoutes);
+app.use('/api/forecasts', forecastRoutes);
+app.use('/api/cheques', chequeRoutes);
 app.use('/api/payees', payeeRoutes);
 
 // Error Handler

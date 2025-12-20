@@ -138,6 +138,33 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Forecast Errors
+    FORECAST_NOT_FOUND: {
+      code: 'CBS-4022',
+      message: 'Forecast entry not found',
+      status: 404
+    },
+    INVALID_CSV_FORMAT: {
+      code: 'CBS-4023',
+      message: 'Invalid CSV format. Please ensure the file contains proper headers and data.',
+      status: 400
+    },
+    INVALID_CSV_HEADERS: {
+      code: 'CBS-4024',
+      message: 'Invalid CSV headers. Required headers: Date, Type, Category, Description, Amount, Currency, Bank Account, Status',
+      status: 400
+    },
+    // Cheque Errors
+    CHEQUE_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Cheque not found',
+      status: 404
+    },
+    CHEQUE_NUMBER_EXISTS: {
+      code: 'CBS-4021',
+      message: 'Cheque number already exists for this bank account',
+      status: 409
+    },
     // Payee Errors
     PAYEE_NOT_FOUND: {
       code: 'CBS-4020',
