@@ -498,6 +498,34 @@ export interface CreateBankAccountData extends Partial<BankAccount> {}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
 
 // ============================================================================
+// BANK BALANCE MODULE
+// ============================================================================
+
+export interface BankBalance {
+  account: string;
+  bank: string;
+  branch?: string;
+  type: string;
+  currentBalance: number;
+  currency: string;
+  displayCurrency?: string;
+  finalBalance?: number;
+  status?: string;
+}
+
+export interface BankBalanceDocument extends BankBalance, Document {}
+
+export interface BankBalanceQuery extends BaseQuery {
+  account?: string;
+  bank?: string;
+  branch?: string;
+  type?: string;
+  status?: string;
+  currency?: string;
+}
+
+export interface CreateBankBalanceData extends Partial<BankBalance> {}
+export interface UpdateBankBalanceData extends Partial<BankBalance> {}
 // FORECAST MODULE
 // ============================================================================
 
