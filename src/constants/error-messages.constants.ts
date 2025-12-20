@@ -138,6 +138,13 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Telex Transfer Errors
+    TELEX_TRANSFER_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Telex transfer not found',
+      status: 404
+    },
+    
     // Forecast Errors
     FORECAST_NOT_FOUND: {
       code: 'CBS-4022',
@@ -285,4 +292,4 @@ export const ERROR_MESSAGES = {
       status: 500
     },
   }
-};
+}

@@ -498,6 +498,29 @@ export interface CreateBankAccountData extends Partial<BankAccount> {}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
 
 // ============================================================================
+// TELEX TRANSFER MODULE
+// ============================================================================
+
+export interface TelexTransfer {
+  referenceNo?: string;
+  transferDate: Date;
+  senderBank: string;
+  senderAccountNo: string;
+  beneficiaryName: string;
+  beneficiaryBankName: string;
+  beneficiaryAccountNo: string;
+  swiftCode: string;
+  transferAmount: number;
+  currency: string;
+  purpose: string;
+  remarks?: string;
+  authorizedBy: string;
+  status?: string;
+}
+
+export interface TelexTransferQuery extends BaseQuery {}
+
+
 // BANK BALANCE MODULE
 // ============================================================================
 
@@ -524,6 +547,8 @@ export interface BankBalanceQuery extends BaseQuery {
   currency?: string;
 }
 
+export interface CreateTelexTransferData extends Partial<TelexTransfer> {}
+export interface UpdateTelexTransferData extends Partial<TelexTransfer> {}
 export interface CreateBankBalanceData extends Partial<BankBalance> {}
 export interface UpdateBankBalanceData extends Partial<BankBalance> {}
 // FORECAST MODULE
