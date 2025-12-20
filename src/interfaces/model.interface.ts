@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { AuditType } from '../constants';
 import { 
   FurnitureCategory, 
@@ -518,13 +518,110 @@ export interface TelexTransfer {
   status?: string;
 }
 
-export interface TelexTransferQuery extends BaseQuery {
+export interface TelexTransferQuery extends BaseQuery {}
+
+
+// BANK BALANCE MODULE
+// ============================================================================
+
+export interface BankBalance {
+  account: string;
+  bank: string;
+  branch?: string;
+  type: string;
+  currentBalance: number;
+  currency: string;
+  displayCurrency?: string;
+  finalBalance?: number;
+  status?: string;
+}
+
+export interface BankBalanceDocument extends BankBalance, Document {}
+
+export interface BankBalanceQuery extends BaseQuery {
+  account?: string;
+  bank?: string;
+  branch?: string;
+  type?: string;
   status?: string;
   currency?: string;
 }
 
 export interface CreateTelexTransferData extends Partial<TelexTransfer> {}
 export interface UpdateTelexTransferData extends Partial<TelexTransfer> {}
+export interface CreateBankBalanceData extends Partial<BankBalance> {}
+export interface UpdateBankBalanceData extends Partial<BankBalance> {}
+// FORECAST MODULE
+// ============================================================================
+
+export interface Forecast {
+  date: Date;
+  type: string;
+  category: string;
+  description: string;
+  amount: number;
+  currency: string;
+  bankAccount: string;
+  status: string;
+}
+
+export interface ForecastDocument extends Forecast, Document {}
+
+export interface ForecastQuery extends BaseQuery {
+  type?: string;
+  category?: string;
+  status?: string;
+  bankAccount?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface CreateForecastData {
+  date: Date;
+  type: string;
+  category: string;
+  description: string;
+  amount: number;
+  currency?: string;
+  bankAccount: string;
+  status?: string;
+}
+
+export interface UpdateForecastData extends Partial<Forecast> {}
+// CHEQUE MODULE
+// ============================================================================
+
+export interface Cheque {
+  bankAccount: Types.ObjectId | string;
+  chequeNumber: string;
+  payeeName: string;
+  amount: number;
+  chequeDate: Date;
+  orientation?: string;
+  printStatus?: string;
+  transactionStatus?: string;
+}
+
+export interface ChequeDocument extends Cheque, Document {}
+
+export interface ChequeQuery extends BaseQuery {
+  bankAccount?: string;
+  printStatus?: string;
+  transactionStatus?: string;
+  orientation?: string;
+}
+
+export interface CreateChequeData extends Partial<Cheque> {
+  bankAccount: Types.ObjectId | string;
+  payeeName: string;
+  amount: number;
+  chequeDate: Date;
+}
+
+export interface UpdateChequeData {
+  printStatus?: string;
+  transactionStatus?: string;
+}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
 
 // ============================================================================
