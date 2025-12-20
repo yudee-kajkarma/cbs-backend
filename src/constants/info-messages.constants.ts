@@ -121,6 +121,13 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Bank account deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Bank accounts list retrieved successfully',
   },
+  CHEQUE: {
+    CREATED_SUCCESSFULLY: 'Cheque created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Cheque retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Cheque updated successfully',
+    DELETED_SUCCESSFULLY: 'Cheque deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Cheques list retrieved successfully',
+  },
   PAYEE: {
     CREATED_SUCCESSFULLY: 'Payee created successfully',
     RETRIEVED_SUCCESSFULLY: 'Payee retrieved successfully',
@@ -128,4 +135,4 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Payee deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Payees list retrieved successfully',
   },
-};
+}

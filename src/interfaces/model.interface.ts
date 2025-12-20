@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { AuditType } from '../constants';
 import { 
   FurnitureCategory, 
@@ -496,6 +496,42 @@ export interface BankAccountQuery extends BaseQuery {
 
 export interface CreateBankAccountData extends Partial<BankAccount> {}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
+
+// ============================================================================
+// CHEQUE MODULE
+// ============================================================================
+
+export interface Cheque {
+  bankAccount: Types.ObjectId | string;
+  chequeNumber: string;
+  payeeName: string;
+  amount: number;
+  chequeDate: Date;
+  orientation?: string;
+  printStatus?: string;
+  transactionStatus?: string;
+}
+
+export interface ChequeDocument extends Cheque, Document {}
+
+export interface ChequeQuery extends BaseQuery {
+  bankAccount?: string;
+  printStatus?: string;
+  transactionStatus?: string;
+  orientation?: string;
+}
+
+export interface CreateChequeData extends Partial<Cheque> {
+  bankAccount: Types.ObjectId | string;
+  payeeName: string;
+  amount: number;
+  chequeDate: Date;
+}
+
+export interface UpdateChequeData {
+  printStatus?: string;
+  transactionStatus?: string;
+}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
 
 // ============================================================================
