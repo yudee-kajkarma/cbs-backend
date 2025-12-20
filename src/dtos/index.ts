@@ -15,4 +15,5 @@ export * from './support-dto';
 export * from './property-dto';
 export * from './vehicle-dto';
 export * from './forecast-dto';
+export * from './cheque-dto';
 export * from './payee-dto';

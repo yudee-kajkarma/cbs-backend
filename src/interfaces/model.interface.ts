@@ -535,6 +535,40 @@ export interface CreateForecastData {
 }
 
 export interface UpdateForecastData extends Partial<Forecast> {}
+// CHEQUE MODULE
+// ============================================================================
+
+export interface Cheque {
+  bankAccount: Types.ObjectId | string;
+  chequeNumber: string;
+  payeeName: string;
+  amount: number;
+  chequeDate: Date;
+  orientation?: string;
+  printStatus?: string;
+  transactionStatus?: string;
+}
+
+export interface ChequeDocument extends Cheque, Document {}
+
+export interface ChequeQuery extends BaseQuery {
+  bankAccount?: string;
+  printStatus?: string;
+  transactionStatus?: string;
+  orientation?: string;
+}
+
+export interface CreateChequeData extends Partial<Cheque> {
+  bankAccount: Types.ObjectId | string;
+  payeeName: string;
+  amount: number;
+  chequeDate: Date;
+}
+
+export interface UpdateChequeData {
+  printStatus?: string;
+  transactionStatus?: string;
+}
 export interface UpdateBankAccountData extends Partial<BankAccount> {}
 
 // ============================================================================

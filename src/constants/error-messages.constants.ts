@@ -147,6 +147,17 @@ export const ERROR_MESSAGES = {
       message: 'Invalid CSV headers. Required headers: Date, Type, Category, Description, Amount, Currency, Bank Account, Status',
       status: 400
     },
+    // Cheque Errors
+    CHEQUE_NOT_FOUND: {
+      code: 'CBS-4020',
+      message: 'Cheque not found',
+      status: 404
+    },
+    CHEQUE_NUMBER_EXISTS: {
+      code: 'CBS-4021',
+      message: 'Cheque number already exists for this bank account',
+      status: 409
+    },
     // Payee Errors
     PAYEE_NOT_FOUND: {
       code: 'CBS-4020',
