@@ -15,7 +15,6 @@ const chequeSchema = new Schema<ChequeDocument>(
     },
     chequeNumber: {
       type: String,
-      unique: true,
       trim: true,
       maxlength: [50, 'Cheque number cannot exceed 50 characters'],
     },
@@ -56,34 +55,8 @@ const chequeSchema = new Schema<ChequeDocument>(
   }
 );
 
-// Auto-generate cheque number before saving
-chequeSchema.pre('save', async function (next) {
-  if (!this.chequeNumber) {
-    try {
-      const lastCheque = await mongoose.model('Cheque').findOne({}, { chequeNumber: 1 })
-        .sort({ createdAt: -1 })
-        .lean() as { chequeNumber?: string } | null;
-      
-      let nextNumber = 1;
-      if (lastCheque?.chequeNumber) {
-        const match = lastCheque.chequeNumber.match(/CH-(\d+)/);
-        if (match) {
-          nextNumber = parseInt(match[1], 10) + 1;
-        }
-      }
-      
-      this.chequeNumber = `CH-${nextNumber}`;
-      next();
-    } catch (error) {
-      next(error as Error);
-    }
-  } else {
-    next();
-  }
-});
-
 // Indexes for better query performance
-chequeSchema.index({  chequeNumber: 1 }, { name: 'idx_cheque_bank_account_number' });
+chequeSchema.index({  chequeNumber: 1 }, { unique: true });
 chequeSchema.index({ chequeDate: -1 });
 
-export default mongoose.model<ChequeDocument>("Cheque", chequeSchema);
+export default mongoose.model<ChequeDocument>("Cheque", chequeSchema, "cheque");

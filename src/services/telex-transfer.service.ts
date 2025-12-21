@@ -5,6 +5,7 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { TelexTransferDocument } from "../models/telexTransfer.model";
+import { ReferenceGenerator } from "../utils/reference-generator.util";
 import {
     TelexTransferQuery,
     CreateTelexTransferData,
@@ -23,7 +24,11 @@ export class TelexTransferService {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.BANK_ACCOUNT_NOT_FOUND);
             }
 
+            const referenceNo = await ReferenceGenerator.generateTelexTransferReference();
+
             const telexTransfer = await TelexTransfer.create({
+                ...data,
+                referenceNo,
                 ...data,
                 transferDate: data.transferDate ? new Date(data.transferDate) : undefined,
             });

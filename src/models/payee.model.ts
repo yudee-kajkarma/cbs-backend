@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { allowedPayeeCategories, PayeeCategory } from "../constants/payee.constants";
+import mongoose, { Schema } from "mongoose";
+import { allowedPayeeCategories } from "../constants/payee.constants";
 import { PayeeDocument } from '../interfaces';
 
 const payeeSchema = new Schema<PayeeDocument>(
@@ -63,6 +63,6 @@ payeeSchema.index({ name: 1 });
 payeeSchema.index({ category: 1 });
 payeeSchema.index({ email: 1 });
 
-const Payee = mongoose.model<PayeeDocument>('Payee', payeeSchema);
+const Payee = mongoose.model<PayeeDocument>('Payee', payeeSchema, 'payee');
 
 export default Payee;
