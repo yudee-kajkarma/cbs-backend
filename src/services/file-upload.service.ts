@@ -22,6 +22,7 @@ const s3Client = new S3Client({
   },
   requestChecksumCalculation: "WHEN_REQUIRED", 
   responseChecksumValidation: "WHEN_REQUIRED",
+  
 });
 
 export class FileUploadService {
@@ -38,9 +39,9 @@ export class FileUploadService {
       maxFilesPerType: 5,
     },
     certificate: {
-      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxFileSize: 20 * 1024 * 1024, // 20MB
       allowedMimeTypes: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-      maxFilesPerType: 5,
+      maxFilesPerType: 10,
     },
   };
 
@@ -64,14 +65,22 @@ export class FileUploadService {
 
       const rules = this.VALIDATION_RULES[file.fileType];
 
-      // Validate file size
+      // Validate file size with specific details
       if (file.size > rules.maxFileSize) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.FILE_TOO_LARGE);
+        const maxSizeMB = (rules.maxFileSize / (1024 * 1024)).toFixed(0);
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        throw throwError({
+          ...ERROR_MESSAGES.CLIENT_ERRORS.FILE_TOO_LARGE,
+          message: `File '${file.filename}' is ${fileSizeMB}MB, but ${file.fileType} files must be under ${maxSizeMB}MB`,
+        });
       }
 
-      // Validate MIME type
+      // Validate MIME type with specific details
       if (!rules.allowedMimeTypes.includes(file.mimeType)) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_FILE_FORMAT);
+        throw throwError({
+          ...ERROR_MESSAGES.CLIENT_ERRORS.INVALID_FILE_FORMAT,
+          message: `File '${file.filename}' has invalid MIME type '${file.mimeType}'. Allowed types for ${file.fileType}: ${rules.allowedMimeTypes.join(', ')}`,
+        });
       }
 
       // Validate filename
@@ -90,7 +99,10 @@ export class FileUploadService {
     for (const [fileType, typeFiles] of Object.entries(filesByType)) {
       const rules = this.VALIDATION_RULES[fileType];
       if (typeFiles.length > rules.maxFilesPerType) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TOO_MANY_FILES);
+        throw throwError({
+          ...ERROR_MESSAGES.CLIENT_ERRORS.TOO_MANY_FILES,
+          message: `Too many ${fileType} files. Maximum ${rules.maxFilesPerType} files allowed, but ${typeFiles.length} provided`,
+        });
       }
     }
   }

@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
+import userRoutes from './routes/user.routes';
+import employeeRoutes from './routes/employee.routes';
 import licenseRoutes from './routes/license.routes';
 import hardwareTransferRoutes from './routes/hardwareTransfer.routes';
 import isoRoutes from './routes/iso.routes';
@@ -23,6 +24,9 @@ import bankBalanceRoutes from './routes/bankBalance.routes';
 import forecastRoutes from './routes/forecast.routes';
 import chequeRoutes from './routes/cheque.routes';
 import payeeRoutes from './routes/payee.routes';
+import leavePolicyRoutes from './routes/leave-policy.routes';
+import leaveBalanceRoutes from './routes/leave-balance.routes';
+import leaveApplicationRoutes from './routes/leave-application.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -43,6 +47,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 // Routes
+app.use('/api/users', userRoutes);
+app.use('/api/employees', employeeRoutes);
 app.use("/api/iso", isoRoutes);
 app.use("/api/network-equipment", networkEquipmentRoutes);
 app.use("/api/support", supportRoutes);
@@ -64,6 +70,9 @@ app.use('/api/bank-balances', bankBalanceRoutes);
 app.use('/api/forecasts', forecastRoutes);
 app.use('/api/cheques', chequeRoutes);
 app.use('/api/payees', payeeRoutes);
+app.use('/api/leave-policies', leavePolicyRoutes);
+app.use('/api/leave-balances', leaveBalanceRoutes);
+app.use('/api/leave-applications', leaveApplicationRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

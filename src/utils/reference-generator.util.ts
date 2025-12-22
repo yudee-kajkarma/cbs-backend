@@ -1,5 +1,11 @@
 import TelexTransfer from "../models/telexTransfer.model";
 import Cheque from "../models/cheque.model";
+import User from "../models/user.model";
+import Employee from "../models/employee.model";
+import LeaveApplication from "../models/leaveApplication.model";
+import { UserRole, USER_ID_PREFIX } from "../constants/user.constants";
+import { throwError } from "./errors.util";
+import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 
 /**
  * Utility class for generating reference numbers
@@ -49,5 +55,138 @@ export class ReferenceGenerator {
         }
         
         return `CH-${nextNumber}`;
+    }
+
+    /**
+     * Check if user ID already exists
+     */
+    private static async checkUserIdExists(userId: string): Promise<boolean> {
+        const existingUser = await User.findOne({ userId }).lean();
+        return !!existingUser;
+    }
+
+    /**
+     * Check if employee ID already exists
+     */
+    private static async checkEmployeeIdExists(employeeId: string): Promise<boolean> {
+        const existingEmployee = await Employee.findOne({ employeeId }).lean();
+        return !!existingEmployee;
+    }
+
+    /**
+     * Check if leave request ID already exists
+     */
+    private static async checkLeaveRequestIdExists(requestId: string): Promise<boolean> {
+        const existingRequest = await LeaveApplication.findOne({ requestId }).lean();
+        return !!existingRequest;
+    }
+
+    /**
+     * Generate unique user ID based on role with retry mechanism
+     * Format: ADMIN-###, HR-###, or USR-###
+     */
+    static async generateUserReference(role: string): Promise<string> {
+        const maxRetries = 10;
+        let attempts = 0;
+
+        while (attempts < maxRetries) {
+            let prefix: string = USER_ID_PREFIX.USER;
+            if (role === UserRole.ADMIN) {
+                prefix = USER_ID_PREFIX.ADMIN;
+            } else if (role === UserRole.HR) {
+                prefix = USER_ID_PREFIX.HR;
+            }
+            
+            const lastUser = await User
+                .findOne(
+                    { userId: new RegExp(`^${prefix}-`) },
+                    { userId: 1 }
+                )
+                .sort({ createdAt: -1 })
+                .lean() as { userId?: string } | null;
+            
+            let userId: string;
+            if (lastUser && lastUser.userId) {
+                const lastNumber = parseInt(lastUser.userId.split('-')[1]);
+                userId = `${prefix}-${String(lastNumber + 1).padStart(3, '0')}`;
+            } else {
+                userId = `${prefix}-001`;
+            }
+
+            // Check if this userId already exists
+            const exists = await this.checkUserIdExists(userId);
+            if (!exists) {
+                return userId;
+            }
+
+            attempts++;
+        }
+
+        // If all retries failed, throw error
+        throw throwError(ERROR_MESSAGES.SERVER_ERRORS.USER_ID_GENERATION_FAILED);
+    }
+
+    /**
+     * Generate unique employee ID with retry mechanism
+     * Format: EMP-###
+     */
+    static async generateEmployeeReference(): Promise<string> {
+        const maxRetries = 10;
+        let attempts = 0;
+
+        while (attempts < maxRetries) {
+            const lastEmployee = await Employee
+                .findOne(
+                    { employeeId: new RegExp('^EMP-') },
+                    { employeeId: 1 }
+                )
+                .sort({ createdAt: -1 })
+                .lean() as { employeeId?: string } | null;
+            
+            let employeeId: string;
+            if (lastEmployee && lastEmployee.employeeId) {
+                const lastNumber = parseInt(lastEmployee.employeeId.split('-')[1]);
+                employeeId = `EMP-${String(lastNumber + 1).padStart(3, '0')}`;
+            } else {
+                employeeId = 'EMP-001';
+            }
+
+            // Check if this employeeId already exists
+            const exists = await this.checkEmployeeIdExists(employeeId);
+            if (!exists) {
+                return employeeId;
+            }
+
+            attempts++;
+        }
+
+        // If all retries failed, throw error
+        throw throwError(ERROR_MESSAGES.SERVER_ERRORS.EMPLOYEE_ID_GENERATION_FAILED);
+    }
+
+    /**
+     * Generate unique leave application request ID with retry mechanism
+     * Format: LV-YYYY-###
+     */
+    static async generateLeaveApplicationReference(): Promise<string> {
+        const maxRetries = 10;
+        let attempts = 0;
+
+        while (attempts < maxRetries) {
+            const year = new Date().getFullYear();
+            const count = await LeaveApplication.countDocuments();
+            const requestId = `LV-${year}-${String(count + 1).padStart(3, '0')}`;
+
+            // Check if this requestId already exists
+            const exists = await this.checkLeaveRequestIdExists(requestId);
+            if (!exists) {
+                return requestId;
+            }
+
+            attempts++;
+        }
+
+        // If all retries failed, throw error
+        throw throwError(ERROR_MESSAGES.SERVER_ERRORS.LEAVE_REQUEST_ID_GENERATION_FAILED);
     }
 }

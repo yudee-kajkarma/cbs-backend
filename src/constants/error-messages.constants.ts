@@ -6,6 +6,30 @@
 export const ERROR_MESSAGES = {
   // Client Errors (4xx)
   CLIENT_ERRORS: {
+    // User Errors
+    USER_NOT_FOUND: {
+      code: 'CBS-4000',
+      message: 'User not found',
+      status: 404
+    },
+    USER_EMAIL_EXISTS: {
+      code: 'CBS-4000-1',
+      message: 'User with this email already exists',
+      status: 409
+    },
+    USER_USERNAME_EXISTS: {
+      code: 'CBS-4000-2',
+      message: 'User with this username already exists',
+      status: 409
+    },
+    
+    // Employee Errors
+    EMPLOYEE_NOT_FOUND: {
+      code: 'CBS-4000-3',
+      message: 'Employee not found',
+      status: 404
+    },
+    
     // Audit Errors
     AUDIT_NOT_FOUND: {
       code: 'CBS-4001',
@@ -53,21 +77,67 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Leave Balance Errors
+    LEAVE_BALANCE_NOT_FOUND: {
+      code: 'CBS-4008',
+      message: 'Leave balance not found',
+      status: 404
+    },
+    LEAVE_BALANCE_EXISTS: {
+      code: 'CBS-4008-1',
+      message: 'Leave balance already exists for this employee and year',
+      status: 400
+    },
+    INSUFFICIENT_LEAVE_BALANCE: {
+      code: 'CBS-4008-2',
+      message: 'Insufficient leave balance',
+      status: 400
+    },
+    
+    // Leave Policy Errors
+    LEAVE_POLICY_NOT_FOUND: {
+      code: 'CBS-4008-3',
+      message: 'Leave policy not found',
+      status: 404
+    },
+    
+    // Leave Application Errors
+    LEAVE_APPLICATION_NOT_FOUND: {
+      code: 'CBS-4008-4',
+      message: 'Leave application not found',
+      status: 404
+    },
+    INVALID_DATE_RANGE: {
+      code: 'CBS-4008-5',
+      message: 'Invalid date range',
+      status: 400
+    },
+    OVERLAPPING_LEAVE: {
+      code: 'CBS-4008-6',
+      message: 'Overlapping leave application found',
+      status: 400
+    },
+    LEAVE_APPLICATION_CANNOT_MODIFY: {
+      code: 'CBS-4008-7',
+      message: 'Cannot modify leave application that has been approved or rejected',
+      status: 400
+    },
+    
     // License Errors
     LICENSE_NOT_FOUND: {
-      code: 'CBS-4008',
+      code: 'CBS-4009',
       message: 'License not found',
       status: 404
     },
     
     // Network Equipment Errors
     NETWORK_EQUIPMENT_NOT_FOUND: {
-      code: 'CBS-4009',
+      code: 'CBS-4010',
       message: 'Network equipment not found',
       status: 404
     },
     NETWORK_EQUIPMENT_EXISTS: {
-      code: 'CBS-4010',
+      code: 'CBS-4010-1',
       message: 'Network equipment already exists',
       status: 409
     },
@@ -242,6 +312,21 @@ export const ERROR_MESSAGES = {
       message: 'Invalid ISO standard',
       status: 400
     },
+    INVALID_OPERATION: {
+      code: 'CBS-4026',
+      message: 'Invalid operation',
+      status: 400
+    },
+    UNAUTHORIZED_ACTION: {
+      code: 'CBS-4027',
+      message: 'You do not have permission to perform this action',
+      status: 403
+    },
+    INVALID_INPUT: {
+      code: 'CBS-4027',
+      message: 'Invalid input',
+      status: 400
+    },
   },
   
   // Server Errors (5xx)
@@ -294,6 +379,26 @@ export const ERROR_MESSAGES = {
     CURRENCY_CONVERSION_FAILED: {
       code: 'CBS-5009',
       message: 'Currency conversion failed',
+      status: 500
+    },
+    EMPLOYEE_AUTO_CREATION_FAILED: {
+      code: 'CBS-5010',
+      message: 'Error auto-creating employee',
+      status: 500
+    },
+    USER_ID_GENERATION_FAILED: {
+      code: 'CBS-5011',
+      message: 'Failed to generate unique user ID after multiple attempts',
+      status: 500
+    },
+    EMPLOYEE_ID_GENERATION_FAILED: {
+      code: 'CBS-5012',
+      message: 'Failed to generate unique employee ID after multiple attempts',
+      status: 500
+    },
+    LEAVE_REQUEST_ID_GENERATION_FAILED: {
+      code: 'CBS-5013',
+      message: 'Failed to generate unique leave request ID after multiple attempts',
       status: 500
     },
   }
