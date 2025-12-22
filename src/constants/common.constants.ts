@@ -46,6 +46,15 @@ export enum CommonStatus {
 }
 
 /**
+ * Employee Status Enum
+ */
+export enum EmployeeStatus {
+  ACTIVE = "Active",
+  TERMINATED = "Terminated",
+  ON_LEAVE = "On Leave",
+}
+
+/**
  * Common Priority Enum
  */
 export enum Priority {
@@ -59,4 +68,5 @@ export const allowedCurrencies = Object.values(Currency);
 export const allowedDepartments = Object.values(Department);
 export const allowedConditions = Object.values(Condition);
 export const allowedCommonStatuses = Object.values(CommonStatus);
+export const allowedEmployeeStatuses = Object.values(EmployeeStatus);
 export const allowedPriorities = Object.values(Priority);

@@ -2,6 +2,19 @@
  * Centralized success messages for API responses
  */
 export const INFO_MESSAGES = {
+  USER: {
+    CREATED_SUCCESSFULLY: 'User created successfully',
+    RETRIEVED_SUCCESSFULLY: 'User retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'User updated successfully',
+    DELETED_SUCCESSFULLY: 'User deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Users list retrieved successfully',
+  },
+  EMPLOYEE: {
+    RETRIEVED_SUCCESSFULLY: 'Employee retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Employee updated successfully',
+    DELETED_SUCCESSFULLY: 'Employee deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Employees list retrieved successfully',
+  },
   AUDIT: {
     CREATED_SUCCESSFULLY: 'Audit created successfully',
     RETRIEVED_SUCCESSFULLY: 'Audit retrieved successfully',
@@ -156,4 +169,29 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Payee deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Payees list retrieved successfully',
   },
-}
+  LEAVE_POLICY: {
+    CREATED_SUCCESSFULLY: 'Leave policy created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Leave policy retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Leave policy updated successfully',
+    DELETED_SUCCESSFULLY: 'Leave policy deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Leave policies list retrieved successfully',
+    ACTIVE_POLICY_RETRIEVED: 'Active leave policy retrieved successfully',
+  },
+  LEAVE_BALANCE: {
+    CREATED_SUCCESSFULLY: 'Leave balance created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Leave balance retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Leave balance updated successfully',
+    DELETED_SUCCESSFULLY: 'Leave balance deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Leave balances list retrieved successfully',
+    INITIALIZED_SUCCESSFULLY: 'Leave balance initialized successfully',
+  },
+  LEAVE_APPLICATION: {
+    CREATED_SUCCESSFULLY: 'Leave application submitted successfully',
+    RETRIEVED_SUCCESSFULLY: 'Leave application retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Leave application updated successfully',
+    DELETED_SUCCESSFULLY: 'Leave application deleted successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Leave applications list retrieved successfully',
+    APPROVED_SUCCESSFULLY: 'Leave application approved successfully',
+    REJECTED_SUCCESSFULLY: 'Leave application rejected successfully',
+  },
+};

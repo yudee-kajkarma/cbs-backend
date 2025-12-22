@@ -14,6 +14,7 @@ import {
   HardwareStatus,
   Department
 } from '../constants';
+import { UserRole, CommonStatus, EmployeeStatus } from '../constants';
 
 // ============================================================================
 // COMMON INTERFACES
@@ -650,3 +651,188 @@ export interface PayeeQuery extends BaseQuery {
 
 export interface CreatePayeeData extends Partial<Payee> {}
 export interface UpdatePayeeData extends Partial<Payee> {}
+
+// ============================================================================
+// USER MODULE
+// ============================================================================
+
+export interface User {
+  userId?: string;
+  fullName: string;
+  email: string;
+  username: string;
+  password: string;
+  role: UserRole;
+}
+
+export interface UserDocument extends User, Document {}
+
+export interface UserQuery extends BaseQuery {
+  role?: string;
+  email?: string;
+  username?: string;
+}
+
+export interface CreateUserData extends Partial<User> {}
+
+// Employee Interfaces
+export interface Employee {
+  employeeId?: string;
+  userId: Types.ObjectId | string;
+  position?: string;
+  department?: string;
+  phoneNumber?: string;
+  joinDate?: Date;
+  salary?: number;
+  status: EmployeeStatus;
+}
+
+export interface EmployeeDocument extends Employee, Document {}
+
+export interface EmployeeQuery extends BaseQuery {
+  department?: string;
+  status?: string;
+  position?: string;
+}
+
+export interface CreateEmployeeData extends Partial<Employee> {}
+export interface UpdateEmployeeData extends Partial<Employee> {}
+export interface UpdateUserData extends Partial<User> {}
+
+// ============================================================================
+// LEAVE POLICY MODULE
+// ============================================================================
+
+export interface LeavePolicy {
+  annualLeavePaid: number;
+  sickLeavePaid: number;
+  emergencyLeave: number;
+  maternityLeave: number;
+  paternityLeave: number;
+  unpaidLeaveMax: number;
+  allowCarryForward: boolean;
+  maxCarryForwardDays: number;
+  allowNegativeBalance: boolean;
+  maxNegativeLeaveDays: number;
+  isActive: boolean;
+}
+
+export interface LeavePolicyDocument extends LeavePolicy, Document {}
+
+export interface LeavePolicyQuery extends BaseQuery {
+  isActive?: boolean;
+}
+
+export interface CreateLeavePolicyData extends Partial<LeavePolicy> {}
+export interface UpdateLeavePolicyData extends Partial<LeavePolicy> {}
+
+// ============================================================================
+// ATTENDANCE POLICY MODULE
+// ============================================================================
+
+export interface AttendancePolicy {
+  standardHoursPerDay: number;
+  workingDaysPerWeek: number;
+  overtimeRateMultiplier: number;
+  lateArrivalGracePeriod: number;
+  attendanceBonusThreshold: number;
+  hoursConcessionPercentage: number;
+  shortfallDeductionPercentage: number;
+  isActive: boolean;
+}
+
+export interface AttendancePolicyDocument extends AttendancePolicy, Document {}
+
+export interface AttendancePolicyQuery extends BaseQuery {
+  isActive?: boolean;
+}
+
+export interface CreateAttendancePolicyData extends Partial<AttendancePolicy> {}
+
+// ============================================================================
+// PAYROLL COMPENSATION MODULE
+// ============================================================================
+
+export interface PayrollCompensation {
+  socialInsuranceRate: number;
+  payrollProcessingDay: number;
+  currency: string;
+  paymentMethod: string;
+  attendanceBonusAmount: number;
+  isActive: boolean;
+}
+
+export interface PayrollCompensationDocument extends PayrollCompensation, Document {}
+
+export interface PayrollCompensationQuery extends BaseQuery {
+  isActive?: boolean;
+}
+
+export interface CreatePayrollCompensationData extends Partial<PayrollCompensation> {}
+
+// ============================================================================
+// LEAVE APPLICATION MODULE
+// ============================================================================
+
+export interface LeaveApplication {
+  requestId: string;
+  employeeId: Types.ObjectId;
+  leaveType: string;
+  startDate: Date;
+  endDate: Date;
+  numberOfDays: number;
+  reason: string;
+  status: string;
+  appliedOn: Date;
+  approvedBy?: Types.ObjectId;
+  actionDate?: Date;
+  rejectionReason?: string;
+}
+
+export interface LeaveApplicationDocument extends LeaveApplication, Document {}
+
+export interface LeaveApplicationQuery extends BaseQuery {
+  status?: string;
+  leaveType?: string;
+  employeeId?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface CreateLeaveApplicationData extends Partial<LeaveApplication> {}
+export interface UpdateLeaveApplicationData extends Partial<LeaveApplication> {}
+
+// ============================================================================
+// LEAVE BALANCE MODULE
+// ============================================================================
+
+export interface LeaveBalanceItem {
+  totalAllocation: number;
+  used: number;
+  remaining: number;
+}
+
+export interface UnpaidLeaveBalanceItem {
+  totalAllowed: number;
+  used: number;
+  remaining: number;
+}
+
+export interface LeaveBalance {
+  employeeId: Types.ObjectId;
+  year: number;
+  annualLeave: LeaveBalanceItem;
+  sickLeave: LeaveBalanceItem;
+  emergencyLeave: LeaveBalanceItem;
+  unpaidLeave: UnpaidLeaveBalanceItem;
+}
+
+export interface LeaveBalanceDocument extends LeaveBalance, Document {}
+
+export interface LeaveBalanceQuery extends BaseQuery {
+  employeeId?: string;
+  year?: number;
+}
+
+export interface CreateLeaveBalanceData extends Partial<LeaveBalance> {}
+export interface UpdateLeaveBalanceData extends Partial<LeaveBalance> {}
