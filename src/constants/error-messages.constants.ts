@@ -291,5 +291,10 @@ export const ERROR_MESSAGES = {
       message: 'Failed to generate download URL',
       status: 500
     },
+    CURRENCY_CONVERSION_FAILED: {
+      code: 'CBS-5009',
+      message: 'Currency conversion failed',
+      status: 500
+    },
   }
 }

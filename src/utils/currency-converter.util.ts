@@ -1,3 +1,5 @@
+import { ErrorHandler } from './error-handler.util';
+
 export class CurrencyConverter {
     private ratesCache: Map<string, { rates: any; timestamp: number }> = new Map();
     private cacheDuration = 1800000; // 30 minutes
@@ -69,5 +71,50 @@ export class CurrencyConverter {
             console.error('Currency conversion failed:', error);
             return amount;
         }
+    }
+
+    /**
+     * Static helper method for converting currency with error handling
+     */
+    static async convertCurrencyWithFallback(
+        amount: number,
+        fromCurrency: string,
+        toCurrency: string
+    ): Promise<number> {
+        const converter = new CurrencyConverter();
+        try {
+            return await converter.convertCurrency(amount, fromCurrency, toCurrency);
+        } catch (error) {
+            ErrorHandler.handleServiceError(error, {
+                serviceName: 'CurrencyConverter',
+                method: 'convertCurrencyWithFallback',
+                data: { amount, fromCurrency, toCurrency }
+            });
+            return amount;
+        }
+    }
+
+    /**
+     * Format bank balance with display currency conversions
+     */
+    static async formatWithDisplayCurrency(bankBalance: any): Promise<any> {
+        const result = { ...bankBalance };
+        const targetCurrency = bankBalance.displayCurrency || 'KWD';
+        
+        result.currentBalanceInDisplay = await this.convertCurrencyWithFallback(
+            bankBalance.currentBalance || 0,
+            bankBalance.currency || targetCurrency,
+            targetCurrency
+        );
+
+        if (bankBalance.finalBalance !== undefined && bankBalance.finalBalance !== null) {
+            result.finalBalanceInDisplay = await this.convertCurrencyWithFallback(
+                bankBalance.finalBalance,
+                bankBalance.currency || targetCurrency,
+                targetCurrency
+            );
+        }
+
+        return result;
     }
 }

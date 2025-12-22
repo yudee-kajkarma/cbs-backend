@@ -58,4 +58,4 @@ const forecastSchema = new Schema<ForecastDocument>(
 );
 
 
-export default mongoose.model<ForecastDocument>("Forecast", forecastSchema);
+export default mongoose.model<ForecastDocument>("Forecast", forecastSchema, "forecast");

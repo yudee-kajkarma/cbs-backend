@@ -24,7 +24,6 @@ const bankAccountSchema = new Schema<BankAccountDocument>(
         accountNumber: {
             type: String,
             required: [true, 'Account number is required'],
-            unique: true,
             trim: true,
             maxlength: [50, 'Account number cannot exceed 50 characters'],
         },
@@ -63,10 +62,9 @@ const bankAccountSchema = new Schema<BankAccountDocument>(
 bankAccountSchema.index({ bankName: 1 }, { name: 'idx_bank_account_bank_name' });
 bankAccountSchema.index({ accountNumber: 1 }, { name: 'idx_bank_account_number', unique: true });
 bankAccountSchema.index({ accountHolder: 1 }, { name: 'idx_bank_account_holder' });
-bankAccountSchema.index({ branch: 1 }, { name: 'idx_bank_account_branch' });
 bankAccountSchema.index({ currency: 1 }, { name: 'idx_bank_account_currency' });
 bankAccountSchema.index({ createdAt: -1 }, { name: 'idx_bank_account_created_desc' });
 
-export default mongoose.model<BankAccountDocument>("BankAccount", bankAccountSchema);
+export default mongoose.model<BankAccountDocument>("BankAccount", bankAccountSchema, "bank_account");
 
 

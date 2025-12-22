@@ -7,7 +7,6 @@ const bankBalanceSchema = new Schema<BankBalanceDocument>(
     account: {
       type: String,
       required: [true, 'Account is required'],
-      unique: true,
       trim: true,
       maxlength: [100, 'Account cannot exceed 100 characters'],
     },
@@ -65,12 +64,11 @@ const bankBalanceSchema = new Schema<BankBalanceDocument>(
 );
 
 // Indexes for better query performance
-bankBalanceSchema.index({ account: 1 }, { name: 'idx_bank_balance_account' });
+bankBalanceSchema.index({ account: 1 }, { unique: true });
 bankBalanceSchema.index({ bank: 1 }, { name: 'idx_bank_balance_bank' });
 bankBalanceSchema.index({ type: 1 }, { name: 'idx_bank_balance_type' });
 bankBalanceSchema.index({ status: 1 }, { name: 'idx_bank_balance_status' });
-bankBalanceSchema.index({ currency: 1 }, { name: 'idx_bank_balance_currency' });
 bankBalanceSchema.index({ createdAt: -1 }, { name: 'idx_bank_balance_created_desc' });
 bankBalanceSchema.index({ updatedAt: -1 }, { name: 'idx_bank_balance_updated_desc' });
 
-export default mongoose.model<BankBalanceDocument>("BankBalance", bankBalanceSchema);
+export default mongoose.model<BankBalanceDocument>("BankBalance", bankBalanceSchema, "bank_balance");

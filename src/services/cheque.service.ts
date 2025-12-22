@@ -4,8 +4,8 @@ import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
+import { ReferenceGenerator } from "../utils/reference-generator.util";
 import { 
-  ChequeDocument,
   ChequeQuery, 
   CreateChequeData, 
   UpdateChequeData 
@@ -29,7 +29,9 @@ export class ChequeService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.BANK_ACCOUNT_NOT_FOUND);
       }
 
-      const cheque = await Cheque.create(data);
+      const chequeNumber = await ReferenceGenerator.generateChequeReference();
+
+      const cheque = await Cheque.create({ ...data, chequeNumber });
       const populated = await Cheque.findById(cheque._id)
         .populate('bankAccount', 'bankName branch accountNumber currentChequeNumber currency')
         .lean();

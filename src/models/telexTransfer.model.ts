@@ -25,7 +25,6 @@ const telexTransferSchema = new Schema<TelexTransferDocument>(
   {
     referenceNo: {
       type: String,
-      unique: true,
       trim: true,
       maxlength: [50, 'Reference number cannot exceed 50 characters'],
     },
@@ -117,33 +116,8 @@ const telexTransferSchema = new Schema<TelexTransferDocument>(
   }
 );
 
-// Pre-save hook to auto-generate reference number
-telexTransferSchema.pre('save', async function(next) {
-  if (!this.referenceNo) {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    
-    const lastTransfer: any = await mongoose.model('TelexTransfer')
-      .findOne({
-        referenceNo: new RegExp(`^TT-${year}-${month}-`)
-      })
-      .sort({ referenceNo: -1 })
-      .lean();
-    
-    let sequence = 1;
-    if (lastTransfer && lastTransfer.referenceNo) {
-      const lastSequence = parseInt(lastTransfer.referenceNo.split('-')[3]);
-      sequence = lastSequence + 1;
-    }
-    
-    this.referenceNo = `TT-${year}-${month}-${String(sequence).padStart(3, '0')}`;
-  }
-  next();
-});
-
 // Indexes for better query performance
 telexTransferSchema.index({ referenceNo: 1 }, { name: 'idx_telex_reference_no', unique: true });
 telexTransferSchema.index({ createdAt: -1 }, { name: 'idx_telex_created_desc' });
 
-export default mongoose.model<TelexTransferDocument>("TelexTransfer", telexTransferSchema);
+export default mongoose.model<TelexTransferDocument>("TelexTransfer", telexTransferSchema, "telex_transfer");

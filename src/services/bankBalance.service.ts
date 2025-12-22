@@ -11,48 +11,6 @@ import {
 } from "../interfaces/model.interface";
 
 export class BankBalanceService {
-    private static currencyConverter = new CurrencyConverter();
-
-    /**
-     * Helper: Convert currency amount
-     */
-    private static async convertCurrency(
-        amount: number,
-        fromCurrency: string,
-        toCurrency: string
-    ): Promise<number> {
-        try {
-            return await this.currencyConverter.convertCurrency(amount, fromCurrency, toCurrency);
-        } catch (error) {
-            console.error('Currency conversion failed:', error);
-            return amount;
-        }
-    }
-
-    /**
-     * Helper: Add display currency conversions
-     */
-    private static async formatWithDisplayCurrency(bankBalance: any): Promise<any> {
-        const result = { ...bankBalance };
-        const targetCurrency = bankBalance.displayCurrency || 'KWD';
-        
-        result.currentBalanceInDisplay = await this.convertCurrency(
-            bankBalance.currentBalance || 0,
-            bankBalance.currency || targetCurrency,
-            targetCurrency
-        );
-
-        if (bankBalance.finalBalance !== undefined && bankBalance.finalBalance !== null) {
-            result.finalBalanceInDisplay = await this.convertCurrency(
-                bankBalance.finalBalance,
-                bankBalance.currency || targetCurrency,
-                targetCurrency
-            );
-        }
-
-        return result;
-    }
-
     /**
      * Create a new bank balance entry
      */
@@ -98,7 +56,7 @@ export class BankBalanceService {
             );
 
             const bankBalancesWithConversions = await Promise.all(
-                result.data.map((item: any) => this.formatWithDisplayCurrency(item))
+                result.data.map((item: any) => CurrencyConverter.formatWithDisplayCurrency(item))
             );
 
             return {
@@ -128,7 +86,7 @@ export class BankBalanceService {
                 );
             }
 
-            return await this.formatWithDisplayCurrency(bankBalance);
+            return await CurrencyConverter.formatWithDisplayCurrency(bankBalance);
         } catch (error) {
             ErrorHandler.handleServiceError(error, {
                 serviceName: 'BankBalanceService',
@@ -165,7 +123,7 @@ export class BankBalanceService {
                 );
             }
 
-            return await this.formatWithDisplayCurrency(updated);
+            return await CurrencyConverter.formatWithDisplayCurrency(updated);
         } catch (error) {
             ErrorHandler.handleServiceError(error, {
                 serviceName: 'BankBalanceService',
@@ -250,14 +208,14 @@ export class BankBalanceService {
             let totalFinalBalanceInBase = 0;
 
             for (const balance of bankBalances) {
-                totalCurrentBalanceInBase += await this.convertCurrency(
+                totalCurrentBalanceInBase += await CurrencyConverter.convertCurrencyWithFallback(
                     balance.currentBalance || 0,
                     balance.currency || baseCurrency,
                     baseCurrency
                 );
 
                 if (balance.finalBalance !== undefined && balance.finalBalance !== null) {
-                    totalFinalBalanceInBase += await this.convertCurrency(
+                    totalFinalBalanceInBase += await CurrencyConverter.convertCurrencyWithFallback(
                         balance.finalBalance,
                         balance.currency || baseCurrency,
                         baseCurrency
