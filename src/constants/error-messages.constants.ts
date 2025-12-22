@@ -100,6 +100,11 @@ export const ERROR_MESSAGES = {
       message: 'Leave policy not found',
       status: 404
     },
+    LEAVE_POLICY_EXISTS: {
+      code: 'CBS-4008-3-1',
+      message: 'Leave policy already exists. Only one policy is allowed.',
+      status: 400
+    },
     
     // Leave Application Errors
     LEAVE_APPLICATION_NOT_FOUND: {
