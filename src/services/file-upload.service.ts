@@ -20,6 +20,8 @@ const s3Client = new S3Client({
     accessKeyId: config.aws.accessKeyId,
     secretAccessKey: config.aws.secretAccessKey,
   },
+  requestChecksumCalculation: "WHEN_REQUIRED", 
+  responseChecksumValidation: "WHEN_REQUIRED",
 });
 
 export class FileUploadService {
