@@ -7,37 +7,31 @@ const leavePolicySchema = new Schema<LeavePolicyDocument>(
       type: Number,
       required: [true, 'Annual leave (paid) is required'],
       min: [0, 'Annual leave cannot be negative'],
-      default: 30,
     },
     sickLeavePaid: {
       type: Number,
       required: [true, 'Sick leave (paid) is required'],
       min: [0, 'Sick leave cannot be negative'],
-      default: 15,
     },
     emergencyLeave: {
       type: Number,
       required: [true, 'Emergency leave is required'],
       min: [0, 'Emergency leave cannot be negative'],
-      default: 5,
     },
     maternityLeave: {
       type: Number,
       required: [true, 'Maternity leave is required'],
       min: [0, 'Maternity leave cannot be negative'],
-      default: 70,
     },
     paternityLeave: {
       type: Number,
       required: [true, 'Paternity leave is required'],
       min: [0, 'Paternity leave cannot be negative'],
-      default: 3,
     },
     unpaidLeaveMax: {
       type: Number,
       required: [true, 'Maximum unpaid leave is required'],
       min: [0, 'Unpaid leave cannot be negative'],
-      default: 10,
     },
     allowCarryForward: {
       type: Boolean,
@@ -58,12 +52,12 @@ const leavePolicySchema = new Schema<LeavePolicyDocument>(
     allowNegativeBalance: {
       type: Boolean,
       required: [true, 'Negative balance setting is required'],
-      default: true,
+      default: false,
     },
     maxNegativeLeaveDays: {
       type: Number,
       min: [0, 'Maximum negative leave days cannot be negative'],
-      default: 5,
+      default: 0,
       validate: {
         validator: function(this: LeavePolicyDocument, value: number) {
           return !this.allowNegativeBalance || value >= 0;

@@ -8,6 +8,20 @@ import { INFO_MESSAGES } from "../constants/info-messages.constants";
 
 export class LeavePolicyController {
   /**
+   * Create leave policy
+   */
+  static async create(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await LeavePolicyService.create(req.body);
+      const leavePolicyDto = toDto(LeavePolicyResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.LEAVE_POLICY.CREATED_SUCCESSFULLY, leavePolicyDto);
+      res.status(201).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
+    }
+  }
+
+  /**
    * Get leave policy 
    */
   static async get(req: Request, res: Response): Promise<void> {

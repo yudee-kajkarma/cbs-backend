@@ -10,15 +10,11 @@ export class LeaveStatusCronService {
   
   /**
    * Initialize leave balances for all active employees for the new year
-   * Runs once a year on January 1st at 00:01 (1 minute after midnight)
    */
   static startYearlyLeaveBalanceInitializer(): void {
-    // Run on January 1st at 00:01 every year
     cron.schedule('1 0 1 1 *', async () => {
       await this.runYearlyLeaveBalanceInitializer();
     });
-
-    console.log('[Cron] Yearly leave balance initializer scheduled to run on January 1st at 00:01');
   }
 
   /**
@@ -78,7 +74,6 @@ export class LeaveStatusCronService {
    * Execute leave status updates and auto-rejections
    */
   private static async runLeaveStatusUpdater(): Promise<void> {
-    console.log('[Cron] Running leave status updater...');
     
     try {
       const today = new Date();
@@ -90,7 +85,6 @@ export class LeaveStatusCronService {
       // Auto-reject expired pending applications
       await this.autoRejectExpiredApplications(today);
 
-      console.log('[Cron] Leave status updater completed successfully');
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'LeaveStatusCronService', method: 'runLeaveStatusUpdater' });
     }

@@ -19,7 +19,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
         type: Number,
         required: [true, 'Annual leave total allocation is required'],
         min: [0, 'Total allocation cannot be negative'],
-        default: 30,
       },
       used: {
         type: Number,
@@ -30,7 +29,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
       remaining: {
         type: Number,
         required: [true, 'Remaining days is required'],
-        default: 30,
       },
     },
     sickLeave: {
@@ -38,7 +36,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
         type: Number,
         required: [true, 'Sick leave total allocation is required'],
         min: [0, 'Total allocation cannot be negative'],
-        default: 15,
       },
       used: {
         type: Number,
@@ -49,7 +46,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
       remaining: {
         type: Number,
         required: [true, 'Remaining days is required'],
-        default: 15,
       },
     },
     emergencyLeave: {
@@ -57,7 +53,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
         type: Number,
         required: [true, 'Emergency leave total allocation is required'],
         min: [0, 'Total allocation cannot be negative'],
-        default: 5,
       },
       used: {
         type: Number,
@@ -68,7 +63,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
       remaining: {
         type: Number,
         required: [true, 'Remaining days is required'],
-        default: 5,
       },
     },
     unpaidLeave: {
@@ -76,7 +70,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
         type: Number,
         required: [true, 'Unpaid leave total allowed is required'],
         min: [0, 'Total allowed cannot be negative'],
-        default: 10,
       },
       used: {
         type: Number,
@@ -87,7 +80,6 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
       remaining: {
         type: Number,
         required: [true, 'Remaining days is required'],
-        default: 10,
       },
     },
   },

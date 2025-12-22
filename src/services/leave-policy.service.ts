@@ -10,44 +10,35 @@ import {
 export class LeavePolicyService {
   
   /**
-   * Ensure default leave policy exists (called on app startup)
+   * Create leave policy 
    */
-  static async ensureDefaultPolicy(): Promise<void> {
+  static async create(data: UpdateLeavePolicyData): Promise<LeavePolicyDocument> {
     try {
       const existingPolicy = await LeavePolicy.findOne();
       
-      if (!existingPolicy) {
-        await LeavePolicy.create({
-          annualLeavePaid: 30,
-          sickLeavePaid: 15,
-          emergencyLeave: 5,
-          maternityLeave: 70,
-          paternityLeave: 3,
-          unpaidLeaveMax: 10,
-          allowCarryForward: true,
-          maxCarryForwardDays: 10,
-          allowNegativeBalance: true,
-          maxNegativeLeaveDays: 5,
-          isActive: true
-        });
-        console.log('Default leave policy created successfully');
+      if (existingPolicy) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_EXISTS);
       }
+
+      const policy = await LeavePolicy.create(data);
+      return policy.toObject();
     } catch (error) {
-      console.error('Failed to create default leave policy:', error);
-      // Don't throw error to prevent app from crashing on startup
+      ErrorHandler.handleServiceError(error, { serviceName: 'LeavePolicyService', method: 'create', data });
     }
   }
 
   /**
-   * Get the single leave policy (auto-creates with defaults if not exists)
+   * Get the single leave policy
    */
   static async get(): Promise<LeavePolicyDocument> {
     try {
-      let policy = await LeavePolicy.findOne().lean();
+      const policy = await LeavePolicy.findOne().lean();
       
       if (!policy) {
-        const newPolicy = await LeavePolicy.create({});
-        return newPolicy.toObject();
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
+      }
+      if (!policy) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
       }
       
       return policy as LeavePolicyDocument;

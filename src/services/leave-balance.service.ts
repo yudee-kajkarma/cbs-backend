@@ -4,6 +4,7 @@ import Employee from "../models/employee.model";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
+import { createLeaveBalanceData, prepareLeaveBalanceUpdate } from "../utils/leave-balance.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { 
   LeaveBalanceDocument, 
@@ -13,31 +14,6 @@ import {
 
 export class LeaveBalanceService {
   
-  /**
-   * Calculate remaining leave days
-   */
-  private static calculateRemaining(data: any): any {
-    return {
-      ...data,
-      annualLeave: {
-        ...data.annualLeave,
-        remaining: data.annualLeave.totalAllocation - data.annualLeave.used
-      },
-      sickLeave: {
-        ...data.sickLeave,
-        remaining: data.sickLeave.totalAllocation - data.sickLeave.used
-      },
-      emergencyLeave: {
-        ...data.emergencyLeave,
-        remaining: data.emergencyLeave.totalAllocation - data.emergencyLeave.used
-      },
-      unpaidLeave: {
-        ...data.unpaidLeave,
-        remaining: data.unpaidLeave.totalAllowed - data.unpaidLeave.used
-      }
-    };
-  }
-
   /**
    * Initialize leave balance for an employee based on active leave policy
    */
@@ -56,26 +32,7 @@ export class LeaveBalanceService {
       }
 
       // Create leave balance based on active policy
-      const leaveBalanceData = this.calculateRemaining({
-        employeeId,
-        year,
-        annualLeave: {
-          totalAllocation: activePolicy.annualLeavePaid,
-          used: 0,
-        },
-        sickLeave: {
-          totalAllocation: activePolicy.sickLeavePaid,
-          used: 0,
-        },
-        emergencyLeave: {
-          totalAllocation: activePolicy.emergencyLeave,
-          used: 0,
-        },
-        unpaidLeave: {
-          totalAllowed: activePolicy.unpaidLeaveMax,
-          used: 0,
-        },
-      });
+      const leaveBalanceData = createLeaveBalanceData(employeeId, year, activePolicy);
 
       const leaveBalance = await LeaveBalance.create(leaveBalanceData);
       return leaveBalance.toObject();
@@ -149,38 +106,8 @@ export class LeaveBalanceService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_BALANCE_NOT_FOUND);
       }
 
-      // Calculate remaining days before update
-      const updateData = {
-        ...data,
-        ...(data.annualLeave && {
-          annualLeave: {
-            ...data.annualLeave,
-            remaining: (data.annualLeave.totalAllocation ?? existing.annualLeave.totalAllocation) - 
-                      (data.annualLeave.used ?? existing.annualLeave.used)
-          }
-        }),
-        ...(data.sickLeave && {
-          sickLeave: {
-            ...data.sickLeave,
-            remaining: (data.sickLeave.totalAllocation ?? existing.sickLeave.totalAllocation) - 
-                      (data.sickLeave.used ?? existing.sickLeave.used)
-          }
-        }),
-        ...(data.emergencyLeave && {
-          emergencyLeave: {
-            ...data.emergencyLeave,
-            remaining: (data.emergencyLeave.totalAllocation ?? existing.emergencyLeave.totalAllocation) - 
-                      (data.emergencyLeave.used ?? existing.emergencyLeave.used)
-          }
-        }),
-        ...(data.unpaidLeave && {
-          unpaidLeave: {
-            ...data.unpaidLeave,
-            remaining: (data.unpaidLeave.totalAllowed ?? existing.unpaidLeave.totalAllowed) - 
-                      (data.unpaidLeave.used ?? existing.unpaidLeave.used)
-          }
-        }),
-      };
+      // Prepare update data with calculated remaining values
+      const updateData = prepareLeaveBalanceUpdate(data, existing);
 
       // Update the leave balance
       const updated = await LeaveBalance.findByIdAndUpdate(

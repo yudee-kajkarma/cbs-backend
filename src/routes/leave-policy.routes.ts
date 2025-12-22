@@ -1,11 +1,18 @@
 import { Router } from "express";
 import { LeavePolicyController } from "../controllers/leave-policy.controller";
 import { validateRequest } from "../middlewares/validate.middleware";
-import { updateLeavePolicySchema } from "../validators/leave-policy.validator";
+import { createLeavePolicySchema, updateLeavePolicySchema } from "../validators/leave-policy.validator";
 
 const router = Router();
 
-// GET - 
+// CREATE
+router.post(
+  "/",
+  validateRequest(createLeavePolicySchema),
+  LeavePolicyController.create
+);
+
+// GET
 router.get("/", LeavePolicyController.get);
 
 // UPDATE 
