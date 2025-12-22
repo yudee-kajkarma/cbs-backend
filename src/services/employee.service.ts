@@ -4,13 +4,14 @@ import { LeaveBalanceService } from "./leave-balance.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
-import { 
-  EmployeeQuery, 
-  UpdateEmployeeData 
+import {
+  EmployeeQuery,
+  UpdateEmployeeData
 } from "../interfaces/model.interface";
+import leavePolicyModel from "../models/leavePolicy.model";
 
 export class EmployeeService {
-  
+
   /**
    * Get employee by ID with populated user data
    */
@@ -75,6 +76,14 @@ export class EmployeeService {
       // Check if joinDate is being added/updated and employee didn't have one before
       const isAddingJoinDate = data.joinDate && !employee.joinDate;
 
+      if(isAddingJoinDate) {
+        const activePolicy = await leavePolicyModel.findOne().lean();
+
+      if (!activePolicy) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
+      }
+      }
+
       const updated = await Employee.findByIdAndUpdate(
         id,
         { $set: data },
@@ -88,13 +97,12 @@ export class EmployeeService {
         const currentYear = new Date().getFullYear();
         try {
           await LeaveBalanceService.initializeForEmployee(id, currentYear);
-          console.log(`Leave balance initialized for employee ${id} for year ${currentYear}`);
         } catch (error: any) {
-          // If leave balance already exists, just log it (don't fail the update)
-          if (error?.statusCode === 400) {
-            console.log(`Leave balance already exists for employee ${id} for year ${currentYear}`);
+          if (error?.code === ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_BALANCE_EXISTS.code) {
+          } else if (error?.code === ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND.code) {
+            throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
           } else {
-            console.error(`Failed to initialize leave balance for employee ${id}:`, error);
+            throw error;
           }
         }
       }
