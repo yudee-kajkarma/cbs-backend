@@ -37,9 +37,9 @@ export * from './payee.constants';
 
 export * from './leave-policy.constants';
 
-export * from './attendance-policy.constants';
+// export * from './attendance-policy.constants';
 
-export * from './payroll-compensation.constants';
+// export * from './payroll-compensation.constants';
 
 // Error Messages
 export * from './error-messages.constants';
