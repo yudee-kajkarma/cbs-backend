@@ -18,4 +18,8 @@ export interface IConfig {
     apiKey: string;
     baseUrl: string;
   };
+  attendance: {
+    allowedIpRanges: string[];
+    allowLocalhost: boolean;
+  };
 }

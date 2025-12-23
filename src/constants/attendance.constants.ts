@@ -1,0 +1,37 @@
+export enum AttendanceStatus {
+  PRESENT = 'Present',
+  ABSENT = 'Absent',
+  ON_LEAVE = 'On Leave',
+  LATE = 'Late',
+}
+
+export const allowedAttendanceStatuses = Object.values(AttendanceStatus);
+
+export enum AttendanceFilterStatus {
+  ALL = 'All',
+  CHECKED_IN = 'Checked In',
+  CHECKED_OUT = 'Checked Out',
+  NOT_MARKED = 'Not Marked',
+  ON_LEAVE = 'On Leave',
+  LATE = 'Late',
+}
+
+export const allowedAttendanceFilterStatuses = Object.values(AttendanceFilterStatus);
+
+export const ATTENDANCE_ID_PREFIX = 'ATT';
+
+// Business rules
+export const ATTENDANCE_RULES = {
+  STANDARD_WORK_START_TIME: '09:00',  // 9 AM
+  HALF_DAY_HOURS_THRESHOLD: 4,        // Less than 4 hours = half day
+  AUTO_CHECKOUT_TIME: '23:59',        // Auto checkout if not done
+};
+
+// Salary calculation status
+export enum SalaryStatus {
+  FULL = 'Full',
+  DEDUCTED = 'Deducted',
+  ZERO = 'Zero'
+}
+
+export const allowedSalaryStatuses = Object.values(SalaryStatus);

@@ -356,6 +356,43 @@ export const ERROR_MESSAGES = {
       message: 'Invalid input',
       status: 400
     },
+    
+    // Attendance Errors
+    ATTENDANCE_NOT_FOUND: {
+      code: 'CBS-4030',
+      message: 'Attendance record not found',
+      status: 404
+    },
+    ATTENDANCE_ALREADY_CHECKED_IN: {
+      code: 'CBS-4031',
+      message: 'Already checked in for today',
+      status: 409
+    },
+    ATTENDANCE_NOT_CHECKED_IN: {
+      code: 'CBS-4032',
+      message: 'Not checked in yet',
+      status: 400
+    },
+    ATTENDANCE_ALREADY_CHECKED_OUT: {
+      code: 'CBS-4033',
+      message: 'Already checked out for today',
+      status: 409
+    },
+    INVALID_NETWORK_CONNECTION: {
+      code: 'CBS-4034',
+      message: 'Check-in/Check-out must be done from company network',
+      status: 403
+    },
+    ATTENDANCE_ALREADY_EXISTS: {
+      code: 'CBS-4035',
+      message: 'Attendance record already exists for this date',
+      status: 409
+    },
+    INVALID_ATTENDANCE_ACTION: {
+      code: 'CBS-4036',
+      message: 'Invalid action. Must be check-in or check-out',
+      status: 400
+    },
   },
   
   // Server Errors (5xx)

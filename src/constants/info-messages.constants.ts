@@ -206,4 +206,16 @@ export const INFO_MESSAGES = {
     APPROVED_SUCCESSFULLY: 'Leave application approved successfully',
     REJECTED_SUCCESSFULLY: 'Leave application rejected successfully',
   },
+  ATTENDANCE: {
+    CHECKED_IN_SUCCESSFULLY: 'Checked in successfully',
+    CHECKED_OUT_SUCCESSFULLY: 'Checked out successfully',
+    RETRIEVED_SUCCESSFULLY: 'Attendance record retrieved successfully',
+    LIST_RETRIEVED_SUCCESSFULLY: 'Attendance records list retrieved successfully',
+    DAILY_SUMMARY_RETRIEVED_SUCCESSFULLY: 'Daily attendance summary retrieved successfully',
+    MONTHLY_STATISTICS_RETRIEVED_SUCCESSFULLY: 'Monthly attendance statistics retrieved successfully',
+    NETWORK_STATUS_CONNECTED: 'Connected to company network',
+    NETWORK_STATUS_DISCONNECTED: 'Not connected to company network',
+    NETWORK_MESSAGE_AUTHORIZED: 'You are authorized to mark attendance.',
+    NETWORK_MESSAGE_UNAUTHORIZED: 'Please connect to company WiFi network to mark attendance.',
+  },
 };
