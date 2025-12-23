@@ -14,7 +14,7 @@ export class BankAccountResponseDto extends BaseDto {
     branch!: string;
 
     @Expose()
-    accountHolderName!: string;
+    accountHolder!: string;
 
     @Expose()
     accountNumber!: string;
