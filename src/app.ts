@@ -27,6 +27,8 @@ import payeeRoutes from './routes/payee.routes';
 import leavePolicyRoutes from './routes/leave-policy.routes';
 import leaveBalanceRoutes from './routes/leave-balance.routes';
 import leaveApplicationRoutes from './routes/leave-application.routes';
+import attendancePolicyRoutes from './routes/attendance-policy.routes';
+import payrollCompensationRoutes from './routes/payroll-compensation.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -73,6 +75,8 @@ app.use('/api/payees', payeeRoutes);
 app.use('/api/leave-policies', leavePolicyRoutes);
 app.use('/api/leave-balances', leaveBalanceRoutes);
 app.use('/api/leave-applications', leaveApplicationRoutes);
+app.use('/api/attendance-policies', attendancePolicyRoutes);
+app.use('/api/payroll-compensation', payrollCompensationRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

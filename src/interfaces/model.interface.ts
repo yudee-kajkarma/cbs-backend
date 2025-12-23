@@ -743,11 +743,7 @@ export interface AttendancePolicy {
 
 export interface AttendancePolicyDocument extends AttendancePolicy, Document {}
 
-export interface AttendancePolicyQuery extends BaseQuery {
-  isActive?: boolean;
-}
-
-export interface CreateAttendancePolicyData extends Partial<AttendancePolicy> {}
+export interface UpdateAttendancePolicyData extends Partial<AttendancePolicy> {}
 
 // ============================================================================
 // PAYROLL COMPENSATION MODULE
@@ -768,7 +764,7 @@ export interface PayrollCompensationQuery extends BaseQuery {
   isActive?: boolean;
 }
 
-export interface CreatePayrollCompensationData extends Partial<PayrollCompensation> {}
+export interface UpdatePayrollCompensationData extends Partial<PayrollCompensation> {}
 
 // ============================================================================
 // LEAVE APPLICATION MODULE

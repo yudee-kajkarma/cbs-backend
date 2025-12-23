@@ -177,6 +177,18 @@ export const INFO_MESSAGES = {
     LIST_RETRIEVED_SUCCESSFULLY: 'Leave policies list retrieved successfully',
     ACTIVE_POLICY_RETRIEVED: 'Active leave policy retrieved successfully',
   },
+  ATTENDANCE_POLICY: {
+    CREATED_SUCCESSFULLY: 'Attendance policy created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Attendance policy retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Attendance policy updated successfully',
+    DELETED_SUCCESSFULLY: 'Attendance policy deleted successfully',
+  },
+  PAYROLL_COMPENSATION: {
+    CREATED_SUCCESSFULLY: 'Payroll compensation settings created successfully',
+    RETRIEVED_SUCCESSFULLY: 'Payroll compensation settings retrieved successfully',
+    UPDATED_SUCCESSFULLY: 'Payroll compensation settings updated successfully',
+    DELETED_SUCCESSFULLY: 'Payroll compensation settings deleted successfully',
+  },
   LEAVE_BALANCE: {
     CREATED_SUCCESSFULLY: 'Leave balance created successfully',
     RETRIEVED_SUCCESSFULLY: 'Leave balance retrieved successfully',

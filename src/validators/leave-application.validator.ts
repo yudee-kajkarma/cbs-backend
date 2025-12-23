@@ -32,7 +32,13 @@ export const updateLeaveApplicationSchema = Joi.object({
 }).min(1);
 
 export const updateStatusLeaveApplicationSchema = Joi.object({
-  rejectionReason: Joi.string().max(500).optional()
+  rejectionReason: Joi.string().max(500).when(Joi.ref('$action'), {
+    is: 'reject',
+    then: Joi.required().messages({
+      'any.required': 'Rejection reason is required when rejecting a leave application'
+    }),
+    otherwise: Joi.optional()
+  })
 });
 
 export const approveRejectParamSchema = Joi.object({

@@ -106,6 +106,30 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     
+    // Attendance Policy Errors
+    ATTENDANCE_POLICY_NOT_FOUND: {
+      code: 'CBS-4008-4',
+      message: 'Attendance policy not found',
+      status: 404
+    },
+    ATTENDANCE_POLICY_EXISTS: {
+      code: 'CBS-4008-4-1',
+      message: 'Attendance policy already exists. Only one policy is allowed.',
+      status: 400
+    },
+    
+    // Payroll Compensation Errors
+    PAYROLL_COMPENSATION_NOT_FOUND: {
+      code: 'CBS-4008-5',
+      message: 'Payroll compensation settings not found',
+      status: 404
+    },
+    PAYROLL_COMPENSATION_EXISTS: {
+      code: 'CBS-4008-5-1',
+      message: 'Payroll compensation settings already exist. Only one configuration is allowed.',
+      status: 400
+    },
+    
     // Leave Application Errors
     LEAVE_APPLICATION_NOT_FOUND: {
       code: 'CBS-4008-4',
