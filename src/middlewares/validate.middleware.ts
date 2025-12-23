@@ -12,6 +12,7 @@ export const validateRequest = (schema: ObjectSchema) => {
         abortEarly: false,
         stripUnknown: true,
         convert: true,
+        context: req.params, // Pass params as context for conditional validation
       });
 
       if (error) {
