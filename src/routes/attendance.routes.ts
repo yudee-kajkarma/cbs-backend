@@ -6,6 +6,7 @@ import {
   dailySummaryQuerySchema,
   attendanceHistoryQuerySchema,
   monthlyStatisticsQuerySchema,
+  liveStreamQuerySchema,
 } from '../validators/attendance.validator';
 
 const router = Router();
@@ -40,6 +41,20 @@ router.get(
 router.get(
   '/network-status',
   AttendanceController.checkNetworkStatus
+);
+
+/**
+ * @route   GET /api/attendance/live-stream
+ * @desc    Stream real-time attendance updates via Server-Sent Events (SSE)
+ * @access  Private (HR/Admin)
+ * @query   department (optional) - Filter events by department
+ * @query   page (optional) - Page number for initial data
+ * @query   limit (optional) - Records per page for initial data
+ */
+router.get(
+  '/live-stream',
+  validateQuery(liveStreamQuerySchema),
+  AttendanceController.streamLiveAttendance
 );
 
 /**

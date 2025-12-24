@@ -56,7 +56,7 @@ const attendanceSchema = new Schema<AttendanceDocument>(
 );
 
 // Indexes for performance
-attendanceSchema.index({ employeeId: 1 }, { unique: true }); 
+attendanceSchema.index({ employeeId: 1, date: 1 }, { unique: true }); 
 attendanceSchema.index({ date: 1, status: 1 });
 attendanceSchema.index({ date: 1, checkInTime: 1 });
 attendanceSchema.index({ createdAt: -1 });
