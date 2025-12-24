@@ -958,3 +958,109 @@ export interface EmployeeComplianceRecord {
   attendancePercentage: number;
   thresholdMet: boolean;
 }
+
+// ============================================================================
+// MONTHLY PAYROLL MODULE
+// ============================================================================
+
+export interface MonthlyPayroll {
+  payrollId: string;
+  employeeId: Types.ObjectId;
+  month: number;
+  year: number;
+  totalSalary: number;
+  basicSalary: number;
+  attendancePercentage: number;
+  workingDays: number;
+  presentDays: number;
+  absentDays: number;
+  unpaidLeaveDays: number;
+  salaryDeduction: number;
+  socialInsurance: number;
+  totalDeductions: number;
+  bonusAmount: number;
+  incentiveAmount: number;
+  overtimePay: number;
+  netSalary: number;
+  status: string;
+  processedDate?: Date;
+  paidDate?: Date;
+}
+
+export interface MonthlyPayrollDocument extends MonthlyPayroll, Document {}
+
+export interface MonthlyPayrollQuery extends BaseQuery {
+  employeeId?: string;
+  month?: number;
+  year?: number;
+  status?: string;
+  department?: string;
+}
+
+export interface CreateMonthlyPayrollData extends Partial<MonthlyPayroll> {
+  employeeId: Types.ObjectId;
+  month: number;
+  year: number;
+}
+
+export interface UpdateMonthlyPayrollData extends Partial<MonthlyPayroll> {}
+
+// ============================================================================
+// EMPLOYEE BONUS MODULE
+// ============================================================================
+
+export interface EmployeeBonus {
+  bonusId: string;
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface EmployeeBonusDocument extends EmployeeBonus, Document {}
+
+export interface EmployeeBonusQuery extends BaseQuery {
+  employeeId?: string;
+  month?: number;
+  year?: number;
+  department?: string;
+}
+
+export interface CreateEmployeeBonusData extends Partial<EmployeeBonus> {
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface UpdateEmployeeBonusData extends Partial<EmployeeBonus> {}
+
+// ============================================================================
+// EMPLOYEE INCENTIVE MODULE
+// ============================================================================
+
+export interface EmployeeIncentive {
+  incentiveId: string;
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface EmployeeIncentiveDocument extends EmployeeIncentive, Document {}
+
+export interface EmployeeIncentiveQuery extends BaseQuery {
+  employeeId?: string;
+  month?: number;
+  year?: number;
+  department?: string;
+}
+
+export interface CreateEmployeeIncentiveData extends Partial<EmployeeIncentive> {
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface UpdateEmployeeIncentiveData extends Partial<EmployeeIncentive> {}

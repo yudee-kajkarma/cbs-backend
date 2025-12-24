@@ -30,6 +30,9 @@ import leaveApplicationRoutes from './routes/leave-application.routes';
 import attendancePolicyRoutes from './routes/attendance-policy.routes';
 import payrollCompensationRoutes from './routes/payroll-compensation.routes';
 import attendanceRoutes from './routes/attendance.routes';
+import monthlyPayrollRoutes from './routes/monthly-payroll.routes';
+import bonusRoutes from './routes/bonus.routes';
+import incentiveRoutes from './routes/incentive.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -79,6 +82,9 @@ app.use('/api/leave-applications', leaveApplicationRoutes);
 app.use('/api/attendance-policies', attendancePolicyRoutes);
 app.use('/api/payroll-compensation', payrollCompensationRoutes);
 app.use('/api/attendance', attendanceRoutes);
+// app.use('/api/monthly-payroll', monthlyPayrollRoutes);
+app.use('/api/bonuses', bonusRoutes);
+app.use('/api/incentives', incentiveRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

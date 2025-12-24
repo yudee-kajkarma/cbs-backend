@@ -152,9 +152,55 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     
+    // Monthly Payroll Errors
+    MONTHLY_PAYROLL_NOT_FOUND: {
+      code: 'CBS-4009',
+      message: 'Monthly payroll not found',
+      status: 404
+    },
+    MONTHLY_PAYROLL_ALREADY_EXISTS: {
+      code: 'CBS-4009-1',
+      message: 'Monthly payroll already exists for this employee and period',
+      status: 409
+    },
+    MONTHLY_PAYROLL_ALREADY_PROCESSED: {
+      code: 'CBS-4009-2',
+      message: 'Monthly payroll has already been processed',
+      status: 400
+    },
+    MONTHLY_PAYROLL_ALREADY_PAID: {
+      code: 'CBS-4009-3',
+      message: 'Monthly payroll has already been marked as paid',
+      status: 400
+    },
+    
+    // Employee Bonus Errors
+    BONUS_NOT_FOUND: {
+      code: 'CBS-4010',
+      message: 'Employee bonus not found',
+      status: 404
+    },
+    BONUS_ALREADY_EXISTS: {
+      code: 'CBS-4010-1',
+      message: 'Bonus already exists for this employee and period',
+      status: 409
+    },
+    
+    // Employee Incentive Errors
+    INCENTIVE_NOT_FOUND: {
+      code: 'CBS-4011',
+      message: 'Employee incentive not found',
+      status: 404
+    },
+    INCENTIVE_ALREADY_EXISTS: {
+      code: 'CBS-4011-1',
+      message: 'Incentive already exists for this employee and period',
+      status: 409
+    },
+    
     // License Errors
     LICENSE_NOT_FOUND: {
-      code: 'CBS-4009',
+      code: 'CBS-4012',
       message: 'License not found',
       status: 404
     },
