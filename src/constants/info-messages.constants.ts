@@ -217,5 +217,6 @@ export const INFO_MESSAGES = {
     NETWORK_STATUS_DISCONNECTED: 'Not connected to company network',
     NETWORK_MESSAGE_AUTHORIZED: 'You are authorized to mark attendance.',
     NETWORK_MESSAGE_UNAUTHORIZED: 'Please connect to company WiFi network to mark attendance.',
+    SSE_CONNECTED: 'Connected to live attendance stream',
   },
 };

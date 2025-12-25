@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
 /**
  * SSE Client Interface
@@ -11,7 +12,6 @@ interface SSEClient {
 
 /**
  * SSE Service for Real-Time Attendance Updates
- * Manages Server-Sent Events connections for live attendance monitoring
  */
 export class SSEService {
   private static clients: Map<string, SSEClient> = new Map();
@@ -40,11 +40,10 @@ export class SSEService {
     };
 
     this.clients.set(clientId, client);
-    console.log(`SSE Client connected: ${clientId} (Total clients: ${this.clients.size})`);
 
     // Send initial connection confirmation
     this.sendToClient(clientId, 'connected', { 
-      message: 'Connected to live attendance stream',
+      message: INFO_MESSAGES.ATTENDANCE.SSE_CONNECTED,
       timestamp: new Date().toISOString()
     });
   }
@@ -56,7 +55,6 @@ export class SSEService {
     const client = this.clients.get(clientId);
     if (client) {
       this.clients.delete(clientId);
-      console.log(`SSE Client disconnected: ${clientId} (Total clients: ${this.clients.size})`);
     }
   }
 
@@ -74,7 +72,6 @@ export class SSEService {
       client.response.write(`data: ${JSON.stringify(data)}\n\n`);
       return true;
     } catch (error) {
-      console.error(`Error sending to client ${clientId}:`, error);
       this.removeClient(clientId);
       return false;
     }
@@ -97,12 +94,9 @@ export class SSEService {
         client.response.write(`event: ${event}\n`);
         client.response.write(`data: ${JSON.stringify(data)}\n\n`);
       } catch (error) {
-        console.error(`Error broadcasting to client ${client.id}:`, error);
         this.removeClient(client.id);
       }
     });
-
-    console.log(`Broadcast event '${event}' to ${clientsToNotify.length} clients`);
   }
 
   /**
@@ -114,7 +108,6 @@ export class SSEService {
       try {
         client.response.write(`: heartbeat ${timestamp}\n\n`);
       } catch (error) {
-        console.error(`Heartbeat failed for client ${clientId}:`, error);
         this.removeClient(clientId);
       }
     });
@@ -198,11 +191,10 @@ export class SSEService {
       try {
         client.response.end();
       } catch (error) {
-        console.error(`Error closing connection for client ${clientId}:`, error);
+        // Silently handle connection closure errors
       }
     });
 
     this.clients.clear();
-    console.log('SSE Service cleaned up');
   }
 }
