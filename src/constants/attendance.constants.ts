@@ -35,3 +35,43 @@ export enum SalaryStatus {
 }
 
 export const allowedSalaryStatuses = Object.values(SalaryStatus);
+
+// SSE Event Types
+export enum SSEEventType {
+  CONNECTED = 'connected',
+  CHECK_IN = 'check-in',
+  CHECK_OUT = 'check-out',
+  SUMMARY_UPDATE = 'summary-update',
+  HEARTBEAT = 'heartbeat',
+}
+
+// SSE Event Interfaces
+export interface SSECheckInEvent {
+  empId: string;
+  name: string;
+  department: string;
+  checkInTime: string;
+  timestamp: string;
+}
+
+export interface SSECheckOutEvent {
+  empId: string;
+  name: string;
+  department: string;
+  checkOutTime: string;
+  hoursWorked: number;
+  timestamp: string;
+}
+
+export interface SSESummaryUpdateEvent {
+  summary: {
+    totalStaff: number;
+    checkedIn: number;
+    checkedOut: number;
+    notMarked: number;
+    onLeave: number;
+    present: number;
+    attendancePercent: number;
+  };
+  timestamp: string;
+}

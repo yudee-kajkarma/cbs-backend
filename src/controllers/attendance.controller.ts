@@ -112,4 +112,16 @@ export class AttendanceController {
       ErrorHandler.handleControllerError(error, res, { method: 'getMonthlyStatistics', employeeId: req.params.employeeId, query: req.query });
     }
   }
+
+  /**
+   * Stream live attendance updates via Server-Sent Events (SSE)
+   */
+  static async streamLiveAttendance(req: Request, res: Response): Promise<void> {
+    try {
+      const query = res.locals.validatedQuery || req.query;
+      await AttendanceService.streamLiveAttendance(req, res, query);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'streamLiveAttendance', query: req.query });
+    }
+  }
 }

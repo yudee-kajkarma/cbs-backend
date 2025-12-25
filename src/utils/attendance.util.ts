@@ -162,6 +162,19 @@ export class AttendanceUtil {
       ? (employee.userId as any).fullName 
       : '';
 
+    // Determine display status:
+    // - If on leave: "On Leave"
+    // - If attendance exists: use actual status (Present/Late/etc)
+    // - If no attendance record: "Absent" (will be displayed as "Not Marked" in UI for current day)
+    let displayStatus: string;
+    if (isOnLeave) {
+      displayStatus = AttendanceStatus.ON_LEAVE;
+    } else if (attendance) {
+      displayStatus = attendance.status;
+    } else {
+      displayStatus = AttendanceStatus.ABSENT;
+    }
+
     return {
       empId: employee.employeeId || '',
       name: userName,
@@ -170,7 +183,7 @@ export class AttendanceUtil {
       checkIn: attendance?.checkInTime ? this.formatTime(attendance.checkInTime) : '',
       checkOut: attendance?.checkOutTime ? this.formatTime(attendance.checkOutTime) : '',
       hoursWorked: attendance?.workingHours || 0,
-      status: isOnLeave ? AttendanceStatus.ON_LEAVE : (attendance?.status || AttendanceStatus.ABSENT),
+      status: displayStatus,
       salaryStatus: salaryInfo.status,
       deductionAmount: salaryInfo.deduction,
       salaryForDay: salaryInfo.amount

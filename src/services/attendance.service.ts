@@ -1,7 +1,9 @@
 import Attendance from "../models/attendance.model";
 import Employee from "../models/employee.model";
 import LeaveApplication from "../models/leaveApplication.model";
+import { Request, Response } from "express";
 import { AttendancePolicyService } from "./attendance-policy.service";
+import { SSEService } from "./sse.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { AttendanceUtil } from "../utils/attendance.util";
@@ -79,7 +81,30 @@ export class AttendanceService {
                 status: AttendanceStatus.PRESENT
             });
 
-            return await this.formatAttendanceRecord(attendance._id);
+            const formattedRecord = await this.formatAttendanceRecord(attendance._id);
+
+            // Broadcast check-in event via SSE
+            try {
+                const employeeData = formattedRecord.employeeId as any;
+                SSEService.broadcastCheckIn({
+                    empId: employeeData.employeeId,
+                    name: employeeData.userId?.fullName || 'Unknown',
+                    department: employeeData.department || 'N/A',
+                    checkInTime: checkInTime.toLocaleTimeString('en-US', { hour12: false }),
+                    timestamp: new Date().toISOString()
+                });
+
+                await this.broadcastSummaryUpdate(employeeId);
+            } catch (sseError) {
+                ErrorHandler.handleServiceError(sseError, { 
+                    serviceName: 'AttendanceService', 
+                    method: 'checkIn - SSE broadcast', 
+                    employeeId,
+                    context: 'Non-critical SSE broadcast failure'
+                });
+            }
+
+            return formattedRecord;
         } catch (error) {
             ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'checkIn', employeeId });
         }
@@ -141,7 +166,31 @@ export class AttendanceService {
                 { new: true }
             );
 
-            return await this.formatAttendanceRecord(attendance._id);
+            const formattedRecord = await this.formatAttendanceRecord(attendance._id);
+
+            // Broadcast check-out event via SSE
+            try {
+                const employeeData = formattedRecord.employeeId as any;
+                SSEService.broadcastCheckOut({
+                    empId: employeeData.employeeId,
+                    name: employeeData.userId?.fullName || 'Unknown',
+                    department: employeeData.department || 'N/A',
+                    checkOutTime: checkOutTime.toLocaleTimeString('en-US', { hour12: false }),
+                    hoursWorked: parseFloat(workingHours.toFixed(2)),
+                    timestamp: new Date().toISOString()
+                });
+
+                await this.broadcastSummaryUpdate(employeeId);
+            } catch (sseError) {
+                ErrorHandler.handleServiceError(sseError, { 
+                    serviceName: 'AttendanceService', 
+                    method: 'checkOut - SSE broadcast', 
+                    employeeId,
+                    context: 'Non-critical SSE broadcast failure'
+                });
+            }
+
+            return formattedRecord;
         } catch (error) {
             ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'checkOut', employeeId });
         }
@@ -164,7 +213,6 @@ export class AttendanceService {
             // Define filter fields 
             const filterFields = ['status', 'department'];
 
-            // Build filters using AttendanceFilterUtil
             const { attendanceFilter, employeeFilter, specialFilter } = AttendanceFilterUtil.buildFilters(query, filterFields);
 
             // Add base filters
@@ -364,6 +412,138 @@ export class AttendanceService {
             };
         } catch (error) {
             ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'getMonthlyStatistics', employeeId, month, year });
+        }
+    }
+
+    /**
+     * Broadcast summary update via SSE
+     * Helper method to calculate and broadcast current attendance summary
+     */
+    private static async broadcastSummaryUpdate(updatedEmployeeId?: string): Promise<void> {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const summaryData = await this.getDailySummary({ 
+                date: today,
+                page: 1,
+                limit: Number.MAX_SAFE_INTEGER 
+            });
+
+            const totalStaff = summaryData.pagination.totalCount;
+            
+            const checkedIn = summaryData.records.filter(r => r.checkIn !== '' && r.checkOut === '').length;
+            const checkedOut = summaryData.records.filter(r => r.checkIn !== '' && r.checkOut !== '').length;
+            const notMarked = summaryData.records.filter(r => r.checkIn === '' && r.status === 'Absent').length;
+            const onLeave = summaryData.records.filter(r => r.status === 'On Leave').length;
+
+            // Find the updated employee record if employeeId is provided
+            let updatedRecord = undefined;
+            if (updatedEmployeeId) {
+                const employee = await Employee.findById(updatedEmployeeId).lean();
+                if (employee) {
+                    updatedRecord = summaryData.records.find(r => r.empId === (employee as any).employeeId);
+                }
+            }
+
+            SSEService.broadcastSummaryUpdate({
+                summary: {
+                    totalStaff,
+                    checkedIn,
+                    checkedOut,
+                    notMarked,
+                    onLeave,
+                    present: summaryData.summary.present,
+                    attendancePercent: summaryData.summary.attendancePercent
+                },
+                updatedRecord,
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            ErrorHandler.handleServiceError(error, { 
+                serviceName: 'AttendanceService', 
+                method: 'broadcastSummaryUpdate', 
+                context: 'Non-critical background operation'
+            });
+        }
+    }
+
+    /**
+     * Stream live attendance updates via SSE
+     */
+    static async streamLiveAttendance(req: Request, res: Response, query: any): Promise<void> {
+        try {
+            const clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            // Set SSE headers
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+            res.setHeader('X-Accel-Buffering', 'no');
+
+            // Send initial connection event
+            res.write(`event: connected\n`);
+            res.write(`data: ${JSON.stringify({ 
+                message: 'Connected to live attendance stream',
+                clientId,
+                timestamp: new Date().toISOString()
+            })}\n\n`);
+
+            // Register client with SSE service
+            SSEService.addClient(clientId, res, query.department);
+
+            // Send initial attendance summary
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const summaryData = await this.getDailySummary({ 
+                    date: today,
+                    page: query.page || 1,
+                    limit: query.limit || 100,
+                    department: query.department
+                });
+
+                // Calculate counts for summary (same as broadcastSummaryUpdate)
+                const totalStaff = summaryData.pagination.totalCount;
+                const checkedIn = summaryData.records.filter(r => r.checkIn !== '' && r.checkOut === '').length;
+                const checkedOut = summaryData.records.filter(r => r.checkIn !== '' && r.checkOut !== '').length;
+                const notMarked = summaryData.records.filter(r => r.checkIn === '' && r.status === 'Absent').length;
+                const onLeave = summaryData.records.filter(r => r.status === 'On Leave').length;
+
+                res.write(`event: initial-summary\n`);
+                res.write(`data: ${JSON.stringify({
+                    summary: {
+                        totalStaff,
+                        checkedIn,
+                        checkedOut,
+                        notMarked,
+                        onLeave,
+                        present: summaryData.summary.present,
+                        attendancePercent: summaryData.summary.attendancePercent
+                    },
+                    records: summaryData.records,
+                    pagination: summaryData.pagination,
+                    filters: summaryData.filters,
+                    timestamp: new Date().toISOString()
+                })}\n\n`);
+            } catch (error) {
+                ErrorHandler.handleServiceError(error, { 
+                    serviceName: 'AttendanceService', 
+                    method: 'streamLiveAttendance - initial summary', 
+                    context: 'Failed to send initial SSE summary'
+                });
+            }
+
+            // Handle client disconnect
+            req.on('close', () => {
+                SSEService.removeClient(clientId);
+                res.end();
+            });
+
+            req.on('error', () => {
+                SSEService.removeClient(clientId);
+                res.end();
+            });
+
+        } catch (error) {
+            ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'streamLiveAttendance' });
         }
     }
 }
