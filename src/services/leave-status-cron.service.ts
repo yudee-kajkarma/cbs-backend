@@ -21,8 +21,6 @@ export class LeaveStatusCronService {
    * Execute yearly leave balance initialization
    */
   private static async runYearlyLeaveBalanceInitializer(): Promise<void> {
-    console.log('[Cron] Running yearly leave balance initializer...');
-    
     try {
       const newYear = new Date().getFullYear();
       
@@ -38,19 +36,14 @@ export class LeaveStatusCronService {
         try {
           await LeaveBalanceService.initializeForEmployee(employee._id.toString(), newYear);
           successCount++;
-          console.log(`[Cron] Leave balance initialized for employee ${employee.employeeId} for year ${newYear}`);
         } catch (error: any) {
           if (error?.code === 'CBS-4008-1') {
             skipCount++;
-            console.log(`[Cron] Leave balance already exists for employee ${employee.employeeId} for year ${newYear}`);
           } else {
             errorCount++;
-            console.error(`[Cron] Error initializing leave balance for employee ${employee.employeeId}:`, error);
           }
         }
       }
-
-      console.log(`[Cron] Yearly leave balance initialization completed - Success: ${successCount}, Skipped: ${skipCount}, Errors: ${errorCount}`);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'LeaveStatusCronService', method: 'runYearlyLeaveBalanceInitializer' });
     }
@@ -62,12 +55,9 @@ export class LeaveStatusCronService {
    * Runs daily at midnight
    */
   static startLeaveStatusUpdater(): void {
-    // Run every day at 00:00 (midnight)
     cron.schedule('0 0 * * *', async () => {
       await this.runLeaveStatusUpdater();
     });
-
-    console.log('[Cron] Leave status updater scheduled to run daily at midnight');
   }
 
   /**
@@ -115,7 +105,6 @@ export class LeaveStatusCronService {
           await Employee.findByIdAndUpdate(leave.employeeId, {
             status: EmployeeStatus.ON_LEAVE
           });
-          console.log(`[Cron] Employee ${employee.employeeId} status changed to ON_LEAVE (leave starts today)`);
         }
       }
 
@@ -128,7 +117,6 @@ export class LeaveStatusCronService {
           await Employee.findByIdAndUpdate(leave.employeeId, {
             status: EmployeeStatus.ACTIVE
           });
-          console.log(`[Cron] Employee ${employee.employeeId} status changed to ACTIVE (leave ended)`);
         }
       }
     }
@@ -149,7 +137,6 @@ export class LeaveStatusCronService {
         rejectionReason: 'Auto-rejected: Leave end date has passed without approval',
         actionDate: new Date(),
       });
-      console.log(`[Cron] Leave application ${leave.requestId} auto-rejected (end date passed)`);
     }
   }
 }

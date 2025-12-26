@@ -82,7 +82,7 @@ app.use('/api/leave-applications', leaveApplicationRoutes);
 app.use('/api/attendance-policies', attendancePolicyRoutes);
 app.use('/api/payroll-compensation', payrollCompensationRoutes);
 app.use('/api/attendance', attendanceRoutes);
-// app.use('/api/monthly-payroll', monthlyPayrollRoutes);
+app.use('/api/monthly-payroll', monthlyPayrollRoutes);
 app.use('/api/bonuses', bonusRoutes);
 app.use('/api/incentives', incentiveRoutes);
 

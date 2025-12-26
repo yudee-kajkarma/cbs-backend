@@ -11,7 +11,7 @@ import {
 import { ForecastType } from "../constants/forecast.constants";
 import { parseForecastCsv } from "../utils/forecast-csv-parser.util";
 
-export class ForecastService {
+export class  ForecastService {
   /**
    * Create a new forecast entry
    */

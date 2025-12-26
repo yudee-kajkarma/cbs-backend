@@ -9,6 +9,8 @@ import {
   UpdateEmployeeData
 } from "../interfaces/model.interface";
 import leavePolicyModel from "../models/leavePolicy.model";
+import AttendancePolicy from "../models/attendancePolicy.model";
+import PayrollCompensation from "../models/payrollCompensation.model";
 
 export class EmployeeService {
 
@@ -78,10 +80,19 @@ export class EmployeeService {
 
       if(isAddingJoinDate) {
         const activePolicy = await leavePolicyModel.findOne().lean();
+        if (!activePolicy) {
+          throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
+        }
 
-      if (!activePolicy) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
-      }
+        const attendancePolicy = await AttendancePolicy.findOne().lean();
+        if (!attendancePolicy) {
+          throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+        }
+
+        const payrollCompensation = await PayrollCompensation.findOne().lean();
+        if (!payrollCompensation) {
+          throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.PAYROLL_COMPENSATION_NOT_FOUND);
+        }
       }
 
       const updated = await Employee.findByIdAndUpdate(

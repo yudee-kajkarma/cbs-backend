@@ -29,6 +29,11 @@ export const ERROR_MESSAGES = {
       message: 'Employee not found',
       status: 404
     },
+    EMPLOYEE_SALARY_NOT_SET: {
+      code: 'CBS-4000-4',
+      message: 'Employee salary is not set',
+      status: 400
+    },
     
     // Audit Errors
     AUDIT_NOT_FOUND: {

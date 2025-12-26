@@ -3,6 +3,7 @@ import app from './app';
 import { connectToDatabase } from './config/database';
 import { config } from './config/config';
 import { LeaveStatusCronService } from './services/leave-status-cron.service';
+import { PayrollCronService } from './services/payroll-cron.service';
 import { SSEService } from './services/sse.service';
 
 (async () => {
@@ -15,6 +16,7 @@ import { SSEService } from './services/sse.service';
   // Start cron jobs
   LeaveStatusCronService.startYearlyLeaveBalanceInitializer();
   LeaveStatusCronService.startLeaveStatusUpdater();
+  PayrollCronService.startMonthlyPayrollGenerator();
   
   app.listen(config.port, () => {
     console.log(`Server started on port ${config.port}`);
