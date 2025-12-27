@@ -26,6 +26,9 @@ export class ForecastResponseDto extends BaseDto {
     currency!: string;
 
     @Expose()
+    amountUSD!: number;
+
+    @Expose()
     bankAccount!: string;
 
     @Expose()
