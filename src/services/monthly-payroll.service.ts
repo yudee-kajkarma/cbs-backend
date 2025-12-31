@@ -126,7 +126,7 @@ export class MonthlyPayrollService {
 
       // Calculate total deductions and net salary
       const totalDeductions = salaryDeduction + socialInsurance;
-      const netSalary = totalSalary - totalDeductions + bonusAmount + incentiveAmount + overtimePay;
+      const netSalary = Math.max(0, totalSalary - totalDeductions + bonusAmount + incentiveAmount + overtimePay);
 
       // Generate payroll ID
       const payrollId = await ReferenceGenerator.generateMonthlyPayrollReference(month, year);
