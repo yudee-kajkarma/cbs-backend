@@ -1,8 +1,12 @@
-import Joi from 'joi';
-import { PERMISSIONS } from '../constants/permission.constants';
+import Joi from "joi";
+import { PERMISSIONS } from "../constants/permission.constants";
 
 // Permission value validation
-const permissionValueSchema = Joi.number().valid(PERMISSIONS.NONE, PERMISSIONS.READ, PERMISSIONS.WRITE);
+const permissionValueSchema = Joi.number().valid(
+  PERMISSIONS.NONE,
+  PERMISSIONS.READ,
+  PERMISSIONS.WRITE
+);
 
 // Feature permissions schema (module -> feature -> permission)
 const featurePermissionsSchema = Joi.object().pattern(
@@ -11,15 +15,10 @@ const featurePermissionsSchema = Joi.object().pattern(
 );
 
 // Module permissions schema (module -> { feature -> permission })
+// This is the correct 2-level structure: module -> feature -> permission
 const modulePermissionsSchema = Joi.object().pattern(
   Joi.string(),
   featurePermissionsSchema
-);
-
-// Permissions schema (nested object: module -> feature -> permission)
-const permissionsSchema = Joi.object().pattern(
-  Joi.string(),
-  modulePermissionsSchema
 );
 
 export const roleIdSchema = Joi.object({
@@ -29,14 +28,14 @@ export const roleIdSchema = Joi.object({
 export const createRoleSchema = Joi.object({
   name: Joi.string().min(2).max(50).required(),
   description: Joi.string().max(200).optional(),
-  permissions: permissionsSchema.required(),
+  permissions: modulePermissionsSchema.required(),
   createdBy: Joi.string().length(24).hex().optional(),
 });
 
 export const updateRoleSchema = Joi.object({
   name: Joi.string().min(2).max(50).optional(),
   description: Joi.string().max(200).optional(),
-  permissions: permissionsSchema.optional(),
+  permissions: modulePermissionsSchema.optional(),
   isActive: Joi.boolean().optional(),
   updatedBy: Joi.string().length(24).hex().optional(),
 }).min(1);
@@ -44,4 +43,3 @@ export const updateRoleSchema = Joi.object({
 export const createDefaultRolesSchema = Joi.object({
   createdBy: Joi.string().length(24).hex().optional(),
 });
-

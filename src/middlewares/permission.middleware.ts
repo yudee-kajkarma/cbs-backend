@@ -33,7 +33,7 @@ export const checkPermission = (
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.UNAUTHORIZED_ACTION);
       }
 
-      const userId = user.id || user._id;
+      const userId = user.userId;
       const userRole = user.role;
 
       if (!userId) {
