@@ -27,7 +27,7 @@ export class JwtUtil {
    */
   static generateToken(payload: Omit<UserJwtPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
+      expiresIn: config.jwt.expiresIn as jwt.SignOptions['expiresIn'],
     });
   }
 
