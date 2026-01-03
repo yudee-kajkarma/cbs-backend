@@ -41,5 +41,11 @@ export * from './leave-policy.constants';
 
 // export * from './payroll-compensation.constants';
 
+// Permission Constants
+export * from './permission.constants';
+
+// Enums
+export * from './enums.constants';
+
 // Error Messages
 export * from './error-messages.constants';

@@ -12,3 +12,6 @@ export * from './model.interface';
 
 // Service interfaces
 export * from './service.interface';
+
+// Role interfaces
+export * from './role.interface';

@@ -1,0 +1,133 @@
+import { UserService } from './user.service';
+import { RoleService } from './role.service';
+import { JwtUtil, UserJwtPayload } from '../utils/jwt.util';
+import { throwError, isCustomError } from '../utils/errors.util';
+import { ErrorHandler } from '../utils/error-handler.util';
+import { ERROR_MESSAGES } from '../constants/error-messages.constants';
+import { INFO_MESSAGES } from '../constants/info-messages.constants';
+import { PermissionManager } from '../constants/permission.constants';
+import { SYSTEM_ROLES } from '../constants/enums.constants';
+import { UserDocument } from '../interfaces/model.interface';
+import { Types } from 'mongoose';
+import * as bcrypt from 'bcryptjs';
+
+/**
+ * Login request interface
+ */
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+/**
+ * Login response interface
+ */
+export interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    userId: string;
+    username: string;
+    fullName: string;
+    email: string;
+    role: string;
+  };
+}
+
+/**
+ * Authentication Service
+ * Handles user authentication and token generation
+ */
+export class AuthService {
+  /**
+   * Authenticate user and generate JWT token
+   * @param credentials - Login credentials (username/email and password)
+   * @returns Login response with token and user info
+   */
+  static async login(credentials: LoginRequest): Promise<LoginResponse> {
+    try {
+      const { username, password } = credentials;
+
+      // Find user by username or email
+      const user = await UserService.findByUsernameOrEmail(username);
+
+      // Validate password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_CREDENTIALS);
+      }
+
+      // Generate JWT token with permissions
+      const token = await this.generateUserToken(user);
+
+      return {
+        token,
+        user: {
+          id: user._id.toString(),
+          userId: user.userId || '',
+          username: user.username,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+        },
+      };
+    } catch (error) {
+      if (isCustomError(error)) {
+        throw error;
+      }
+      ErrorHandler.handleServiceError(error, {
+        serviceName: 'AuthService',
+        method: 'login',
+        username: credentials.username,
+      });
+    }
+  }
+
+  /**
+   * Generate JWT token with user permissions
+   * @param user - User document
+   * @returns JWT token string
+   */
+  static async generateUserToken(user: UserDocument): Promise<string> {
+    // Get permissions based on user role
+    const permissions = await this.getUserPermissionsForToken(user);
+
+    // Build JWT payload
+    const payload: Omit<UserJwtPayload, 'iat' | 'exp'> = {
+      userId: user._id.toString(),
+      username: user.username,
+      fullName: user.fullName,
+      role: user.role,
+      permissions,
+    };
+
+    return JwtUtil.generateToken(payload);
+  }
+
+  /**
+   * Get user permissions for JWT token
+   * ADMIN and HR get full permissions, USER role gets permissions from assigned roles
+   * @param user - User document
+   * @returns Permissions object
+   */
+  private static async getUserPermissionsForToken(
+    user: UserDocument
+  ): Promise<Record<string, Record<string, number>>> {
+    // ADMIN and HR get full system permissions
+    if (user.role === SYSTEM_ROLES.ADMIN || user.role === SYSTEM_ROLES.HR) {
+      return PermissionManager.buildSystemRolePermissions(user.role);
+    }
+
+    // USER role gets permissions from assigned roles
+    if (user.roles && user.roles.length > 0) {
+      const roleIds = user.roles.map((role: any) => 
+        role instanceof Types.ObjectId ? role : new Types.ObjectId(role)
+      );
+      return await RoleService.getUserEffectivePermissions(roleIds);
+    }
+
+    // No permissions if no roles assigned
+    return {};
+  }
+}
+

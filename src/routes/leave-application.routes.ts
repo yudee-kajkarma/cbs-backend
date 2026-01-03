@@ -4,6 +4,8 @@ import {
   validateRequest,
   validateParams
 } from "../middlewares/validate.middleware";
+import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
 import {
   createLeaveApplicationSchema,
   updateLeaveApplicationSchema,
@@ -15,43 +17,53 @@ import {
 
 const router = Router();
 
-// CREATE
+// CREATE - HR or Admin only
 router.post(
   "/:employeeId",
+  authenticate,
+  requireHROrAdmin,
   validateParams(employeeIdParamSchema),
   validateRequest(createLeaveApplicationSchema),
   LeaveApplicationController.create
 );
 
-// LIST
-router.get("/", LeaveApplicationController.getAll);
+// LIST - HR or Admin only
+router.get("/", authenticate, requireHROrAdmin, LeaveApplicationController.getAll);
 
-// GET BY ID
+// GET BY ID - HR or Admin only
 router.get(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(leaveApplicationIdSchema),
   LeaveApplicationController.getById
 );
 
-// APPROVE/REJECT - action and approvedBy in params
+// APPROVE/REJECT - HR or Admin only
 router.patch(
   "/:id/:action/:approvedBy",
+  authenticate,
+  requireHROrAdmin,
   validateParams(approveRejectParamSchema),
   validateRequest(updateStatusLeaveApplicationSchema),
   LeaveApplicationController.updateStatus
 );
 
-// UPDATE
+// UPDATE - HR or Admin only
 router.put(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(leaveApplicationIdSchema),
   validateRequest(updateLeaveApplicationSchema),
   LeaveApplicationController.update
 );
 
-// DELETE
+// DELETE - HR or Admin only
 router.delete(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(leaveApplicationIdSchema),
   LeaveApplicationController.delete
 );

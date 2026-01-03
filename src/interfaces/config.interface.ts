@@ -7,6 +7,10 @@ export interface IConfig {
   cors: {
     allowedOrigins: string[];
   };
+  jwt: {
+    secret: string;
+    expiresIn: string;
+  };
   aws: {
     accessKeyId: string;
     secretAccessKey: string;

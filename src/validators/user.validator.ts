@@ -20,3 +20,14 @@ export const updateUserSchema = Joi.object({
   password: Joi.string().min(6).optional(),
   role: Joi.string().valid(...allowedUserRoles).optional()
 }).min(1);
+
+export const assignRolesSchema = Joi.object({
+  roleIds: Joi.array()
+    .items(Joi.string().length(24).hex())
+    .min(1)
+    .required()
+    .messages({
+      "array.min": "At least one role ID is required",
+      "any.required": "roleIds is required"
+    })
+});

@@ -663,6 +663,7 @@ export interface User {
   username: string;
   password: string;
   role: UserRole;
+  roles: Types.ObjectId[]; // Array of Role IDs for granular permissions (USER role)
 }
 
 export interface UserDocument extends User, Document {}
