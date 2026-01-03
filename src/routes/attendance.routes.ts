@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { AttendanceController } from '../controllers/attendance.controller';
 import { validateQuery } from '../middlewares/validate.middleware';
+import { requireHROrAdmin } from '../middlewares/role.middleware';
+import { authenticate } from '../middlewares/auth.middleware';
 import { NetworkValidator } from '../utils/network-validator.util';
 import {
   dailySummaryQuerySchema,
@@ -18,6 +20,7 @@ const router = Router();
  */
 router.post(
   '/:employeeId/:action',
+  authenticate,
   NetworkValidator.validateCompanyNetwork(),
   AttendanceController.markAttendance
 );
@@ -29,6 +32,8 @@ router.post(
  */
 router.get(
   '/daily-summary',
+  authenticate,
+  requireHROrAdmin,
   validateQuery(dailySummaryQuerySchema),
   AttendanceController.getDailySummary
 );
@@ -53,6 +58,8 @@ router.get(
  */
 router.get(
   '/live-stream',
+  authenticate,
+  requireHROrAdmin,
   validateQuery(liveStreamQuerySchema),
   AttendanceController.streamLiveAttendance
 );
@@ -64,6 +71,7 @@ router.get(
  */
 router.get(
   '/history/:employeeId',
+  authenticate,
   validateQuery(attendanceHistoryQuerySchema),
   AttendanceController.getAttendanceHistory
 );
@@ -75,6 +83,7 @@ router.get(
  */
 router.get(
   '/monthly-statistics/:employeeId',
+  authenticate,
   validateQuery(monthlyStatisticsQuerySchema),
   AttendanceController.getMonthlyStatistics
 );

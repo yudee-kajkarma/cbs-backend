@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { MonthlyPayrollController } from "../controllers/monthly-payroll.controller";
 import { validateRequest, validateParams, validateQuery } from "../middlewares/validate.middleware";
+import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
 import {
   generatePayrollSchema,
   updatePayrollSchema,
@@ -20,6 +22,8 @@ const router = Router();
  */
 router.post(
   "/",
+  authenticate,
+  requireHROrAdmin,
   validateRequest(generatePayrollSchema),
   MonthlyPayrollController.generatePayroll
 );
@@ -31,6 +35,8 @@ router.post(
  */
 router.post(
   "/process-all",
+  authenticate,
+  requireHROrAdmin,
   validateRequest(processAllPayrollSchema),
   MonthlyPayrollController.processAllPending
 );
@@ -42,6 +48,8 @@ router.post(
  */
 router.get(
   "/statistics",
+  authenticate,
+  requireHROrAdmin,
   validateQuery(statisticsQuerySchema),
   MonthlyPayrollController.getStatistics
 );
@@ -53,6 +61,8 @@ router.get(
  */
 router.get(
   "/export",
+  authenticate,
+  requireHROrAdmin,
   validateQuery(exportReportQuerySchema),
   MonthlyPayrollController.exportReport
 );
@@ -64,6 +74,8 @@ router.get(
  */
 router.get(
   "/",
+  authenticate,
+  requireHROrAdmin,
   validateQuery(payrollQuerySchema),
   MonthlyPayrollController.getAll
 );
@@ -71,10 +83,12 @@ router.get(
 /**
  * @route   GET /api/monthly-payroll/:id
  * @desc    Get payroll by ID
- * @access  Private
+ * @access  Private (HR/Admin)
  */
 router.get(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(payrollIdSchema),
   MonthlyPayrollController.getById
 );
@@ -86,6 +100,8 @@ router.get(
  */
 router.put(
   "/:id/:status",
+  authenticate,
+  requireHROrAdmin,
   validateParams(updatePayrollSchema),
   MonthlyPayrollController.update
 );

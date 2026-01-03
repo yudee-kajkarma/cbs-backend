@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { IncentiveController } from "../controllers/incentive.controller";
 import { validateRequest, validateParams, validateQuery } from "../middlewares/validate.middleware";
+import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
 import {
   createIncentiveSchema,
   updateIncentiveSchema,
@@ -17,6 +19,8 @@ const router = Router();
  */
 router.post(
   "/",
+  authenticate,
+  requireHROrAdmin,
   validateRequest(createIncentiveSchema),
   IncentiveController.create
 );
@@ -28,6 +32,8 @@ router.post(
  */
 router.get(
   "/",
+  authenticate,
+  requireHROrAdmin,
   validateQuery(incentiveQuerySchema),
   IncentiveController.getAll
 );
@@ -35,10 +41,12 @@ router.get(
 /**
  * @route   GET /api/incentives/:id
  * @desc    Get incentive by ID
- * @access  Private
+ * @access  Private (HR/Admin)
  */
 router.get(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(incentiveIdSchema),
   IncentiveController.getById
 );
@@ -50,6 +58,8 @@ router.get(
  */
 router.put(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(incentiveIdSchema),
   validateRequest(updateIncentiveSchema),
   IncentiveController.update
@@ -62,6 +72,8 @@ router.put(
  */
 router.delete(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(incentiveIdSchema),
   IncentiveController.delete
 );
