@@ -7,6 +7,10 @@ import {
   validateParams
 } from "../middlewares/validate.middleware";
 
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
+
 import {
   createPayeeSchema,
   updatePayeeSchema,
@@ -15,34 +19,47 @@ import {
 
 const router = Router();
 
-// CREATE
+// CREATE - Requires WRITE permission
 router.post(
   "/",
+  authenticate,
+  checkPermission("banking", "cheque_printing", PERMISSIONS.WRITE),
   validateRequest(createPayeeSchema),
   PayeeController.create
 );
 
-// LIST
-router.get("/", PayeeController.getAll);
+// LIST - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("banking", "cheque_printing", PERMISSIONS.READ),
+  PayeeController.getAll
+);
 
-// GET BY ID
+// GET BY ID - Requires READ permission
 router.get(
   "/:id",
+  authenticate,
+  checkPermission("banking", "cheque_printing", PERMISSIONS.READ),
   validateParams(payeeIdSchema),
   PayeeController.getById
 );
 
-// UPDATE
+// UPDATE - Requires WRITE permission
 router.put(
   "/:id",
+  authenticate,
+  checkPermission("banking", "cheque_printing", PERMISSIONS.WRITE),
   validateParams(payeeIdSchema),
   validateRequest(updatePayeeSchema),
   PayeeController.update
 );
 
-// DELETE
+// DELETE - Requires WRITE permission
 router.delete(
   "/:id",
+  authenticate,
+  checkPermission("banking", "cheque_printing", PERMISSIONS.WRITE),
   validateParams(payeeIdSchema),
   PayeeController.delete
 );

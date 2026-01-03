@@ -7,6 +7,10 @@ import {
   validateParams
 } from "../middlewares/validate.middleware";
 
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
+
 import {
   createTelexTransferSchema,
   updateTelexTransferSchema,
@@ -15,34 +19,47 @@ import {
 
 const router = Router();
 
-// CREATE
+// CREATE - Requires WRITE permission
 router.post(
   "/",
+  authenticate,
+  checkPermission("banking", "telex_transfer", PERMISSIONS.WRITE),
   validateRequest(createTelexTransferSchema),
   TelexTransferController.create
 );
 
-// LIST
-router.get("/", TelexTransferController.getAll);
+// LIST - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("banking", "telex_transfer", PERMISSIONS.READ),
+  TelexTransferController.getAll
+);
 
-// GET BY ID
+// GET BY ID - Requires READ permission
 router.get(
   "/:id",
+  authenticate,
+  checkPermission("banking", "telex_transfer", PERMISSIONS.READ),
   validateParams(telexTransferIdSchema),
   TelexTransferController.getById
 );
 
-// UPDATE
+// UPDATE - Requires WRITE permission
 router.put(
   "/:id",
+  authenticate,
+  checkPermission("banking", "telex_transfer", PERMISSIONS.WRITE),
   validateParams(telexTransferIdSchema),
   validateRequest(updateTelexTransferSchema),
   TelexTransferController.update
 );
 
-// DELETE
+// DELETE - Requires WRITE permission
 router.delete(
   "/:id",
+  authenticate,
+  checkPermission("banking", "telex_transfer", PERMISSIONS.WRITE),
   validateParams(telexTransferIdSchema),
   TelexTransferController.delete
 );

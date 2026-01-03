@@ -444,6 +444,74 @@ export const ERROR_MESSAGES = {
       message: 'Invalid action. Must be check-in or check-out',
       status: 400
     },
+    // Role Errors
+    ROLE_NOT_FOUND: {
+      code: 'CBS-4028',
+      message: 'Role not found',
+      status: 404
+    },
+    ROLE_NAME_ALREADY_EXISTS: {
+      code: 'CBS-4029',
+      message: 'Role name already exists',
+      status: 409
+    },
+    CANNOT_MODIFY_SYSTEM_ROLE: {
+      code: 'CBS-4030',
+      message: 'Cannot modify or delete system role',
+      status: 400
+    },
+    INVALID_PERMISSION_VALUE: {
+      code: 'CBS-4031',
+      message: 'Invalid permission value. Must be 0 (NONE), 2 (READ), or 4 (WRITE)',
+      status: 400
+    },
+    INVALID_FEATURE_NAME: {
+      code: 'CBS-4032',
+      message: 'Invalid feature name',
+      status: 400
+    },
+    INVALID_MODULE: {
+      code: 'CBS-4033',
+      message: 'Invalid module',
+      status: 400
+    },
+    SETTINGS_ADMIN_ONLY: {
+      code: 'CBS-4034',
+      message: 'Settings module can only be accessed by ADMIN role',
+      status: 403
+    },
+    PERMISSION_DENIED: {
+      code: 'CBS-4035',
+      message: 'Permission denied',
+      status: 403
+    },
+    DEFAULT_ROLES_ALREADY_EXIST: {
+      code: 'CBS-4036',
+      message: 'Default roles already exist',
+      status: 409
+    },
+    
+    // Authentication Errors
+    INVALID_CREDENTIALS: {
+      code: 'CBS-4037',
+      message: 'Invalid username or password',
+      status: 401
+    },
+    TOKEN_EXPIRED: {
+      code: 'CBS-4038',
+      message: 'Token has expired',
+      status: 401
+    },
+    INVALID_TOKEN: {
+      code: 'CBS-4039',
+      message: 'Invalid token',
+      status: 401
+    },
+    TOKEN_REQUIRED: {
+      code: 'CBS-4040',
+      message: 'Authentication token is required',
+      status: 401
+    },
   },
   
   // Server Errors (5xx)

@@ -5,12 +5,14 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
+import { RoleService } from "./role.service";
 import { 
   UserDocument, 
   UserQuery, 
   CreateUserData, 
   UpdateUserData 
 } from "../interfaces/model.interface";
+import { Types } from "mongoose";
 import * as bcrypt from "bcryptjs";
 
 export class UserService {
@@ -190,6 +192,82 @@ export class UserService {
       await User.findByIdAndDelete(id);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'delete', id });
+    }
+  }
+
+  /**
+   * Assign roles to user
+   */
+  static async assignRoles(userId: string, roleIds: string[]): Promise<any> {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
+      }
+
+      // Validate all role IDs are valid ObjectIds
+      const validRoleIds = roleIds.map(id => {
+        if (!Types.ObjectId.isValid(id)) {
+          throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_ID);
+        }
+        return new Types.ObjectId(id);
+      });
+
+      user.roles = validRoleIds;
+      const updated = await user.save();
+
+      return updated.toObject();
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'assignRoles', userId, roleIds });
+    }
+  }
+
+  /**
+   * Get user's effective permissions
+   */
+  static async getUserPermissions(userId: string): Promise<Record<string, Record<string, number>>> {
+    try {
+      const user = await User.findById(userId).lean();
+      if (!user) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
+      }
+
+      if (!user.roles || user.roles.length === 0) {
+        return {};
+      }
+
+      const roleIds = user.roles.map((role: any) => new Types.ObjectId(role));
+      return await RoleService.getUserEffectivePermissions(roleIds);
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'getUserPermissions', userId });
+    }
+  }
+
+  /**
+   * Find user by username or email (for authentication)
+   * @param identifier - Username or email
+   * @returns User document with password (for authentication)
+   */
+  static async findByUsernameOrEmail(identifier: string): Promise<UserDocument> {
+    try {
+      const user = await User.findOne({
+        $or: [
+          { username: identifier },
+          { email: identifier.toLowerCase() }
+        ]
+      });
+
+      if (!user) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
+      }
+
+      return user;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'UserService', 
+        method: 'findByUsernameOrEmail', 
+        identifier 
+      });
     }
   }
 }

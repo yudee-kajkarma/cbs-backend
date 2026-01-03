@@ -87,4 +87,20 @@ export class UserController {
       ErrorHandler.handleControllerError(error, res, { method: 'delete', id: req.params.id });
     }
   }
+
+  /**
+   * Assign roles to user
+   */
+  static async assignRoles(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { roleIds } = req.body;
+      const result = await UserService.assignRoles(id, roleIds);
+      const userDto = toDto(UserResponseDto, result);
+      const response = ResponseUtil.success(INFO_MESSAGES.USER.ROLES_ASSIGNED_SUCCESSFULLY, userDto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'assignRoles', id: req.params.id, data: req.body });
+    }
+  }
 }

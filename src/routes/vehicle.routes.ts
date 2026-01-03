@@ -5,6 +5,9 @@ import {
   validateQuery,
   validateParams,
 } from "../middlewares/validate.middleware";
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
 import {
   createVehicleSchema,
   updateVehicleSchema,
@@ -14,10 +17,50 @@ import {
 
 const router = Router();
 
-router.post("/", validateRequest(createVehicleSchema), VehicleController.create);
-router.get("/", validateQuery(getVehicleListSchema), VehicleController.getAll);
-router.get("/:id", validateParams(getVehicleByIdSchema), VehicleController.getById);
-router.put("/:id", validateParams(getVehicleByIdSchema), validateRequest(updateVehicleSchema), VehicleController.update);
-router.delete("/:id", validateParams(getVehicleByIdSchema), VehicleController.delete);
+// CREATE - Requires WRITE permission
+router.post(
+  "/",
+  authenticate,
+  checkPermission("asset_management", "vehicle", PERMISSIONS.WRITE),
+  validateRequest(createVehicleSchema),
+  VehicleController.create
+);
+
+// LIST - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("asset_management", "vehicle", PERMISSIONS.READ),
+  validateQuery(getVehicleListSchema),
+  VehicleController.getAll
+);
+
+// GET BY ID - Requires READ permission
+router.get(
+  "/:id",
+  authenticate,
+  checkPermission("asset_management", "vehicle", PERMISSIONS.READ),
+  validateParams(getVehicleByIdSchema),
+  VehicleController.getById
+);
+
+// UPDATE - Requires WRITE permission
+router.put(
+  "/:id",
+  authenticate,
+  checkPermission("asset_management", "vehicle", PERMISSIONS.WRITE),
+  validateParams(getVehicleByIdSchema),
+  validateRequest(updateVehicleSchema),
+  VehicleController.update
+);
+
+// DELETE - Requires WRITE permission
+router.delete(
+  "/:id",
+  authenticate,
+  checkPermission("asset_management", "vehicle", PERMISSIONS.WRITE),
+  validateParams(getVehicleByIdSchema),
+  VehicleController.delete
+);
 
 export default router;

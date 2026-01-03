@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { NetworkEquipmentController } from "../controllers/network-equipment.controller";
 import { validateRequest, validateParams, validateQuery } from "../middlewares/validate.middleware";
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
 import {
   createNetworkEquipmentSchema,
   updateNetworkEquipmentSchema,
@@ -10,10 +13,50 @@ import {
 
 const router = Router();
 
-router.post("/", validateRequest(createNetworkEquipmentSchema), NetworkEquipmentController.create);
-router.get("/", validateQuery(listQuerySchema), NetworkEquipmentController.getAll);
-router.get("/:id", validateParams(idParamSchema), NetworkEquipmentController.getById);
-router.put("/:id", validateParams(idParamSchema), validateRequest(updateNetworkEquipmentSchema), NetworkEquipmentController.update);
-router.delete("/:id", validateParams(idParamSchema), NetworkEquipmentController.delete);
+// CREATE - Requires WRITE permission
+router.post(
+  "/",
+  authenticate,
+  checkPermission("it_management", "network_equipment", PERMISSIONS.WRITE),
+  validateRequest(createNetworkEquipmentSchema),
+  NetworkEquipmentController.create
+);
+
+// LIST - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("it_management", "network_equipment", PERMISSIONS.READ),
+  validateQuery(listQuerySchema),
+  NetworkEquipmentController.getAll
+);
+
+// GET BY ID - Requires READ permission
+router.get(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "network_equipment", PERMISSIONS.READ),
+  validateParams(idParamSchema),
+  NetworkEquipmentController.getById
+);
+
+// UPDATE - Requires WRITE permission
+router.put(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "network_equipment", PERMISSIONS.WRITE),
+  validateParams(idParamSchema),
+  validateRequest(updateNetworkEquipmentSchema),
+  NetworkEquipmentController.update
+);
+
+// DELETE - Requires WRITE permission
+router.delete(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "network_equipment", PERMISSIONS.WRITE),
+  validateParams(idParamSchema),
+  NetworkEquipmentController.delete
+);
 
 export default router;

@@ -33,6 +33,8 @@ import attendanceRoutes from './routes/attendance.routes';
 import monthlyPayrollRoutes from './routes/monthly-payroll.routes';
 import bonusRoutes from './routes/bonus.routes';
 import incentiveRoutes from './routes/incentive.routes';
+import roleRoutes from './routes/role.routes';
+import authRoutes from './routes/auth.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -51,6 +53,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+// Public Routes (no authentication required)
+app.use('/api/auth', authRoutes);
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -85,6 +90,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/monthly-payroll', monthlyPayrollRoutes);
 app.use('/api/bonuses', bonusRoutes);
 app.use('/api/incentives', incentiveRoutes);
+app.use('/api/roles', roleRoutes);
 
 // Error Handler
 app.use(errorMiddleware);
