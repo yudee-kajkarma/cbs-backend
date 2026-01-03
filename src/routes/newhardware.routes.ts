@@ -5,6 +5,9 @@ import {
   validateQuery,
   validateParams,
 } from "../middlewares/validate.middleware";
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
 
 import {
   createNewHardwareSchema,
@@ -15,24 +18,50 @@ import {
 
 const router = Router();
 
-// CREATE
-router.post("/", validateRequest(createNewHardwareSchema), NewHardwareController.create);
+// CREATE - Requires WRITE permission
+router.post(
+  "/",
+  authenticate,
+  checkPermission("it_management", "hardware", PERMISSIONS.WRITE),
+  validateRequest(createNewHardwareSchema),
+  NewHardwareController.create
+);
 
-// GET ALL (list with filters)
-router.get("/", validateQuery(getNewHardwareListSchema), NewHardwareController.getAll);
+// GET ALL (list with filters) - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("it_management", "hardware", PERMISSIONS.READ),
+  validateQuery(getNewHardwareListSchema),
+  NewHardwareController.getAll
+);
 
-// GET BY ID
-router.get("/:id", validateParams(getNewHardwareByIdSchema), NewHardwareController.getById);
+// GET BY ID - Requires READ permission
+router.get(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "hardware", PERMISSIONS.READ),
+  validateParams(getNewHardwareByIdSchema),
+  NewHardwareController.getById
+);
 
-// UPDATE
+// UPDATE - Requires WRITE permission
 router.put(
   "/:id",
+  authenticate,
+  checkPermission("it_management", "hardware", PERMISSIONS.WRITE),
   validateParams(getNewHardwareByIdSchema),
   validateRequest(updateNewHardwareSchema),
   NewHardwareController.update
 );
 
-// DELETE
-router.delete("/:id", validateParams(getNewHardwareByIdSchema), NewHardwareController.delete);
+// DELETE - Requires WRITE permission
+router.delete(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "hardware", PERMISSIONS.WRITE),
+  validateParams(getNewHardwareByIdSchema),
+  NewHardwareController.delete
+);
 
 export default router;

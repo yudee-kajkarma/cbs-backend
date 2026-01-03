@@ -1,18 +1,40 @@
 import { Router } from 'express';
 import { FileUploadController } from '../controllers/file-upload.controller';
 import { validateRequest } from '../middlewares/validate.middleware';
+import { requireAnyRole } from '../middlewares/role.middleware';
+import { authenticate } from '../middlewares/auth.middleware';
 import { presignedUrlRequestSchema, downloadUrlRequestSchema } from '../validators/file-upload.validator';
 
 const router = Router();
 
-router.post('/presigned-urls', validateRequest(presignedUrlRequestSchema), FileUploadController.generatePresignedUrls);
+// Generate presigned URLs - Any authenticated user
+router.post(
+  '/presigned-urls',
+  authenticate,
+  requireAnyRole,
+  validateRequest(presignedUrlRequestSchema),
+  FileUploadController.generatePresignedUrls
+);
 
-// Use POST to send key in body instead of URL params
-router.post('/download', validateRequest(downloadUrlRequestSchema), FileUploadController.generateDownloadUrl);
+// Download URL - Any authenticated user
+router.post(
+  '/download',
+  authenticate,
+  requireAnyRole,
+  validateRequest(downloadUrlRequestSchema),
+  FileUploadController.generateDownloadUrl
+);
 
-router.delete('/delete', FileUploadController.deleteFiles);
+// Delete files - Any authenticated user
+router.delete('/delete', authenticate, requireAnyRole, FileUploadController.deleteFiles);
 
-// Use POST to send key in body instead of URL params
-router.post('/info', validateRequest(downloadUrlRequestSchema), FileUploadController.getFileInfo);
+// Get file info - Any authenticated user
+router.post(
+  '/info',
+  authenticate,
+  requireAnyRole,
+  validateRequest(downloadUrlRequestSchema),
+  FileUploadController.getFileInfo
+);
 
 export default router;

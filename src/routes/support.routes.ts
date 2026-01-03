@@ -7,6 +7,10 @@ import {
   validateParams,
 } from "../middlewares/validate.middleware";
 
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
+
 import {
   createSupportSchema,
   updateSupportSchema,
@@ -16,24 +20,50 @@ import {
 
 const router = Router();
 
-// CREATE
-router.post("/", validateRequest(createSupportSchema), SupportController.create);
+// CREATE - Requires WRITE permission
+router.post(
+  "/",
+  authenticate,
+  checkPermission("it_management", "it_support", PERMISSIONS.WRITE),
+  validateRequest(createSupportSchema),
+  SupportController.create
+);
 
-// GET ALL
-router.get("/", validateQuery(getSupportListSchema), SupportController.getAll);
+// GET ALL - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("it_management", "it_support", PERMISSIONS.READ),
+  validateQuery(getSupportListSchema),
+  SupportController.getAll
+);
 
-// GET BY ID
-router.get("/:id", validateParams(getSupportByIdSchema), SupportController.getById);
+// GET BY ID - Requires READ permission
+router.get(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "it_support", PERMISSIONS.READ),
+  validateParams(getSupportByIdSchema),
+  SupportController.getById
+);
 
-// UPDATE
+// UPDATE - Requires WRITE permission
 router.put(
   "/:id",
+  authenticate,
+  checkPermission("it_management", "it_support", PERMISSIONS.WRITE),
   validateParams(getSupportByIdSchema),
   validateRequest(updateSupportSchema),
   SupportController.update
 );
 
-// DELETE
-router.delete("/:id", validateParams(getSupportByIdSchema), SupportController.delete);
+// DELETE - Requires WRITE permission
+router.delete(
+  "/:id",
+  authenticate,
+  checkPermission("it_management", "it_support", PERMISSIONS.WRITE),
+  validateParams(getSupportByIdSchema),
+  SupportController.delete
+);
 
 export default router;

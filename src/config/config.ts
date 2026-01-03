@@ -14,6 +14,10 @@ export const config: IConfig = {
       ? process.env.CORS_ALLOWED_ORIGINS.split(',')
       : ['http://localhost:3000'],
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || 'cbs-jwt-secret-key-change-in-production',
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+  },
   aws: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',

@@ -29,6 +29,8 @@ import leaveBalanceRoutes from './routes/leave-balance.routes';
 import leaveApplicationRoutes from './routes/leave-application.routes';
 import attendancePolicyRoutes from './routes/attendance-policy.routes';
 import payrollCompensationRoutes from './routes/payroll-compensation.routes';
+import roleRoutes from './routes/role.routes';
+import authRoutes from './routes/auth.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -47,6 +49,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+// Public Routes (no authentication required)
+app.use('/api/auth', authRoutes);
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -77,6 +82,7 @@ app.use('/api/leave-balances', leaveBalanceRoutes);
 app.use('/api/leave-applications', leaveApplicationRoutes);
 app.use('/api/attendance-policies', attendancePolicyRoutes);
 app.use('/api/payroll-compensation', payrollCompensationRoutes);
+app.use('/api/roles', roleRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

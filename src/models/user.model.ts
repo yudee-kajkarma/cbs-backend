@@ -39,6 +39,12 @@ const userSchema = new Schema<UserDocument>(
         message: '{VALUE} is not a valid role',
       },
     },
+    roles: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Role',
+      },
+    ],
   },
   {
     timestamps: true,
@@ -51,6 +57,7 @@ userSchema.index({ userId: 1 }, { name: 'idx_user_userId', unique: true });
 userSchema.index({ email: 1 }, { name: 'idx_user_email', unique: true });
 userSchema.index({ username: 1 }, { name: 'idx_user_username', unique: true });
 userSchema.index({ role: 1 }, { name: 'idx_user_role' });
+userSchema.index({ roles: 1 }, { name: 'idx_user_roles' });
 userSchema.index({ createdAt: -1 }, { name: 'idx_user_created_desc' });
 
 export default mongoose.model<UserDocument>("User", userSchema, "User");

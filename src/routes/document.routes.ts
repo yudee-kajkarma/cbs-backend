@@ -8,6 +8,10 @@ import {
   validateQuery,
 } from "../middlewares/validate.middleware";
 
+import { checkPermission } from "../middlewares/permission.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+import { PERMISSIONS } from "../constants/permission.constants";
+
 import {
   createDocumentSchema,
   updateDocumentSchema,
@@ -17,30 +21,59 @@ import {
 
 const router = Router();
 
-// CREATE
+// CREATE - Requires WRITE permission
 router.post(
   "/",
+  authenticate,
+  checkPermission("company_documents", "legal_docs", PERMISSIONS.WRITE),
   validateRequest(createDocumentSchema),
   DocumentController.create
 );
 
-// LIST
-router.get("/", validateQuery(listDocumentQuerySchema), DocumentController.getAll);
+// LIST - Requires READ permission
+router.get(
+  "/",
+  authenticate,
+  checkPermission("company_documents", "legal_docs", PERMISSIONS.READ),
+  validateQuery(listDocumentQuerySchema),
+  DocumentController.getAll
+);
 
-router.get("/:id/download-url", validateParams(getDocumentByIdSchema), DocumentController.getDownloadUrl);
+// DOWNLOAD URL - Requires READ permission
+router.get(
+  "/:id/download-url",
+  authenticate,
+  checkPermission("company_documents", "legal_docs", PERMISSIONS.READ),
+  validateParams(getDocumentByIdSchema),
+  DocumentController.getDownloadUrl
+);
 
-// GET ONE
-router.get("/:id", validateParams(getDocumentByIdSchema), DocumentController.getById);
+// GET ONE - Requires READ permission
+router.get(
+  "/:id",
+  authenticate,
+  checkPermission("company_documents", "legal_docs", PERMISSIONS.READ),
+  validateParams(getDocumentByIdSchema),
+  DocumentController.getById
+);
 
-// UPDATE
+// UPDATE - Requires WRITE permission
 router.put(
   "/:id",
+  authenticate,
+  checkPermission("company_documents", "legal_docs", PERMISSIONS.WRITE),
   validateParams(getDocumentByIdSchema),
   validateRequest(updateDocumentSchema),
   DocumentController.update
 );
 
-// DELETE
-router.delete("/:id", validateParams(getDocumentByIdSchema), DocumentController.delete);
+// DELETE - Requires WRITE permission
+router.delete(
+  "/:id",
+  authenticate,
+  checkPermission("company_documents", "legal_docs", PERMISSIONS.WRITE),
+  validateParams(getDocumentByIdSchema),
+  DocumentController.delete
+);
 
 export default router;

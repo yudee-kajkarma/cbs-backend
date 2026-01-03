@@ -7,6 +7,9 @@ import {
   validateParams
 } from "../middlewares/validate.middleware";
 
+import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { authenticate } from "../middlewares/auth.middleware";
+
 import {
   updateEmployeeSchema,
   employeeIdSchema
@@ -14,26 +17,33 @@ import {
 
 const router = Router();
 
-// LIST
-router.get("/", EmployeeController.getAll);
+// LIST - HR or Admin only
+router.get("/", authenticate, requireHROrAdmin, EmployeeController.getAll);
 
+// GET BY ID - HR or Admin only
 router.get(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(employeeIdSchema),
   EmployeeController.getById
 );
 
-// UPDATE
+// UPDATE - HR or Admin only
 router.put(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(employeeIdSchema),
   validateRequest(updateEmployeeSchema),
   EmployeeController.update
 );
 
-// DELETE
+// DELETE - HR or Admin only
 router.delete(
   "/:id",
+  authenticate,
+  requireHROrAdmin,
   validateParams(employeeIdSchema),
   EmployeeController.delete
 );
