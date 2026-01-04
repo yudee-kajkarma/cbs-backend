@@ -132,28 +132,31 @@ export class AuthService {
 
   /**
    * Get user permissions for JWT token
-   * ADMIN and HR get full permissions, USER role gets permissions from assigned roles
+   * ADMIN and HR get full permissions with explicit NONE for restricted features
+   * USER role gets permissions from assigned roles with explicit NONE for missing features
    * @param user - User document
-   * @returns Permissions object
+   * @returns Permissions object with all modules and features
    */
   private static async getUserPermissionsForToken(
     user: UserDocument
   ): Promise<Record<string, Record<string, number>>> {
-    // ADMIN and HR get full system permissions
+    // ADMIN and HR get full system permissions with explicit NONE for restricted features
     if (user.role === SYSTEM_ROLES.ADMIN || user.role === SYSTEM_ROLES.HR) {
       return PermissionManager.buildSystemRolePermissions(user.role);
     }
 
     // USER role gets permissions from assigned roles
+    let userPermissions: Record<string, Record<string, number>> = {};
+    
     if (user.roles && user.roles.length > 0) {
       const roleIds = user.roles.map((role: any) => 
         role instanceof Types.ObjectId ? role : new Types.ObjectId(role)
       );
-      return await RoleService.getUserEffectivePermissions(roleIds);
+      userPermissions = await RoleService.getUserEffectivePermissions(roleIds);
     }
 
-    // No permissions if no roles assigned
-    return {};
+    // Build complete permissions with NONE for missing features
+    return PermissionManager.buildCompletePermissions(userPermissions);
   }
 }
 

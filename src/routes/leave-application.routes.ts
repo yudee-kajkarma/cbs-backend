@@ -4,7 +4,7 @@ import {
   validateRequest,
   validateParams
 } from "../middlewares/validate.middleware";
-import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { requireAnyRole, requireHROrAdmin } from "../middlewares/role.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
 import {
   createLeaveApplicationSchema,
@@ -21,23 +21,19 @@ const router = Router();
 router.post(
   "/:employeeId",
   authenticate,
-  // requireHROrAdmin,
+  requireAnyRole,
   validateParams(employeeIdParamSchema),
   validateRequest(createLeaveApplicationSchema),
   LeaveApplicationController.create
 );
 
-// LIST - HR or Admin only
-router.get("/", 
-  authenticate, 
-  // requireHROrAdmin,
-  LeaveApplicationController.getAll);
+// LIST - Any Role
+router.get("/", authenticate, requireAnyRole, LeaveApplicationController.getAll);
 
-// GET BY ID - HR or Admin only
+// GET BY ID - Any Role
 router.get(
   "/:id",
   authenticate,
-  // requireHROrAdmin,
   validateParams(leaveApplicationIdSchema),
   LeaveApplicationController.getById
 );
@@ -52,11 +48,11 @@ router.patch(
   LeaveApplicationController.updateStatus
 );
 
-// UPDATE - HR or Admin only
+// UPDATE - Any Role
 router.put(
   "/:id",
   authenticate,
-  requireHROrAdmin,
+  requireAnyRole,
   validateParams(leaveApplicationIdSchema),
   validateRequest(updateLeaveApplicationSchema),
   LeaveApplicationController.update
