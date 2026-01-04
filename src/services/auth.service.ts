@@ -10,6 +10,7 @@ import { SYSTEM_ROLES } from '../constants/enums.constants';
 import { UserDocument } from '../interfaces/model.interface';
 import { Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import Employee from '../models/employee.model';
 
 /**
  * Login request interface
@@ -31,6 +32,11 @@ export interface LoginResponse {
     fullName: string;
     email: string;
     role: string;
+    employee?: {
+      id: string;
+      position: string;
+      department: string;
+    } | null;
   };
 }
 
@@ -57,6 +63,11 @@ export class AuthService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_CREDENTIALS);
       }
 
+      // Find employee details if user has employee record
+      const employee = await Employee.findOne({ userId: user._id })
+        .select('employeeId position department phoneNumber joinDate status')
+        .lean();
+
       // Generate JWT token with permissions
       const token = await this.generateUserToken(user);
 
@@ -69,6 +80,11 @@ export class AuthService {
           fullName: user.fullName,
           email: user.email,
           role: user.role,
+          employee: employee ? {
+            id: employee._id.toString(),
+            position: employee.position!,
+            department: employee.department!,
+          } : null,
         },
       };
     } catch (error) {
