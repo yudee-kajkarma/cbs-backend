@@ -21,20 +21,23 @@ const router = Router();
 router.post(
   "/:employeeId",
   authenticate,
-  requireHROrAdmin,
+  // requireHROrAdmin,
   validateParams(employeeIdParamSchema),
   validateRequest(createLeaveApplicationSchema),
   LeaveApplicationController.create
 );
 
 // LIST - HR or Admin only
-router.get("/", authenticate, requireHROrAdmin, LeaveApplicationController.getAll);
+router.get("/", 
+  authenticate, 
+  // requireHROrAdmin,
+  LeaveApplicationController.getAll);
 
 // GET BY ID - HR or Admin only
 router.get(
   "/:id",
   authenticate,
-  requireHROrAdmin,
+  // requireHROrAdmin,
   validateParams(leaveApplicationIdSchema),
   LeaveApplicationController.getById
 );
