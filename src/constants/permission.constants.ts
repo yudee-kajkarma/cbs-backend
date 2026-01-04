@@ -238,9 +238,36 @@ export class PermissionManager {
   }
 
   /**
+   * Build complete permissions by including all modules and features
+   * Sets PERMISSIONS.NONE (0) for features not present in user permissions
+   * @param userPermissions - User's existing permissions
+   * @returns Complete permissions with all modules and features
+   */
+  static buildCompletePermissions(
+    userPermissions: Record<string, Record<string, number>>
+  ): Record<string, Record<string, number>> {
+    const completePermissions: Record<string, Record<string, number>> = {};
+    const allModules = this.getAvailableModules();
+
+    allModules.forEach((module) => {
+      const features = this.getModuleFeatures(module);
+      completePermissions[module] = {};
+
+      features.forEach((feature) => {
+        // Use user's permission if exists, otherwise NONE
+        const userModulePermissions = userPermissions[module];
+        completePermissions[module][feature.label] =
+          userModulePermissions?.[feature.label] ?? PERMISSIONS.NONE;
+      });
+    });
+
+    return completePermissions;
+  }
+
+  /**
    * Build system role permissions based on role type
    * - ADMIN: Full access to all modules including settings
-   * - HR: Full access to all modules except settings
+   * - HR: Full access to all modules except settings (settings features set to NONE)
    * - USER: No system permissions (handled via custom roles array)
    */
   static buildSystemRolePermissions(
@@ -256,17 +283,17 @@ export class PermissionManager {
     }
 
     modules.forEach((module) => {
-      // Settings is admin-only
-      if (module === "settings" && roleType !== SYSTEM_ROLES.ADMIN) {
-        return; // Skip settings for HR role
-      }
-
       const features = this.getModuleFeatures(module);
       permissions[module] = {};
 
       features.forEach((feature) => {
-        // ADMIN and HR both get full permission (READ + WRITE)
-        permissions[module][feature.label] = fullPermission;
+        // Settings is admin-only, HR gets NONE
+        if (module === "settings" && roleType !== SYSTEM_ROLES.ADMIN) {
+          permissions[module][feature.label] = PERMISSIONS.NONE;
+        } else {
+          // ADMIN and HR both get full permission (READ + WRITE)
+          permissions[module][feature.label] = fullPermission;
+        }
       });
     });
 
