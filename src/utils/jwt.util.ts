@@ -11,6 +11,9 @@ export interface UserJwtPayload {
   username: string;
   fullName: string;
   role: string;
+  employee?: {
+    id: string;
+  } | null;
   permissions: Record<string, Record<string, number>>;
   iat?: number;
   exp?: number;

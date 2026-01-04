@@ -68,8 +68,11 @@ export class AuthService {
         .select('employeeId position department phoneNumber joinDate status')
         .lean();
 
-      // Generate JWT token with permissions
-      const token = await this.generateUserToken(user);
+      // Generate JWT token with permissions and employee data
+      const token = await this.generateUserToken(
+        user, 
+        employee ? employee._id.toString() : null
+      );
 
       return {
         token,
@@ -102,9 +105,13 @@ export class AuthService {
   /**
    * Generate JWT token with user permissions
    * @param user - User document
+   * @param employeeId - Optional employee ID
    * @returns JWT token string
    */
-  static async generateUserToken(user: UserDocument): Promise<string> {
+  static async generateUserToken(
+    user: UserDocument,
+    employeeId?: string | null
+  ): Promise<string> {
     // Get permissions based on user role
     const permissions = await this.getUserPermissionsForToken(user);
 
@@ -114,6 +121,9 @@ export class AuthService {
       username: user.username,
       fullName: user.fullName,
       role: user.role,
+      employee: employeeId ? {
+        id: employeeId,
+      } : null,
       permissions,
     };
 
