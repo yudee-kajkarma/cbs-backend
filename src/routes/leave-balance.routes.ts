@@ -30,7 +30,7 @@ router.get("/", authenticate, requireHROrAdmin, LeaveBalanceController.getAll);
 router.get(
   "/employee/:employeeId",
   authenticate,
-  requireHROrAdmin,
+  // requireHROrAdmin,
   validateParams(leaveBalanceIdSchema),
   LeaveBalanceController.getByEmployeeId
 );

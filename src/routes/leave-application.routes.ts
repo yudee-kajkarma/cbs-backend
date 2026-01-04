@@ -17,7 +17,7 @@ import {
 
 const router = Router();
 
-// CREATE - HR or Admin only
+// CREATE 
 router.post(
   "/:employeeId",
   authenticate,
