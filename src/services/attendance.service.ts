@@ -8,9 +8,11 @@ import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { AttendanceUtil } from "../utils/attendance.util";
 import { AttendanceFilterUtil } from "../utils/attendance-filter.util";
+import { ActivityLogger } from "../utils/activity-logger.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { AttendanceStatus } from "../constants/attendance.constants";
 import { LeaveApplicationStatus, EmployeeStatus } from "../constants";
+import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
 import {
     AttendanceDocument,
     AttendanceQuery,
@@ -82,6 +84,23 @@ export class AttendanceService {
             });
 
             const formattedRecord = await this.formatAttendanceRecord(attendance._id);
+
+            // Log activity
+            await ActivityLogger.log({
+                userId: employee.userId.toString(),
+                employeeId: employeeId,
+                type: ActivityType.CHECK_IN,
+                action: 'Checked in',
+                module: ActivityModule.ATTENDANCE,
+                entity: { type: 'attendance', id: attendance._id },
+                description: `Checked in at ${checkInTime.toLocaleTimeString('en-US', { hour12: false })}`,
+                metadata: {
+                    checkInTime: checkInTime.toISOString(),
+                    isLateArrival: isLate,
+                    lateArrivalMinutes: minutesLate,
+                    ipAddress
+                }
+            });
 
             // Broadcast check-in event via SSE
             try {
@@ -167,6 +186,27 @@ export class AttendanceService {
             );
 
             const formattedRecord = await this.formatAttendanceRecord(attendance._id);
+
+            // Log activity
+            const employee = await Employee.findById(employeeId).select('userId').lean();
+            if (employee) {
+                await ActivityLogger.log({
+                    userId: employee.userId.toString(),
+                    employeeId: employeeId,
+                    type: ActivityType.CHECK_OUT,
+                    action: 'Checked out',
+                    module: ActivityModule.ATTENDANCE,
+                    entity: { type: 'attendance', id: attendance._id },
+                    description: `Checked out at ${checkOutTime.toLocaleTimeString('en-US', { hour12: false })}`,
+                    metadata: {
+                        checkOutTime: checkOutTime.toISOString(),
+                        workingHours: parseFloat(workingHours.toFixed(2)),
+                        overtimeHours: parseFloat(overtimeHours.toFixed(2)),
+                        status,
+                        ipAddress
+                    }
+                });
+            }
 
             // Broadcast check-out event via SSE
             try {
