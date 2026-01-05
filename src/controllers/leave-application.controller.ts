@@ -48,6 +48,7 @@ export class LeaveApplicationController {
       const leaveApplicationsDto = toDtoList(LeaveApplicationResponseDto, result.leaveApplications);
 
       const responseData: GetAllLeaveApplicationsResponseDto = {
+        summary: result.summary,
         leaveApplications: leaveApplicationsDto,
         pagination: result.pagination,
         filters: result.filters,

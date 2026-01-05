@@ -185,6 +185,38 @@ export class LeaveApplicationService {
    */
   static async getAll(query: LeaveApplicationQuery): Promise<any> {
     try {
+      const currentYear = new Date().getFullYear();
+      const yearStart = new Date(currentYear, 0, 1);
+      const yearEnd = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+
+      const countFilter: any = {};
+      if (query.employeeId) {
+        countFilter.employeeId = query.employeeId;
+      }
+
+      // Count queries filtered by current year
+      const [pendingCount, approvedCount, rejectedCount, totalCount] = await Promise.all([
+        LeaveApplication.countDocuments({ 
+          ...countFilter,
+          status: LeaveApplicationStatus.PENDING,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+        LeaveApplication.countDocuments({ 
+          ...countFilter,
+          status: LeaveApplicationStatus.APPROVED,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+        LeaveApplication.countDocuments({ 
+          ...countFilter,
+          status: LeaveApplicationStatus.REJECTED,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+        LeaveApplication.countDocuments({ 
+          ...countFilter,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+      ]);
+
       const searchableFields = ['requestId', 'reason'];
       const allowedSortFields = ['requestId', 'leaveType', 'startDate', 'endDate', 'status', 'appliedOn', 'createdAt', 'updatedAt'];
       const filterFields = ['status', 'leaveType', 'employeeId'];
@@ -211,6 +243,12 @@ export class LeaveApplicationService {
       ]);
 
       return {
+        summary: {
+          pending: pendingCount,
+          approved: approvedCount,
+          rejected: rejectedCount,
+          total: totalCount,
+        },
         leaveApplications: populatedData,
         pagination: result.pagination,
         filters: result.filters,
