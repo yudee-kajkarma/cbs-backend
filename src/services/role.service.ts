@@ -175,10 +175,16 @@ export class RoleService {
       throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ROLE_NOT_FOUND);
     }
 
-    // Get permissions for display
-    const permissions = await this.getRolePermissions(role._id);
+    // Get raw permissions (with labels, not names)
+    let permissions = (role.permissions ?? {}) as Record<
+      string,
+      Record<string, number>
+    >;
 
-    // Build complete permissions with NONE for missing modules/features
+    // Normalize: WRITE (4) becomes READ+WRITE (6)
+    permissions = PermissionManager.normalizePermissions(permissions);
+
+    // Add NONE for missing features (expects labels)
     const completePermissions =
       PermissionManager.buildCompletePermissions(permissions);
 
@@ -243,9 +249,16 @@ export class RoleService {
       // Get permissions for each role
       const rolesWithPermissions = await Promise.all(
         result.data.map(async (role: any) => {
-          const permissions = await this.getRolePermissions(role._id);
+          // Get raw permissions (with labels, not names)
+          let permissions = (role.permissions ?? {}) as Record<
+            string,
+            Record<string, number>
+          >;
 
-          // Build complete permissions with NONE for missing modules/features
+          // Normalize: WRITE (4) becomes READ+WRITE (6)
+          permissions = PermissionManager.normalizePermissions(permissions);
+
+          // Add NONE for missing features (expects labels)
           const completePermissions =
             PermissionManager.buildCompletePermissions(permissions);
 
