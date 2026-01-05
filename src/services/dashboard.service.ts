@@ -427,7 +427,14 @@ export class DashboardService {
         .lean();
 
       return {
-        recentActivities: activities
+        recentActivities: activities.map((activity: any) => ({
+          activityType: activity.activityType,
+          action: activity.action,
+          description: activity.description,
+          module: activity.module,
+          createdAt: activity.createdAt,
+          metadata: activity.metadata,
+        })),
       };
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
