@@ -21,7 +21,7 @@ const router = Router();
 router.post(
   "/",
   authenticate,
-  checkPermission("banking", "daily_bank_balance", PERMISSIONS.WRITE),
+  checkPermission("banking", "cheque_printing", PERMISSIONS.WRITE),
   validateRequest(createBankAccountSchema),
   BankAccountController.create
 );
@@ -30,7 +30,7 @@ router.post(
 router.get(
   "/",
   authenticate,
-  checkPermission("banking", "daily_bank_balance", PERMISSIONS.READ),
+  checkPermission("banking", "cheque_printing", PERMISSIONS.READ),
   validateQuery(getBankAccountListSchema),
   BankAccountController.getAll
 );
@@ -39,7 +39,7 @@ router.get(
 router.get(
   "/:id",
   authenticate,
-  checkPermission("banking", "daily_bank_balance", PERMISSIONS.READ),
+  checkPermission("banking", "cheque_printing", PERMISSIONS.READ),
   validateParams(bankAccountIdSchema),
   BankAccountController.getById
 );
@@ -48,7 +48,7 @@ router.get(
 router.put(
   "/:id",
   authenticate,
-  checkPermission("banking", "daily_bank_balance", PERMISSIONS.WRITE),
+  checkPermission("banking", "cheque_printing",  PERMISSIONS.WRITE),
   validateParams(bankAccountIdSchema),
   validateRequest(updateBankAccountSchema),
   BankAccountController.update
@@ -58,7 +58,7 @@ router.put(
 router.delete(
   "/:id",
   authenticate,
-  checkPermission("banking", "daily_bank_balance", PERMISSIONS.WRITE),
+  checkPermission("banking", "cheque_printing", PERMISSIONS.WRITE),
   validateParams(bankAccountIdSchema),
   BankAccountController.delete
 );
