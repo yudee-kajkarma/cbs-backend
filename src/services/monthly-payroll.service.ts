@@ -8,12 +8,14 @@ import { AttendancePolicyService } from "./attendance-policy.service";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
 import { AttendanceUtil } from "../utils/attendance.util";
+import { ActivityLogger } from "../utils/activity-logger.util";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { MonthlyPayrollStatus } from "../constants/monthly-payroll.constants";
 import { AttendanceStatus } from "../constants/attendance.constants";
 import { LeaveApplicationStatus } from "../constants/leave-policy.constants";
+import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
 import LeaveApplication from "../models/leaveApplication.model";
 import {
   MonthlyPayrollDocument,
@@ -154,7 +156,31 @@ export class MonthlyPayrollService {
         status: MonthlyPayrollStatus.PENDING,
       });
 
-      return await this.getById(payroll._id.toString());
+      const result = await this.getById(payroll._id.toString());
+
+      // Log activity
+      const employeeData = result.employeeId as any;
+      const userData = employeeData?.userId as any;
+      await ActivityLogger.log({
+        userId: employeeData?.userId?._id,
+        employeeId,
+        type: ActivityType.PAYROLL_CREATE,
+        action: 'Payroll generated',
+        module: ActivityModule.PAYROLL,
+        entity: { type: 'MonthlyPayroll', id: payroll._id.toString() },
+        description: `Monthly payroll generated for ${userData?.fullName || 'employee'} for ${month}/${year}`,
+        metadata: {
+          payrollId: result.payrollId,
+          month,
+          year,
+          netSalary: result.netSalary,
+          attendancePercentage: result.attendancePercentage,
+          presentDays,
+          absentDays
+        }
+      });
+
+      return result;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'MonthlyPayrollService', 

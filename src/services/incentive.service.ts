@@ -2,9 +2,11 @@ import EmployeeIncentive from "../models/employeeIncentive.model";
 import Employee from "../models/employee.model";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
+import { ActivityLogger } from "../utils/activity-logger.util";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
+import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
 import {
   EmployeeIncentiveDocument,
   EmployeeIncentiveQuery,
@@ -31,7 +33,28 @@ export class IncentiveService {
         incentiveId,
       });
 
-      return await this.getById(incentive._id.toString());
+      const result = await this.getById(incentive._id.toString());
+
+      // Log activity
+      const employeeData = result.employeeId as any;
+      const userData = employeeData?.userId as any;
+      await ActivityLogger.log({
+        userId: employeeData?.userId?._id,
+        employeeId: data.employeeId!.toString(),
+        type: ActivityType.INCENTIVE_CREATE,
+        action: 'Incentive created',
+        module: ActivityModule.PAYROLL,
+        entity: { type: 'EmployeeIncentive', id: incentive._id.toString() },
+        description: `Incentive created for ${userData?.fullName || 'employee'}`,
+        metadata: {
+          incentiveId,
+          amount: data.amount,
+          month: data.month,
+          year: data.year
+        }
+      });
+
+      return result;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'IncentiveService', 

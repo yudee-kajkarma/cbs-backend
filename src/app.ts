@@ -36,6 +36,7 @@ import incentiveRoutes from './routes/incentive.routes';
 import roleRoutes from './routes/role.routes';
 import authRoutes from './routes/auth.routes';
 import dashboardRoutes from './routes/dashboard.routes';
+import activityLogRoutes from './routes/activity-log.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -45,7 +46,7 @@ const app = express();
 app.use(cors({
   origin: config.cors.allowedOrigins,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -93,6 +94,7 @@ app.use('/api/bonuses', bonusRoutes);
 app.use('/api/incentives', incentiveRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

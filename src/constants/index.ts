@@ -44,6 +44,7 @@ export * from './leave-policy.constants';
 export * from './monthly-payroll.constants';
 export * from './bonus.constants';
 export * from './incentive.constants';
+export * from './activity-log.constants';
 // Permission Constants
 export * from './permission.constants';
 

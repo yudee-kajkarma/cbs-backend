@@ -43,9 +43,6 @@ export class DashboardMonthlyOverviewDto {
   daysAbsent!: number;
 
   @Expose()
-  leaveBalance!: number;
-
-  @Expose()
   totalWorkingDays!: number;
 }
 
@@ -70,38 +67,9 @@ export class DashboardWorkingHoursDto {
 }
 
 /**
- * DTO for Leave Balance Item
- */
-export class DashboardLeaveBalanceItemDto {
-  @Expose()
-  totalAllocation!: number;
-
-  @Expose()
-  used!: number;
-
-  @Expose()
-  remaining!: number;
-
-  @Expose()
-  pending!: number;
-}
-
-/**
  * DTO for Leave Summary on Dashboard
  */
 export class DashboardLeaveSummaryDto {
-  @Expose()
-  @Type(() => DashboardLeaveBalanceItemDto)
-  annualLeave!: DashboardLeaveBalanceItemDto;
-
-  @Expose()
-  @Type(() => DashboardLeaveBalanceItemDto)
-  sickLeave!: DashboardLeaveBalanceItemDto;
-
-  @Expose()
-  @Type(() => DashboardLeaveBalanceItemDto)
-  emergencyLeave!: DashboardLeaveBalanceItemDto;
-
   @Expose()
   totalAllocated!: number;
 
@@ -168,21 +136,9 @@ export class DashboardLeaveApplicationDto {
 }
 
 /**
- * Main Dashboard User Response DTO
+ * DTO for Attendance Overview Response
  */
-export class DashboardUserResponseDto extends BaseDto {
-  @Expose()
-  employeeId!: string;
-
-  @Expose()
-  fullName!: string;
-
-  @Expose()
-  position?: string;
-
-  @Expose()
-  department?: string;
-
+export class AttendanceOverviewResponseDto extends BaseDto {
   @Expose()
   @Type(() => DashboardAttendanceStatusDto)
   attendanceStatus!: DashboardAttendanceStatusDto;
@@ -198,7 +154,12 @@ export class DashboardUserResponseDto extends BaseDto {
   @Expose()
   @Type(() => DashboardWorkingHoursDto)
   workingHours!: DashboardWorkingHoursDto;
+}
 
+/**
+ * DTO for Leave Overview Response
+ */
+export class LeaveOverviewResponseDto extends BaseDto {
   @Expose()
   @Type(() => DashboardLeaveSummaryDto)
   leaveSummary!: DashboardLeaveSummaryDto;
@@ -206,8 +167,100 @@ export class DashboardUserResponseDto extends BaseDto {
   @Expose()
   @Type(() => DashboardUpcomingLeaveDto)
   upcomingLeaves!: DashboardUpcomingLeaveDto[];
+}
 
+/**
+ * DTO for Leave Applications Overview Response
+ */
+export class LeaveApplicationsOverviewResponseDto extends BaseDto {
   @Expose()
   @Type(() => DashboardLeaveApplicationDto)
   myLeaveApplications!: DashboardLeaveApplicationDto[];
+}
+
+
+
+/**
+ * DTO for Activity Log Metadata
+ */
+export class ActivityLogMetadataDto {
+  @Expose()
+  checkInTime?: string;
+
+  @Expose()
+  isLateArrival?: boolean;
+
+  @Expose()
+  lateArrivalMinutes?: number;
+
+  @Expose()
+  ipAddress?: string;
+}
+
+/**
+ * DTO for Activity Log Item
+ */
+export class DashboardActivityLogDto {
+  @Expose()
+  activityType!: string;
+
+  @Expose()
+  action!: string;
+
+  @Expose()
+  description!: string;
+
+  @Expose()
+  module!: string;
+
+  @Expose()
+  createdAt!: Date;
+
+  @Expose()
+  @Type(() => ActivityLogMetadataDto)
+  metadata?: ActivityLogMetadataDto;
+}
+
+/**
+ * DTO for Activity Log Overview Response
+ */
+export class ActivityLogOverviewResponseDto extends BaseDto {
+  @Expose()
+  @Type(() => DashboardActivityLogDto)
+  recentActivities!: DashboardActivityLogDto[];
+}
+
+/**
+ * DTO for HR Dashboard Statistics
+ */
+export class HRStatisticsDto {
+  @Expose()
+  totalEmployees!: number;
+
+  @Expose()
+  presentToday!: number;
+
+  @Expose()
+  onLeaveToday!: number;
+
+  @Expose()
+  monthlyPayrollTotal!: number;
+}
+
+/**
+ * DTO for HR Statistics Response
+ */
+export class HRStatisticsResponseDto extends BaseDto {
+  @Expose()
+  @Type(() => HRStatisticsDto)
+  statistics!: HRStatisticsDto;
+}
+
+/**
+ * DTO for HR Activity Feed Response
+ */
+export class HRActivityFeedResponseDto extends BaseDto {
+  @Expose()
+  @Type(() => DashboardActivityLogDto)
+  recentActivities!: DashboardActivityLogDto[];
 }

@@ -263,6 +263,15 @@ export const INFO_MESSAGES = {
     LIST_RETRIEVED_SUCCESSFULLY: 'Employee incentives list retrieved successfully',
   },
   DASHBOARD: {
-    USER_DASHBOARD_RETRIEVED_SUCCESSFULLY: 'User dashboard data retrieved successfully',
+    ATTENDANCE_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Attendance overview retrieved successfully',
+    LEAVE_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Leave overview retrieved successfully',
+    LEAVE_APPLICATIONS_RETRIEVED_SUCCESSFULLY: 'Leave applications retrieved successfully',
+    ACTIVITY_LOG_RETRIEVED_SUCCESSFULLY: 'Activity log retrieved successfully',
+    HR_STATISTICS_RETRIEVED_SUCCESSFULLY: 'HR statistics retrieved successfully',
+    HR_ACTIVITY_FEED_RETRIEVED_SUCCESSFULLY: 'HR activity feed retrieved successfully',
+  },
+  ACTIVITY_LOG: {
+    ACTIVITIES_RETRIEVED_SUCCESSFULLY: 'Activities retrieved successfully',
+    OLD_ACTIVITIES_DELETED_SUCCESSFULLY: 'Old activity logs deleted successfully',
   },
 };

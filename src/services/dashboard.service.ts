@@ -2,27 +2,27 @@ import Employee from "../models/employee.model";
 import Attendance from "../models/attendance.model";
 import LeaveApplication from "../models/leaveApplication.model";
 import LeaveBalance from "../models/leaveBalance.model";
+import MonthlyPayroll from "../models/monthlyPayroll.model";
+import ActivityLog from "../models/activity-log.model";
 import { AttendanceService } from "./attendance.service";
 import { AttendancePolicyService } from "./attendance-policy.service";
+import { ActivityLogService } from "./activity-log.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { AttendanceUtil } from "../utils/attendance.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { LeaveApplicationStatus } from "../constants/leave-policy.constants";
-import { PopulatedEmployee } from "../interfaces/model.interface";
+import { EmployeeStatus } from "../constants";
+import { ActivityType } from "../constants/activity-log.constants";
 
 export class DashboardService {
 
   /**
-   * Get comprehensive dashboard data for a user
+   * Get attendance overview for dashboard
    */
-  static async getUserDashboard(employeeId: string): Promise<any> {
+  static async getAttendanceOverview(employeeId: string): Promise<any> {
     try {
-      // Verify employee exists
-      const employee = await Employee.findById(employeeId)
-        .populate('userId', 'fullName email')
-        .lean() as PopulatedEmployee | null;
-
+      const employee = await Employee.findById(employeeId).lean();
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -31,25 +31,14 @@ export class DashboardService {
       const currentMonth = today.getMonth() + 1;
       const currentYear = today.getFullYear();
 
-      // Get attendance policy
       const policy = await AttendancePolicyService.get();
 
-      // Fetch all data in parallel
-      const [
-        todayAttendance,
-        monthlyStats,
-        leaveBalance,
-        upcomingLeaves,
-        myLeaveApplications,
-      ] = await Promise.all([
+      const [todayAttendance, monthlyStats] = await Promise.all([
         this.getTodayAttendance(employeeId),
         AttendanceService.getMonthlyStatistics(employeeId, currentMonth, currentYear),
-        this.getLeaveBalanceData(employeeId, currentYear),
-        this.getUpcomingLeaves(employeeId),
-        this.getMyLeaveApplications(employeeId),
       ]);
 
-      // Calculate attendance status
+      // Attendance status
       const attendanceStatus = {
         isCheckedIn: !!todayAttendance?.checkInTime && !todayAttendance?.checkOutTime,
         checkInTime: todayAttendance?.checkInTime || null,
@@ -57,7 +46,7 @@ export class DashboardService {
         status: todayAttendance?.status || 'Not Marked',
       };
 
-      // Calculate attendance rate
+      // Attendance rate
       const attendanceRate = {
         presentDays: monthlyStats.presentDays,
         totalWorkingDays: monthlyStats.totalWorkingDays,
@@ -70,7 +59,6 @@ export class DashboardService {
       const monthlyOverview = {
         daysPresent: monthlyStats.presentDays,
         daysAbsent: monthlyStats.absentDays,
-        leaveBalance: leaveBalance.totalRemaining,
         totalWorkingDays: monthlyStats.totalWorkingDays,
       };
 
@@ -90,26 +78,41 @@ export class DashboardService {
         todayHours: todayAttendance?.workingHours || 0,
       };
 
+      return {
+        attendanceStatus,
+        attendanceRate,
+        monthlyOverview,
+        workingHours,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'DashboardService', 
+        method: 'getAttendanceOverview', 
+        employeeId 
+      });
+    }
+  }
+
+  /**
+   * Get leave overview for dashboard
+   */
+  static async getLeaveOverview(employeeId: string): Promise<any> {
+    try {
+      // Verify employee exists
+      const employee = await Employee.findById(employeeId).lean();
+      if (!employee) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
+      }
+
+      const currentYear = new Date().getFullYear();
+
+      const [leaveBalance, upcomingLeaves] = await Promise.all([
+        this.getLeaveBalanceData(employeeId, currentYear),
+        this.getUpcomingLeaves(employeeId),
+      ]);
+
       // Leave summary
       const leaveSummary = {
-        annualLeave: {
-          totalAllocation: leaveBalance.annualLeave.totalAllocation,
-          used: leaveBalance.annualLeave.used,
-          remaining: leaveBalance.annualLeave.remaining,
-          pending: leaveBalance.annualLeave.pending,
-        },
-        sickLeave: {
-          totalAllocation: leaveBalance.sickLeave.totalAllocation,
-          used: leaveBalance.sickLeave.used,
-          remaining: leaveBalance.sickLeave.remaining,
-          pending: leaveBalance.sickLeave.pending,
-        },
-        emergencyLeave: {
-          totalAllocation: leaveBalance.emergencyLeave.totalAllocation,
-          used: leaveBalance.emergencyLeave.used,
-          remaining: leaveBalance.emergencyLeave.remaining,
-          pending: leaveBalance.emergencyLeave.pending,
-        },
         totalAllocated: leaveBalance.totalAllocated,
         totalUsed: leaveBalance.totalUsed,
         totalRemaining: leaveBalance.totalRemaining,
@@ -117,22 +120,84 @@ export class DashboardService {
       };
 
       return {
-        employeeId: employee.employeeId,
-        fullName: employee.userId.fullName,
-        position: employee.position || null,
-        department: employee.department || null,
-        attendanceStatus,
-        attendanceRate,
-        monthlyOverview,
-        workingHours,
         leaveSummary,
         upcomingLeaves,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'DashboardService', 
+        method: 'getLeaveOverview', 
+        employeeId 
+      });
+    }
+  }
+
+  /**
+   * Get leave applications for dashboard
+   */
+  static async getLeaveApplicationsOverview(employeeId: string): Promise<any> {
+    try {
+      const employee = await Employee.findById(employeeId).lean();
+      if (!employee) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
+      }
+
+      const myLeaveApplications = await this.getMyLeaveApplications(employeeId);
+
+      return {
         myLeaveApplications,
       };
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'DashboardService', 
-        method: 'getUserDashboard', 
+        method: 'getLeaveApplicationsOverview', 
+        employeeId 
+      });
+    }
+  }
+
+  /**
+   * Get activity log for dashboard
+   */
+  static async getActivityLogOverview(employeeId: string, limit: number = 10): Promise<any> {
+    try {
+      // Verify employee exists
+      const employee = await Employee.findById(employeeId).lean();
+      if (!employee) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
+      }
+
+      // Define employee dashboard relevant activity types only
+      const employeeDashboardActivityTypes = [
+        ActivityType.CHECK_IN,
+        ActivityType.CHECK_OUT,
+        ActivityType.LEAVE_APPROVE,
+        ActivityType.LEAVE_REJECT,
+      ];
+
+      // Get recent activities filtered by employee dashboard types
+      const recentActivities = await ActivityLog.find({
+        employeeId,
+        activityType: { $in: employeeDashboardActivityTypes }
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      return {
+        recentActivities: recentActivities.map((activity: any) => ({
+          activityType: activity.activityType,
+          action: activity.action,
+          description: activity.description,
+          module: activity.module,
+          createdAt: activity.createdAt,
+          metadata: activity.metadata,
+        })),
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'DashboardService', 
+        method: 'getActivityLogOverview', 
         employeeId 
       });
     }
@@ -161,7 +226,6 @@ export class DashboardService {
       const leaveBalance = await LeaveBalance.findOne({ employeeId, year }).lean();
 
       if (!leaveBalance) {
-        // Return default structure if no balance found
         return {
           annualLeave: { totalAllocation: 0, used: 0, remaining: 0, pending: 0 },
           sickLeave: { totalAllocation: 0, used: 0, remaining: 0, pending: 0 },
@@ -194,24 +258,6 @@ export class DashboardService {
       const totalPending = pendingAnnual + pendingSick + pendingEmergency;
 
       return {
-        annualLeave: {
-          totalAllocation: leaveBalance.annualLeave?.totalAllocation || 0,
-          used: leaveBalance.annualLeave?.used || 0,
-          remaining: leaveBalance.annualLeave?.remaining || 0,
-          pending: pendingAnnual,
-        },
-        sickLeave: {
-          totalAllocation: leaveBalance.sickLeave?.totalAllocation || 0,
-          used: leaveBalance.sickLeave?.used || 0,
-          remaining: leaveBalance.sickLeave?.remaining || 0,
-          pending: pendingSick,
-        },
-        emergencyLeave: {
-          totalAllocation: leaveBalance.emergencyLeave?.totalAllocation || 0,
-          used: leaveBalance.emergencyLeave?.used || 0,
-          remaining: leaveBalance.emergencyLeave?.remaining || 0,
-          pending: pendingEmergency,
-        },
         totalAllocated: 
           (leaveBalance.annualLeave?.totalAllocation || 0) +
           (leaveBalance.sickLeave?.totalAllocation || 0) +
@@ -303,4 +349,92 @@ export class DashboardService {
       });
     }
   }
+  /**
+   * Get HR dashboard statistics
+   */
+  static async getHRStatistics(): Promise<any> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const currentMonth = today.getMonth() + 1;
+      const currentYear = today.getFullYear();
+
+      // Total employees count
+      const totalEmployees = await Employee.countDocuments({
+        status: { $in: [EmployeeStatus.ACTIVE, EmployeeStatus.ON_LEAVE] }
+      });
+
+      // Present today count (checked in today)
+      const presentToday = await Attendance.countDocuments({
+        date: today,
+        checkInTime: { $exists: true }
+      });
+
+      // On leave today count
+      const onLeaveToday = await LeaveApplication.countDocuments({
+        status: LeaveApplicationStatus.APPROVED,
+        startDate: { $lte: today },
+        endDate: { $gte: today }
+      });
+
+      // Monthly payroll total for current month
+      const payrollRecords = await MonthlyPayroll.find({
+        month: currentMonth,
+        year: currentYear
+      }).lean();
+
+      const monthlyPayrollTotal = payrollRecords.reduce((sum, record: any) => {
+        return sum + (record.netSalary || 0);
+      }, 0);
+
+      return {
+        totalEmployees,
+        presentToday,
+        onLeaveToday,
+        monthlyPayrollTotal: Math.round(monthlyPayrollTotal * 100) / 100
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'DashboardService', 
+        method: 'getHRStatistics'
+      });
+    }
+  }
+
+  /**
+   * Get HR activity feed
+   */
+  static async getHRActivityFeed(limit: number = 10): Promise<any> {
+    try {
+      // Define HR-relevant activity types only
+      const hrActivityTypes = [
+        ActivityType.LEAVE_SUBMIT,
+        ActivityType.LEAVE_APPROVE,
+        ActivityType.LEAVE_REJECT,
+        ActivityType.PAYROLL_CREATE,
+        ActivityType.BONUS_CREATE,
+        ActivityType.INCENTIVE_CREATE,
+        ActivityType.EMPLOYEE_ONBOARD,
+      ];
+
+      // Get recent activities filtered by HR-relevant types
+      const activities = await ActivityLog.find({
+        activityType: { $in: hrActivityTypes }
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      return {
+        recentActivities: activities
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'DashboardService', 
+        method: 'getHRActivityFeed'
+      });
+    }
+  }
 }
+
