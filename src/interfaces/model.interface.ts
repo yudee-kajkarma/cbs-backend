@@ -690,6 +690,14 @@ export interface Employee {
 
 export interface EmployeeDocument extends Employee, Document {}
 
+/**
+ * Populated employee with user data (after .populate('userId'))
+ */
+export interface PopulatedEmployee extends Omit<Employee, 'userId'> {
+  _id: string;
+  userId: Pick<User, 'fullName' | 'email'>;
+}
+
 export interface EmployeeQuery extends BaseQuery {
   department?: string;
   status?: string;

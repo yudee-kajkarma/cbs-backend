@@ -35,6 +35,7 @@ import bonusRoutes from './routes/bonus.routes';
 import incentiveRoutes from './routes/incentive.routes';
 import roleRoutes from './routes/role.routes';
 import authRoutes from './routes/auth.routes';
+import dashboardRoutes from './routes/dashboard.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -91,6 +92,7 @@ app.use('/api/monthly-payroll', monthlyPayrollRoutes);
 app.use('/api/bonuses', bonusRoutes);
 app.use('/api/incentives', incentiveRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

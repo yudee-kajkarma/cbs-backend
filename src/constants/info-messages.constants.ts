@@ -262,4 +262,7 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: 'Employee incentive deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Employee incentives list retrieved successfully',
   },
+  DASHBOARD: {
+    USER_DASHBOARD_RETRIEVED_SUCCESSFULLY: 'User dashboard data retrieved successfully',
+  },
 };
