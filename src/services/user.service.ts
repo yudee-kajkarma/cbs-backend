@@ -6,22 +6,62 @@ import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
 import { RoleService } from "./role.service";
-import { 
-  UserDocument, 
-  UserQuery, 
-  CreateUserData, 
-  UpdateUserData 
+import {
+  UserDocument,
+  UserQuery,
+  CreateUserData,
+  UpdateUserData,
 } from "../interfaces/model.interface";
 import { Types } from "mongoose";
 import * as bcrypt from "bcryptjs";
+import { PermissionManager } from "../constants/permission.constants";
+import { SYSTEM_ROLES } from "../constants/enums.constants";
 
 export class UserService {
-  
   /**
    * Generate a unique user ID with format based on role
    */
   private static async generateUniqueUserId(role: string): Promise<string> {
     return ReferenceGenerator.generateUserReference(role);
+  }
+
+  /**
+   * Calculate user's effective permissions based on role
+   * Replicates AuthService.getUserPermissionsForToken logic
+   * @param user - User object with role and roles fields
+   * @returns Complete permissions with NONE for missing features
+   */
+  private static async calculateUserEffectivePermissions(
+    user: any
+  ): Promise<Record<string, Record<string, number>>> {
+    // ADMIN and HR get full system permissions with explicit NONE for restricted features
+    if (user.role === SYSTEM_ROLES.ADMIN || user.role === SYSTEM_ROLES.HR) {
+      return PermissionManager.buildSystemRolePermissions(user.role);
+    }
+
+    // USER role gets permissions from assigned roles
+    let userPermissions: Record<string, Record<string, number>> = {};
+
+    if (user.roles && user.roles.length > 0) {
+      const roleIds = user.roles.map((role: any) => {
+        // Handle three cases: ObjectId, populated object, or string ID
+        if (role instanceof Types.ObjectId) {
+          return role;
+        } else if (role._id) {
+          // Role is a populated object, extract _id
+          return role._id instanceof Types.ObjectId
+            ? role._id
+            : new Types.ObjectId(role._id);
+        } else {
+          // Role is a string ID
+          return new Types.ObjectId(role);
+        }
+      });
+      userPermissions = await RoleService.getUserEffectivePermissions(roleIds);
+    }
+
+    // Build complete permissions with NONE for missing features
+    return PermissionManager.buildCompletePermissions(userPermissions);
   }
 
   /**
@@ -32,19 +72,19 @@ export class UserService {
       const existingEmployee = await Employee.findOne({ userId });
       if (!existingEmployee) {
         const employeeId = await ReferenceGenerator.generateEmployeeReference();
-        
+
         await Employee.create({
           userId,
           employeeId,
-          status: 'Active'
+          status: "Active",
         });
       }
     } catch (error) {
       ErrorHandler.handleServiceError(error, {
-        serviceName: 'UserService',
-        method: 'createEmployeeForUser',
-        context: 'employee auto-creation',
-        userId
+        serviceName: "UserService",
+        method: "createEmployeeForUser",
+        context: "employee auto-creation",
+        userId,
       });
     }
   }
@@ -89,7 +129,11 @@ export class UserService {
 
       return user.toObject();
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'create', data });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "create",
+        data,
+      });
     }
   }
 
@@ -98,15 +142,25 @@ export class UserService {
    */
   static async getById(id: string): Promise<any> {
     try {
-      const user = await User.findById(id).lean();
+      const user = await User.findById(id).populate("roles").lean();
 
       if (!user) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
       }
 
-      return user;
+      // Calculate effective permissions
+      const permissions = await this.calculateUserEffectivePermissions(user);
+
+      return {
+        ...user,
+        permissions,
+      };
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'getById', id });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "getById",
+        id,
+      });
     }
   }
 
@@ -115,23 +169,50 @@ export class UserService {
    */
   static async getAll(query: UserQuery): Promise<any> {
     try {
-      const searchableFields = ['fullName', 'email', 'username', 'userId'];
-      const allowedSortFields = ['fullName', 'email', 'username', 'role', 'userId', 'createdAt', 'updatedAt'];
-      const filterFields = ['role'];
+      const searchableFields = ["fullName", "email", "username", "userId"];
+      const allowedSortFields = [
+        "fullName",
+        "email",
+        "username",
+        "role",
+        "userId",
+        "createdAt",
+        "updatedAt",
+      ];
+      const filterFields = ["role"];
 
       const result = await PaginationService.paginate(User, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
+        populateOptions: [{ path: "roles" }],
       });
 
+      // Calculate permissions for each user
+      const usersWithPermissions = await Promise.all(
+        result.data.map(async (user: any) => {
+          const permissions = await this.calculateUserEffectivePermissions(
+            user
+          );
+
+          return {
+            ...user,
+            permissions,
+          };
+        })
+      );
+
       return {
-        users: result.data,
+        users: usersWithPermissions,
         pagination: result.pagination,
         filters: result.filters,
       };
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'getAll', query });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "getAll",
+        query,
+      });
     }
   }
 
@@ -156,7 +237,9 @@ export class UserService {
 
       // Check username uniqueness if username is being updated
       if (data.username && data.username !== user.username) {
-        const existingUsername = await User.findOne({ username: data.username });
+        const existingUsername = await User.findOne({
+          username: data.username,
+        });
         if (existingUsername) {
           throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_USERNAME_EXISTS);
         }
@@ -175,7 +258,12 @@ export class UserService {
 
       return updated;
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'update', id, data });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "update",
+        id,
+        data,
+      });
     }
   }
 
@@ -191,7 +279,11 @@ export class UserService {
 
       await User.findByIdAndDelete(id);
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'delete', id });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "delete",
+        id,
+      });
     }
   }
 
@@ -206,7 +298,7 @@ export class UserService {
       }
 
       // Validate all role IDs are valid ObjectIds
-      const validRoleIds = roleIds.map(id => {
+      const validRoleIds = roleIds.map((id) => {
         if (!Types.ObjectId.isValid(id)) {
           throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_ID);
         }
@@ -218,14 +310,21 @@ export class UserService {
 
       return updated.toObject();
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'assignRoles', userId, roleIds });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "assignRoles",
+        userId,
+        roleIds,
+      });
     }
   }
 
   /**
    * Get user's effective permissions
    */
-  static async getUserPermissions(userId: string): Promise<Record<string, Record<string, number>>> {
+  static async getUserPermissions(
+    userId: string
+  ): Promise<Record<string, Record<string, number>>> {
     try {
       const user = await User.findById(userId).lean();
       if (!user) {
@@ -239,7 +338,11 @@ export class UserService {
       const roleIds = user.roles.map((role: any) => new Types.ObjectId(role));
       return await RoleService.getUserEffectivePermissions(roleIds);
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'UserService', method: 'getUserPermissions', userId });
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "getUserPermissions",
+        userId,
+      });
     }
   }
 
@@ -248,13 +351,12 @@ export class UserService {
    * @param identifier - Username or email
    * @returns User document with password (for authentication)
    */
-  static async findByUsernameOrEmail(identifier: string): Promise<UserDocument> {
+  static async findByUsernameOrEmail(
+    identifier: string
+  ): Promise<UserDocument> {
     try {
       const user = await User.findOne({
-        $or: [
-          { username: identifier },
-          { email: identifier.toLowerCase() }
-        ]
+        $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
       });
 
       if (!user) {
@@ -263,10 +365,10 @@ export class UserService {
 
       return user;
     } catch (error) {
-      ErrorHandler.handleServiceError(error, { 
-        serviceName: 'UserService', 
-        method: 'findByUsernameOrEmail', 
-        identifier 
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "findByUsernameOrEmail",
+        identifier,
       });
     }
   }

@@ -1,4 +1,4 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Type, Transform } from "class-transformer";
 import { BaseDto } from "./base-dto";
 import { PaginationResult } from "../interfaces/pagination.interface";
 
@@ -13,6 +13,12 @@ export class RoleResponseDto extends BaseDto {
   description?: string;
 
   @Expose()
+  @Transform(({ obj }) => {
+    // Use obj.permissions instead of value since class-transformer creates empty object for nested Records
+    const permissions = obj.permissions;
+    if (!permissions || typeof permissions !== "object") return {};
+    return permissions;
+  })
   permissions!: Record<string, Record<string, number>>;
 
   @Expose()
