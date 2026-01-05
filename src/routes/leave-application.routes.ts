@@ -17,6 +17,14 @@ import {
 
 const router = Router();
 
+router.get(
+  "/employee/:employeeId",
+  authenticate,
+  requireAnyRole,
+  validateParams(employeeIdParamSchema),
+  LeaveApplicationController.getEmployeeLeaveSummary
+);
+
 // CREATE 
 router.post(
   "/:employeeId",

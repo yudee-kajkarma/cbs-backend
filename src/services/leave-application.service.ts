@@ -454,4 +454,84 @@ export class LeaveApplicationService {
       ErrorHandler.handleServiceError(error, { serviceName: 'LeaveApplicationService', method: 'reject', id, approvedBy, rejectionReason });
     }
   }
+
+  /**
+   * Get employee leave summary with statistics and history
+   */
+  static async getEmployeeLeaveSummary(employeeId: string, query: LeaveApplicationQuery): Promise<any> {
+    try {
+      const employee = await Employee.findById(employeeId);
+      if (!employee) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
+      }
+
+      // Get current year date range
+      const currentYear = new Date().getFullYear();
+      const yearStart = new Date(currentYear, 0, 1);
+      const yearEnd = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+
+      const [pendingCount, approvedCount, rejectedCount, totalCount] = await Promise.all([
+        LeaveApplication.countDocuments({ 
+          employeeId, 
+          status: LeaveApplicationStatus.PENDING,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+        LeaveApplication.countDocuments({ 
+          employeeId, 
+          status: LeaveApplicationStatus.APPROVED,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+        LeaveApplication.countDocuments({ 
+          employeeId, 
+          status: LeaveApplicationStatus.REJECTED,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+        LeaveApplication.countDocuments({ 
+          employeeId,
+          startDate: { $gte: yearStart, $lte: yearEnd }
+        }),
+      ]);
+
+      const searchableFields: string[] = [];
+      const allowedSortFields = ['appliedOn', 'startDate', 'endDate', 'status', 'leaveType'];
+      const filterFields = ['employeeId', 'status', 'leaveType', 'startDate', 'endDate'];
+      const modifiedQuery = { ...query, employeeId };
+
+      const result = await PaginationService.paginate(LeaveApplication, modifiedQuery, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+      });
+
+      // Populate employee and approver data
+      const populatedData = await LeaveApplication.populate(result.data, [
+        {
+          path: 'employeeId',
+          select: 'employeeId position department phoneNumber joinDate status',
+          populate: {
+            path: 'userId',
+            select: 'fullName email username'
+          }
+        },
+        {
+          path: 'approvedBy',
+          select: 'fullName email username',
+        }
+      ]);
+
+      return {
+        summary: {
+          pending: pendingCount,
+          approved: approvedCount,
+          rejected: rejectedCount,
+          total: totalCount,
+        },
+        leaveApplications: populatedData,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'LeaveApplicationService', method: 'getEmployeeLeaveSummary', employeeId, query });
+    }
+  }
 }

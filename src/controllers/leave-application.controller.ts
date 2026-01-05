@@ -110,4 +110,33 @@ export class LeaveApplicationController {
       ErrorHandler.handleControllerError(error, res, { method: 'updateStatus', id: req.params.id, action: req.params.action, approvedBy: req.params.approvedBy, data: req.body });
     }
   }
+
+  /**
+   * Get employee leave summary with statistics
+   */
+  static async getEmployeeLeaveSummary(req: Request, res: Response): Promise<void> {
+    try {
+      const { employeeId } = req.params;
+      const query = res.locals.validatedQuery || req.query;
+      
+      const result = await LeaveApplicationService.getEmployeeLeaveSummary(employeeId, query);
+
+      const leaveApplicationsDto = toDtoList(LeaveApplicationResponseDto, result.leaveApplications);
+
+      const responseData = {
+        summary: result.summary,
+        leaveApplications: leaveApplicationsDto,
+        pagination: result.pagination,
+        filters: result.filters,
+      };
+
+      const response = ResponseUtil.success(
+        INFO_MESSAGES.LEAVE_APPLICATION.LIST_RETRIEVED_SUCCESSFULLY,
+        responseData
+      );
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getEmployeeLeaveSummary', employeeId: req.params.employeeId, query: req.query });
+    }
+  }
 }
