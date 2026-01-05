@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Type, Transform } from 'class-transformer';
 import { BaseDto } from './base-dto';
 import { PaginationResult } from '../interfaces/pagination.interface';
 import { UserRole } from '../constants';
@@ -21,6 +21,14 @@ export class UserResponseDto extends BaseDto {
 
   @Expose()
   role!: UserRole;
+
+  @Expose()
+  @Transform(({ obj }) => obj.roles || [])
+  roles?: any[];
+
+  @Expose()
+  @Transform(({ obj }) => obj.permissions || {})
+  permissions!: Record<string, Record<string, number>>;
 
 }
 

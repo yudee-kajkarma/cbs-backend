@@ -178,9 +178,13 @@ export class RoleService {
     // Get permissions for display
     const permissions = await this.getRolePermissions(role._id);
 
+    // Build complete permissions with NONE for missing modules/features
+    const completePermissions =
+      PermissionManager.buildCompletePermissions(permissions);
+
     return {
       ...role,
-      permissions,
+      permissions: completePermissions,
     } as RoleWithPermissions;
   }
 
@@ -241,9 +245,13 @@ export class RoleService {
         result.data.map(async (role: any) => {
           const permissions = await this.getRolePermissions(role._id);
 
+          // Build complete permissions with NONE for missing modules/features
+          const completePermissions =
+            PermissionManager.buildCompletePermissions(permissions);
+
           return {
             ...role,
-            permissions,
+            permissions: completePermissions,
           };
         })
       );
