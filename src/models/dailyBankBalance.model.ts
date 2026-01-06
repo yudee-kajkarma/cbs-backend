@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { BankBalanceStatus, AccountType, allowedBankBalanceStatuses, allowedAccountTypes } from "../constants/bank-balance.constants";
+import { BankBalanceStatus, AccountType, allowedBankBalanceStatuses, allowedAccountTypes } from "../constants/daily-bank-balance.constants";
 import { BankBalanceDocument } from "../interfaces/model.interface";
 
 const bankBalanceSchema = new Schema<BankBalanceDocument>(
@@ -71,4 +71,4 @@ bankBalanceSchema.index({ status: 1 }, { name: 'idx_bank_balance_status' });
 bankBalanceSchema.index({ createdAt: -1 }, { name: 'idx_bank_balance_created_desc' });
 bankBalanceSchema.index({ updatedAt: -1 }, { name: 'idx_bank_balance_updated_desc' });
 
-export default mongoose.model<BankBalanceDocument>("BankBalance", bankBalanceSchema, "bank_balance");
+export default mongoose.model<BankBalanceDocument>("BankBalance", bankBalanceSchema, "daily_bank_balance");

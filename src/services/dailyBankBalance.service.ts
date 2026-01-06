@@ -1,4 +1,4 @@
-import BankBalance from "../models/bankBalance.model";
+import BankBalance from "../models/dailyBankBalance.model";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
