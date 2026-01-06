@@ -84,6 +84,7 @@ router.get(
 router.get(
   '/monthly-statistics/:employeeId',
   authenticate,
+  requireHROrAdmin,
   validateQuery(monthlyStatisticsQuerySchema),
   AttendanceController.getMonthlyStatistics
 );
