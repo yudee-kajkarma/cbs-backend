@@ -755,6 +755,21 @@ export interface AttendancePolicyDocument extends AttendancePolicy, Document {}
 export interface UpdateAttendancePolicyData extends Partial<AttendancePolicy> {}
 
 // ============================================================================
+// METADATA MODULE
+// ============================================================================
+
+export interface Metadata {
+  standardWorkStartTime: string;
+  halfDayHoursThreshold: number;
+  autoCheckoutTime: string;
+  isActive: boolean;
+}
+
+export interface MetadataDocument extends Metadata, Document {}
+
+export interface UpdateMetadataData extends Partial<Metadata> {}
+
+// ============================================================================
 // PAYROLL COMPENSATION MODULE
 // ============================================================================
 
