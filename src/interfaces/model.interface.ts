@@ -677,6 +677,11 @@ export interface UserQuery extends BaseQuery {
 export interface CreateUserData extends Partial<User> {}
 
 // Employee Interfaces
+export interface EmployeeDocument {
+  fileKey: string;
+  expiryDate?: Date;
+}
+
 export interface Employee {
   employeeId?: string;
   userId: Types.ObjectId | string;
@@ -686,9 +691,10 @@ export interface Employee {
   joinDate?: Date;
   salary?: number;
   status: EmployeeStatus;
+  documents?: EmployeeDocument[];
 }
 
-export interface EmployeeDocument extends Employee, Document {}
+export interface EmployeeMongoDocument extends Employee, Document {}
 
 /**
  * Populated employee with user data (after .populate('userId'))
