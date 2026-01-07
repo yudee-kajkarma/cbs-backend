@@ -80,6 +80,28 @@ export class AttendanceUtil {
   }
   
   /**
+   * Get working days in a date range (for mid-month calculations)
+   */
+  static getWorkingDaysInRange(startDate: Date, endDate: Date, policy: any): number {
+    let workingDays = 0;
+    const current = new Date(startDate);
+    
+    while (current <= endDate) {
+      const dayOfWeek = current.getDay();
+      
+      if (policy.workingDaysPerWeek === 5 && dayOfWeek >= 1 && dayOfWeek <= 5) {
+        workingDays++;
+      } else if (policy.workingDaysPerWeek === 6 && dayOfWeek >= 1 && dayOfWeek <= 6) {
+        workingDays++;
+      }
+      
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return workingDays;
+  }
+  
+  /**
    * Format time to HH:mm:ss
    */
   static formatTime(date: Date): string {
