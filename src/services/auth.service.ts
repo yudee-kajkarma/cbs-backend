@@ -1,5 +1,6 @@
 import { UserService } from './user.service';
 import { RoleService } from './role.service';
+import { EmployeeService } from './employee.service';
 import { JwtUtil, UserJwtPayload } from '../utils/jwt.util';
 import { throwError, isCustomError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -10,7 +11,6 @@ import { SYSTEM_ROLES } from '../constants/enums.constants';
 import { UserDocument } from '../interfaces/model.interface';
 import { Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
-import Employee from '../models/employee.model';
 
 /**
  * Login request interface
@@ -64,9 +64,7 @@ export class AuthService {
       }
 
       // Find employee details if user has employee record
-      const employee = await Employee.findOne({ userId: user._id })
-        .select('employeeId position department phoneNumber joinDate status')
-        .lean();
+      const employee = await EmployeeService.getByUserId(user._id.toString());
 
       // Generate JWT token with permissions and employee data
       const token = await this.generateUserToken(
