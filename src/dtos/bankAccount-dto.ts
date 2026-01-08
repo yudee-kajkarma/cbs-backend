@@ -33,6 +33,22 @@ export class BankAccountResponseDto extends BaseDto {
 
     @Expose()
     fileUrl?: string;
+
+    @Expose()
+    type?: string;
+
+    @Expose()
+    currentBalance?: number;
+
+    @Expose()
+    displayCurrency?: string;
+
+    @Expose()
+    status?: string;
+
+    // Currency conversion fields
+    @Expose()
+    currentBalanceInDisplay?: number;
 }
 
 /**

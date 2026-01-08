@@ -484,6 +484,10 @@ export interface BankAccount {
   currentChequeNumber?: string;
   address?: string;
   fileKey?: string;
+  type?: string;
+  currentBalance?: number;
+  displayCurrency?: string;
+  status?: string;
 }
 
 export interface BankAccountDocument extends BankAccount, Document {}
@@ -493,6 +497,9 @@ export interface BankAccountQuery extends BaseQuery {
   branch?: string;
   accountHolder?: string;
   accountNumber?: string;
+  type?: string;
+  status?: string;
+  currency?: string;
 }
 
 export interface CreateBankAccountData extends Partial<BankAccount> {}
@@ -521,37 +528,9 @@ export interface TelexTransfer {
 
 export interface TelexTransferQuery extends BaseQuery {}
 
-
-// BANK BALANCE MODULE
-// ============================================================================
-
-export interface BankBalance {
-  account: string;
-  bank: string;
-  branch?: string;
-  type: string;
-  currentBalance: number;
-  currency: string;
-  displayCurrency?: string;
-  finalBalance?: number;
-  status?: string;
-}
-
-export interface BankBalanceDocument extends BankBalance, Document {}
-
-export interface BankBalanceQuery extends BaseQuery {
-  account?: string;
-  bank?: string;
-  branch?: string;
-  type?: string;
-  status?: string;
-  currency?: string;
-}
-
 export interface CreateTelexTransferData extends Partial<TelexTransfer> {}
 export interface UpdateTelexTransferData extends Partial<TelexTransfer> {}
-export interface CreateBankBalanceData extends Partial<BankBalance> {}
-export interface UpdateBankBalanceData extends Partial<BankBalance> {}
+
 // FORECAST MODULE
 // ============================================================================
 
