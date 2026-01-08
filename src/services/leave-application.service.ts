@@ -1,7 +1,7 @@
 import LeaveApplication from "../models/leaveApplication.model";
-import Employee from "../models/employee.model";
 import User from "../models/user.model";
 import { LeaveBalanceService } from "./leave-balance.service";
+import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -59,7 +59,7 @@ export class LeaveApplicationService {
    */
   static async create(data: CreateLeaveApplicationData): Promise<LeaveApplicationDocument> {
     try {
-      const employee = await Employee.findById(data.employeeId);
+      const employee = await EmployeeService.getById(data.employeeId!.toString());
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -449,7 +449,7 @@ export class LeaveApplicationService {
       leaveStart.setHours(0, 0, 0, 0);
 
       if (leaveStart <= today) {
-        await Employee.findByIdAndUpdate(existing.employeeId._id, {
+        await EmployeeService.update(existing.employeeId._id.toString(), {
           status: EmployeeStatus.ON_LEAVE
         });
       }
@@ -561,7 +561,7 @@ export class LeaveApplicationService {
    */
   static async getEmployeeLeaveSummary(employeeId: string, query: LeaveApplicationQuery): Promise<any> {
     try {
-      const employee = await Employee.findById(employeeId);
+      const employee = await EmployeeService.getById(employeeId);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
