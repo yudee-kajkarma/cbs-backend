@@ -1,4 +1,4 @@
-import { Expose, Type } from "class-transformer";
+mport { Expose, Type } from "class-transformer";
 import { BaseDto } from './base-dto';
 import { PaginationResult } from '../services/pagination.service';
 
