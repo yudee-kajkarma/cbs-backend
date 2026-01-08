@@ -1113,3 +1113,132 @@ export interface CreateActivityLogData {
   entityId?: Types.ObjectId | string;
   metadata?: Record<string, any>;
 }
+
+// ============================================================================
+// ANALYTICS MODULE
+// ============================================================================
+
+export interface ITOverviewAnalytics {
+  totalAssets: number;
+  modules: {
+    hardware: HardwareModuleStats;
+    software: SoftwareModuleStats;
+    networkEquipment: NetworkModuleStats;
+    support: SupportModuleStats;
+    sim: SimModuleStats;
+    hardwareTransfers: TransferModuleStats;
+  };
+}
+
+export interface HardwareModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export interface SoftwareModuleStats {
+  total: number;
+  active: number;
+  expired: number;
+}
+
+export interface NetworkModuleStats {
+  total: number;
+  online: number;
+  offline: number;
+  maintenance: number;
+}
+
+export interface SupportModuleStats {
+  total: number;
+  open: number;
+  inProgress: number;
+  resolved: number;
+}
+
+export interface SimModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export interface TransferModuleStats {
+  total: number;
+  active: number;
+  completed: number;
+}
+
+export interface AssetsOverviewAnalytics {
+  totalAssets: number;
+  modules: {
+    property: AssetModuleStats;
+    vehicle: AssetModuleStats;
+    equipment: AssetModuleStats;
+    furniture: AssetModuleStats;
+  };
+}
+
+export interface AssetModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+// ============================================================================
+// COMPANY DOCUMENTS ANALYTICS
+// ============================================================================
+
+export interface CompanyDocsOverviewAnalytics {
+  totalDocuments: number;
+  modules: {
+    legalDocs: CompanyDocModuleStats;
+    audit: CompanyDocModuleStats;
+    iso: CompanyDocModuleStats;
+  };
+}
+
+export interface CompanyDocModuleStats {
+  total: number;
+}
+
+// ============================================================================
+// BANK ANALYTICS
+// ============================================================================
+
+export interface BankOverviewAnalytics {
+  totalRecords: number;
+  modules: {
+    bankAccounts: BankAccountModuleStats;
+    cheques: ChequeModuleStats;
+    telexTransfers: TelexTransferModuleStats;
+    forecasts: ForecastModuleStats;
+  };
+}
+
+export interface BankAccountModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export interface ChequeModuleStats {
+  total: number;
+  printed: number;
+  cleared: number;
+  pending: number;
+}
+
+export interface TelexTransferModuleStats {
+  total: number;
+  completed: number;
+  pending: number;
+  draft: number;
+}
+
+export interface ForecastModuleStats {
+  total: number;
+  income: number;
+  expense: number;
+  planned: number;
+  completed: number;
+}
