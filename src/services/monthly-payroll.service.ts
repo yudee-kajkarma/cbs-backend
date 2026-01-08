@@ -1,10 +1,10 @@
 import MonthlyPayroll from "../models/monthlyPayroll.model";
-import Employee from "../models/employee.model";
 import Attendance from "../models/attendance.model";
 import EmployeeBonus from "../models/employeeBonus.model";
 import EmployeeIncentive from "../models/employeeIncentive.model";
 import PayrollCompensation from "../models/payrollCompensation.model";
 import { AttendancePolicyService } from "./attendance-policy.service";
+import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
 import { AttendanceUtil } from "../utils/attendance.util";
@@ -36,7 +36,7 @@ export class MonthlyPayrollService {
       }
 
       // Get employee details
-      const employee = await Employee.findById(employeeId).lean();
+      const employee = await EmployeeService.getById(employeeId);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -195,7 +195,7 @@ export class MonthlyPayrollService {
   /**
    * Get payroll by ID with populated employee data
    */
-  static async getById(id: string): Promise<any> {
+  static async getById(id: string): Promise<MonthlyPayrollDocument> {
     try {
       const payroll = await MonthlyPayroll.findById(id)
         .populate({
@@ -298,7 +298,7 @@ export class MonthlyPayrollService {
   /**
    * Update payroll status (handles status transitions only)
    */
-  static async update(id: string, data: UpdateMonthlyPayrollData): Promise<any> {
+  static async update(id: string, data: UpdateMonthlyPayrollData): Promise<MonthlyPayrollDocument> {
     try {
       const payroll = await MonthlyPayroll.findById(id);
       if (!payroll) {
