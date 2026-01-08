@@ -119,4 +119,20 @@ export class PropertyService {
       ErrorHandler.handleServiceError(error, { serviceName: 'PropertyService', method: 'delete', id });
     }
   }
+
+  /**
+   * Get property statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await PropertyModel.countDocuments();
+      const active = await PropertyModel.countDocuments({ status: 'Active' });
+      const inactive = await PropertyModel.countDocuments({ status: { $ne: 'Active' } });
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'PropertyService', method: 'getStats' });
+    }
+  }
 }

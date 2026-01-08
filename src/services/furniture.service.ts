@@ -101,5 +101,20 @@ export class FurnitureService {
       ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'delete', id });
     }
   }
-}
 
+  /**
+   * Get furniture statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await FurnitureModel.countDocuments();
+      const active = await FurnitureModel.countDocuments({ status: 'Active' });
+      const inactive = await FurnitureModel.countDocuments({ status: { $ne: 'Active' } });
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'FurnitureService', method: 'getStats' });
+    }
+  }
+}

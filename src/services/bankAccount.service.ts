@@ -250,4 +250,24 @@ export class BankAccountService {
       });
     }
   }
+
+  /**
+   * Get bank account statistics for analytics
+   */
+  static async getStats(): Promise<{ total: number; active: number; inactive: number }> {
+    try {
+      const [total, active, inactive] = await Promise.all([
+        BankAccount.countDocuments(),
+        BankAccount.countDocuments({ status: 'Active' }),
+        BankAccount.countDocuments({ status: 'Inactive' })
+      ]);
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, {
+        serviceName: 'BankAccountService',
+        method: 'getStats'
+      });
+    }
+  }
 }

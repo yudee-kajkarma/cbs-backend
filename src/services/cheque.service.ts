@@ -129,4 +129,25 @@ export class ChequeService {
       ErrorHandler.handleServiceError(error, { serviceName: 'ChequeService', method: 'remove', id });
     }
   }
+
+  /**
+   * Get cheque statistics for analytics
+   */
+  static async getStats(): Promise<{ total: number; printed: number; cleared: number; pending: number }> {
+    try {
+      const [total, printed, cleared, pending] = await Promise.all([
+        Cheque.countDocuments(),
+        Cheque.countDocuments({ printStatus: 'Printed' }),
+        Cheque.countDocuments({ transactionStatus: 'Cleared' }),
+        Cheque.countDocuments({ printStatus: 'Pending' })
+      ]);
+
+      return { total, printed, cleared, pending };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, {
+        serviceName: 'ChequeService',
+        method: 'getStats'
+      });
+    }
+  }
 }

@@ -280,4 +280,26 @@ export class  ForecastService {
     }
   }
 
+  /**
+   * Get forecast statistics for analytics
+   */
+  static async getStats(): Promise<{ total: number; income: number; expense: number; planned: number; completed: number }> {
+    try {
+      const [total, income, expense, planned, completed] = await Promise.all([
+        Forecast.countDocuments(),
+        Forecast.countDocuments({ type: 'Income' }),
+        Forecast.countDocuments({ type: 'Expense' }),
+        Forecast.countDocuments({ status: 'Planned' }),
+        Forecast.countDocuments({ status: 'Completed' })
+      ]);
+
+      return { total, income, expense, planned, completed };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, {
+        serviceName: 'ForecastService',
+        method: 'getStats'
+      });
+    }
+  }
+
 }

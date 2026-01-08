@@ -105,5 +105,20 @@ export class HardwareTransferService {
       ErrorHandler.handleServiceError(error, { serviceName: 'HardwareTransferService', method: 'delete', id });
     }
   }
-}
 
+  /**
+   * Get hardware transfer statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await HardwareTransferModel.countDocuments();
+      const active = await HardwareTransferModel.countDocuments({ status: 'Active' });
+      const completed = await HardwareTransferModel.countDocuments({ status: 'Completed' });
+
+      return { total, active, completed };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'HardwareTransferService', method: 'getStats' });
+    }
+  }
+}
