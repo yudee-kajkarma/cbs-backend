@@ -123,9 +123,16 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     
+    // Metadata Errors
+    METADATA_NOT_FOUND: {
+      code: 'CBS-4008-5',
+      message: 'Metadata not found',
+      status: 404
+    },
+    
     // Payroll Compensation Errors
     PAYROLL_COMPENSATION_NOT_FOUND: {
-      code: 'CBS-4008-5',
+      code: 'CBS-4008-6',
       message: 'Payroll compensation settings not found',
       status: 404
     },

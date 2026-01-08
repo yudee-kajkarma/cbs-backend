@@ -188,6 +188,10 @@ export const INFO_MESSAGES = {
     UPDATED_SUCCESSFULLY: "Attendance policy updated successfully",
     DELETED_SUCCESSFULLY: "Attendance policy deleted successfully",
   },
+  METADATA: {
+    SAVED_SUCCESSFULLY: "Metadata saved successfully",
+    RETRIEVED_SUCCESSFULLY: "Metadata retrieved successfully",
+  },
   PAYROLL_COMPENSATION: {
     CREATED_SUCCESSFULLY: "Payroll compensation settings created successfully",
     RETRIEVED_SUCCESSFULLY:
