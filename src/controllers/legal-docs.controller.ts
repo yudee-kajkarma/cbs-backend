@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { DocumentService } from "../services/document.service";
-import { DocumentResponseDto, GetAllDocumentsResponseDto } from "../dtos/document-dto";
+import { DocumentService } from "../services/legal-docs.service";
+import { DocumentResponseDto, GetAllDocumentsResponseDto } from "../dtos/legal-docs-dto";
 import { toDto, toDtoList } from "../utils/dto-mapper.util";
 import { ResponseUtil } from "../utils/response-formatter.util";
 import { ErrorHandler } from "../utils/error-handler.util";

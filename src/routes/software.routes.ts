@@ -8,6 +8,9 @@ import { createSoftwareSchema, updateSoftwareSchema, idParamSchema, listQuerySch
 
 const router = Router();
 
+/** * IT Management module - Software Licenses Resource Routes
+ */
+
 // CREATE - Requires WRITE permission
 router.post(
   "/",

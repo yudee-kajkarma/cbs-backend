@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { BankBalanceStatus, AccountType } from "../constants/bank-balance.constants";
+import { BankBalanceStatus, AccountType } from "../constants/daily-bank-balance.constants";
 
 export const bankBalanceIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required(),
