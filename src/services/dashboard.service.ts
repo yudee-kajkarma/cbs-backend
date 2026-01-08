@@ -1,4 +1,3 @@
-import Employee from "../models/employee.model";
 import Attendance from "../models/attendance.model";
 import LeaveApplication from "../models/leaveApplication.model";
 import LeaveBalance from "../models/leaveBalance.model";
@@ -7,6 +6,7 @@ import ActivityLog from "../models/activity-log.model";
 import { AttendanceService } from "./attendance.service";
 import { AttendancePolicyService } from "./attendance-policy.service";
 import { ActivityLogService } from "./activity-log.service";
+import { EmployeeService } from "./employee.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { AttendanceUtil } from "../utils/attendance.util";
@@ -22,7 +22,7 @@ export class DashboardService {
    */
   static async getAttendanceOverview(employeeId: string): Promise<any> {
     try {
-      const employee = await Employee.findById(employeeId).lean();
+      const employee = await EmployeeService.getById(employeeId);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -99,7 +99,7 @@ export class DashboardService {
   static async getLeaveOverview(employeeId: string): Promise<any> {
     try {
       // Verify employee exists
-      const employee = await Employee.findById(employeeId).lean();
+      const employee = await EmployeeService.getById(employeeId);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -137,7 +137,7 @@ export class DashboardService {
    */
   static async getLeaveApplicationsOverview(employeeId: string): Promise<any> {
     try {
-      const employee = await Employee.findById(employeeId).lean();
+      const employee = await EmployeeService.getById(employeeId);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -162,7 +162,7 @@ export class DashboardService {
   static async getActivityLogOverview(employeeId: string, limit: number = 10): Promise<any> {
     try {
       // Verify employee exists
-      const employee = await Employee.findById(employeeId).lean();
+      const employee = await EmployeeService.getById(employeeId);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
@@ -361,9 +361,12 @@ export class DashboardService {
       const currentYear = today.getFullYear();
 
       // Total employees count
-      const totalEmployees = await Employee.countDocuments({
-        status: { $in: [EmployeeStatus.ACTIVE, EmployeeStatus.ON_LEAVE] }
+      const employeeResult = await EmployeeService.getAll({
+        status: `${EmployeeStatus.ACTIVE},${EmployeeStatus.ON_LEAVE}`,
+        limit: Number.MAX_SAFE_INTEGER,
+        page: 1
       });
+      const totalEmployees = employeeResult.pagination.totalCount;
 
       // Present today count (checked in today)
       const presentToday = await Attendance.countDocuments({
