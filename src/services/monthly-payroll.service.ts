@@ -247,9 +247,12 @@ export class MonthlyPayrollService {
    */
   static async recalculateAllEmployees(month: number, year: number): Promise<any> {
     try {
-      const activeEmployees = await Employee.find({
-        status: { $in: ['Active', 'On Leave'] }
+      const result = await EmployeeService.getAll({
+        status: 'Active,On Leave',
+        limit: Number.MAX_SAFE_INTEGER,
+        page: 1
       });
+      const activeEmployees = result.employees;
 
       let createdCount = 0;
       let updatedCount = 0;
