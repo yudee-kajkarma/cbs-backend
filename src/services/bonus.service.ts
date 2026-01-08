@@ -1,5 +1,5 @@
 import EmployeeBonus from "../models/employeeBonus.model";
-import Employee from "../models/employee.model";
+import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
 import { throwError } from "../utils/errors.util";
@@ -19,7 +19,7 @@ export class BonusService {
    */
   static async create(data: CreateEmployeeBonusData): Promise<EmployeeBonusDocument> {
     try {
-      const employee = await Employee.findById(data.employeeId);
+      const employee = await EmployeeService.getById(data.employeeId.toString());
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }

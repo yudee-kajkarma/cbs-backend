@@ -90,7 +90,7 @@ export class AttendanceService {
                     empId: employeeData.employeeId,
                     name: employeeData.userId?.fullName || 'Unknown',
                     department: employeeData.department || 'N/A',
-                    checkInTime: checkInTime.toLocaleTimeString('en-US', { hour12: false }),
+                    checkInTime: checkInTime.toISOString(),
                     timestamp: new Date().toISOString()
                 });
 
@@ -175,7 +175,7 @@ export class AttendanceService {
                     empId: employeeData.employeeId,
                     name: employeeData.userId?.fullName || 'Unknown',
                     department: employeeData.department || 'N/A',
-                    checkOutTime: checkOutTime.toLocaleTimeString('en-US', { hour12: false }),
+                    checkOutTime: checkOutTime.toISOString(),
                     hoursWorked: parseFloat(workingHours.toFixed(2)),
                     timestamp: new Date().toISOString()
                 });
