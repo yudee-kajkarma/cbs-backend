@@ -999,6 +999,7 @@ export interface MonthlyPayroll {
   presentDays: number;
   absentDays: number;
   unpaidLeaveDays: number;
+  paidLeaveDays: number;
   salaryDeduction: number;
   socialInsurance: number;
   totalDeductions: number;

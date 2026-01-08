@@ -251,6 +251,7 @@ export const INFO_MESSAGES = {
     PROCESSED_SUCCESSFULLY: 'Monthly payroll processed successfully',
     MARKED_PAID_SUCCESSFULLY: 'Monthly payroll marked as paid successfully',
     BULK_PROCESSED_SUCCESSFULLY: 'All pending payrolls processed successfully',
+    BULK_RECALCULATED_SUCCESSFULLY: 'Bulk payroll recalculation completed successfully',
   },
   BONUS: {
     CREATED_SUCCESSFULLY: 'Employee bonus created successfully',
