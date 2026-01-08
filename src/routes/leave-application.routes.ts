@@ -17,7 +17,7 @@ import {
 
 const router = Router();
 
-// CREATE - Any Role
+// CREATE 
 router.post(
   "/:employeeId",
   authenticate,
@@ -34,7 +34,6 @@ router.get("/", authenticate, requireAnyRole, LeaveApplicationController.getAll)
 router.get(
   "/:id",
   authenticate,
-  requireHROrAdmin,
   validateParams(leaveApplicationIdSchema),
   LeaveApplicationController.getById
 );

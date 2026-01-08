@@ -29,4 +29,10 @@ export const config: IConfig = {
     apiKey: process.env.CURRENCY_API_KEY || '106f5e7fc36d4ac4df539713',
     baseUrl: process.env.CURRENCY_API_BASE_URL || 'https://v6.exchangerate-api.com/v6',
   },
+  attendance: {
+    allowedIpRanges: process.env.COMPANY_NETWORK_IP_RANGES
+      ? process.env.COMPANY_NETWORK_IP_RANGES.split(',').map(ip => ip.trim())
+      : [],
+    allowLocalhost: process.env.NODE_ENV === 'development',
+  },
 };

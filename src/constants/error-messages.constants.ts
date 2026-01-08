@@ -29,6 +29,11 @@ export const ERROR_MESSAGES = {
       message: 'Employee not found',
       status: 404
     },
+    EMPLOYEE_SALARY_NOT_SET: {
+      code: 'CBS-4000-4',
+      message: 'Employee salary is not set',
+      status: 400
+    },
     
     // Audit Errors
     AUDIT_NOT_FOUND: {
@@ -152,9 +157,55 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     
+    // Monthly Payroll Errors
+    MONTHLY_PAYROLL_NOT_FOUND: {
+      code: 'CBS-4009',
+      message: 'Monthly payroll not found',
+      status: 404
+    },
+    MONTHLY_PAYROLL_ALREADY_EXISTS: {
+      code: 'CBS-4009-1',
+      message: 'Monthly payroll already exists for this employee and period',
+      status: 409
+    },
+    MONTHLY_PAYROLL_ALREADY_PROCESSED: {
+      code: 'CBS-4009-2',
+      message: 'Monthly payroll has already been processed',
+      status: 400
+    },
+    MONTHLY_PAYROLL_ALREADY_PAID: {
+      code: 'CBS-4009-3',
+      message: 'Monthly payroll has already been marked as paid',
+      status: 400
+    },
+    
+    // Employee Bonus Errors
+    BONUS_NOT_FOUND: {
+      code: 'CBS-4010',
+      message: 'Employee bonus not found',
+      status: 404
+    },
+    BONUS_ALREADY_EXISTS: {
+      code: 'CBS-4010-1',
+      message: 'Bonus already exists for this employee and period',
+      status: 409
+    },
+    
+    // Employee Incentive Errors
+    INCENTIVE_NOT_FOUND: {
+      code: 'CBS-4011',
+      message: 'Employee incentive not found',
+      status: 404
+    },
+    INCENTIVE_ALREADY_EXISTS: {
+      code: 'CBS-4011-1',
+      message: 'Incentive already exists for this employee and period',
+      status: 409
+    },
+    
     // License Errors
     LICENSE_NOT_FOUND: {
-      code: 'CBS-4009',
+      code: 'CBS-4012',
       message: 'License not found',
       status: 404
     },
@@ -357,6 +408,42 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     
+    // Attendance Errors
+    ATTENDANCE_NOT_FOUND: {
+      code: 'CBS-4030',
+      message: 'Attendance record not found',
+      status: 404
+    },
+    ATTENDANCE_ALREADY_CHECKED_IN: {
+      code: 'CBS-4031',
+      message: 'Already checked in for today',
+      status: 409
+    },
+    ATTENDANCE_NOT_CHECKED_IN: {
+      code: 'CBS-4032',
+      message: 'Not checked in yet',
+      status: 400
+    },
+    ATTENDANCE_ALREADY_CHECKED_OUT: {
+      code: 'CBS-4033',
+      message: 'Already checked out for today',
+      status: 409
+    },
+    INVALID_NETWORK_CONNECTION: {
+      code: 'CBS-4034',
+      message: 'Check-in/Check-out must be done from company network',
+      status: 403
+    },
+    ATTENDANCE_ALREADY_EXISTS: {
+      code: 'CBS-4035',
+      message: 'Attendance record already exists for this date',
+      status: 409
+    },
+    INVALID_ATTENDANCE_ACTION: {
+      code: 'CBS-4036',
+      message: 'Invalid action. Must be check-in or check-out',
+      status: 400
+    },
     // Role Errors
     ROLE_NOT_FOUND: {
       code: 'CBS-4028',

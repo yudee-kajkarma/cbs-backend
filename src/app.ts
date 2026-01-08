@@ -29,6 +29,10 @@ import leaveBalanceRoutes from './routes/leave-balance.routes';
 import leaveApplicationRoutes from './routes/leave-application.routes';
 import attendancePolicyRoutes from './routes/attendance-policy.routes';
 import payrollCompensationRoutes from './routes/payroll-compensation.routes';
+import attendanceRoutes from './routes/attendance.routes';
+import monthlyPayrollRoutes from './routes/monthly-payroll.routes';
+import bonusRoutes from './routes/bonus.routes';
+import incentiveRoutes from './routes/incentive.routes';
 import roleRoutes from './routes/role.routes';
 import authRoutes from './routes/auth.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
@@ -40,7 +44,7 @@ const app = express();
 app.use(cors({
   origin: config.cors.allowedOrigins,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -82,6 +86,10 @@ app.use('/api/leave-balances', leaveBalanceRoutes);
 app.use('/api/leave-applications', leaveApplicationRoutes);
 app.use('/api/attendance-policies', attendancePolicyRoutes);
 app.use('/api/payroll-compensation', payrollCompensationRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/monthly-payroll', monthlyPayrollRoutes);
+app.use('/api/bonuses', bonusRoutes);
+app.use('/api/incentives', incentiveRoutes);
 app.use('/api/roles', roleRoutes);
 
 // Error Handler

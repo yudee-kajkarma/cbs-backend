@@ -10,15 +10,34 @@ import {
 } from "../interfaces/model.interface";
 import { ForecastType } from "../constants/forecast.constants";
 import { parseForecastCsv } from "../utils/forecast-csv-parser.util";
+import { CurrencyConverter } from "../utils/currency-converter.util";
 
-export class ForecastService {
+export class  ForecastService {
+  /**
+   * Helper method to convert forecast amount to USD
+   */
+  private static async convertToUSD(forecast: any): Promise<any> {
+    const result = { ...forecast };
+    
+    if (forecast.amount && forecast.currency) {
+      result.amountUSD = await CurrencyConverter.convertCurrencyWithFallback(
+        forecast.amount,
+        forecast.currency,
+        'USD'
+      );
+    }
+    
+    return result;
+  }
+
   /**
    * Create a new forecast entry
    */
   static async create(data: CreateForecastData): Promise<any> {
     try {
       const forecast = await Forecast.create(data);
-      return forecast.toObject();
+      const forecastObj = forecast.toObject();
+      return await this.convertToUSD(forecastObj);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'create', data });
     }
@@ -51,8 +70,13 @@ export class ForecastService {
         additionalFilters,
       });
 
+      // Convert all forecasts to USD
+      const forecastsWithUSD = await Promise.all(
+        result.data.map((forecast: any) => this.convertToUSD(forecast))
+      );
+
       return {
-        forecasts: result.data,
+        forecasts: forecastsWithUSD,
         pagination: result.pagination,
         filters: result.filters,
       };
@@ -72,7 +96,7 @@ export class ForecastService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.FORECAST_NOT_FOUND);
       }
 
-      return forecast;
+      return await this.convertToUSD(forecast);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'getOne', id });
     }

@@ -833,3 +833,235 @@ export interface LeaveBalanceQuery extends BaseQuery {
 
 export interface CreateLeaveBalanceData extends Partial<LeaveBalance> {}
 export interface UpdateLeaveBalanceData extends Partial<LeaveBalance> {}
+
+// ============================================================================
+// ATTENDANCE MODULE
+// ============================================================================
+
+export interface Attendance {
+  attendanceId?: string;
+  employeeId: Types.ObjectId;
+  date: Date;
+  checkInTime: Date;
+  checkInIP: string;
+  checkOutTime?: Date;
+  checkOutIP?: string;
+  workingHours: number;
+  overtimeHours: number;
+  isLateArrival: boolean;
+  lateArrivalMinutes: number;
+  status: string;
+}
+
+export interface AttendanceDocument extends Attendance, Document {}
+
+export interface CreateAttendanceData extends Partial<Attendance> {
+  employeeId: Types.ObjectId;
+  checkInTime: Date;
+  checkInIP: string;
+}
+
+export interface UpdateAttendanceData extends Partial<Attendance> {}
+
+export interface AttendanceQuery extends BaseQuery {
+  employeeId?: string;
+  date?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  department?: string;
+  month?: number;
+  year?: number;
+}
+
+export interface MonthlyStatistics {
+  totalWorkingDays: number;
+  presentDays: number;
+  absentDays: number;
+  leaveDays: number;
+  lateDays: number;
+  averageWorkingHours: number;
+  totalWorkingHours: number;
+  totalOvertimeHours: number;
+}
+
+export interface LiveAttendanceSummary {
+  totalStaff: number;
+  checkedIn: number;
+  checkedOut: number;
+  notMarked: number;
+  onLeave: number;
+  presentPercentage: number;
+}
+
+export interface DailySalarySummary {
+  present: number;
+  absent: number;
+  onLeave: number;
+  attendancePercent: number;
+}
+
+export interface SalaryCalculationRules {
+  fullSalary: {
+    condition: string;
+    threshold: number;
+    percentage: number;
+  };
+  deducted: {
+    condition: string;
+    threshold: number;
+    percentage: number;
+  };
+  zeroSalary: {
+    condition: string;
+  };
+}
+
+export interface DailyAttendanceRecord {
+  empId: string;
+  name: string;
+  department?: string;
+  position?: string;
+  checkIn: string;
+  checkOut: string;
+  hoursWorked: number;
+  status: string;
+  salaryStatus: string;
+  deductionAmount: number;
+  salaryForDay: number;
+}
+
+export interface DailyAttendanceSummaryResponse {
+  summary: DailySalarySummary;
+  salaryRules: SalaryCalculationRules;
+  records: DailyAttendanceRecord[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  filters: {
+    date: string;
+    status: string | null;
+    department: string | null;
+  };
+}
+
+export interface EmployeeComplianceRecord {
+  employeeId: string;
+  fullName: string;
+  department: string;
+  presentDays: number;
+  requiredDays: number;
+  attendancePercentage: number;
+  thresholdMet: boolean;
+}
+
+// ============================================================================
+// MONTHLY PAYROLL MODULE
+// ============================================================================
+
+export interface MonthlyPayroll {
+  payrollId: string;
+  employeeId: Types.ObjectId;
+  month: number;
+  year: number;
+  totalSalary: number;
+  basicSalary: number;
+  attendancePercentage: number;
+  workingDays: number;
+  presentDays: number;
+  absentDays: number;
+  unpaidLeaveDays: number;
+  salaryDeduction: number;
+  socialInsurance: number;
+  totalDeductions: number;
+  bonusAmount: number;
+  incentiveAmount: number;
+  overtimePay: number;
+  netSalary: number;
+  status: string;
+  processedDate?: Date;
+  paidDate?: Date;
+}
+
+export interface MonthlyPayrollDocument extends MonthlyPayroll, Document {}
+
+export interface MonthlyPayrollQuery extends BaseQuery {
+  employeeId?: string;
+  month?: number;
+  year?: number;
+  status?: string;
+  department?: string;
+}
+
+export interface CreateMonthlyPayrollData extends Partial<MonthlyPayroll> {
+  employeeId: Types.ObjectId;
+  month: number;
+  year: number;
+}
+
+export interface UpdateMonthlyPayrollData extends Partial<MonthlyPayroll> {}
+
+// ============================================================================
+// EMPLOYEE BONUS MODULE
+// ============================================================================
+
+export interface EmployeeBonus {
+  bonusId: string;
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface EmployeeBonusDocument extends EmployeeBonus, Document {}
+
+export interface EmployeeBonusQuery extends BaseQuery {
+  employeeId?: string;
+  month?: number;
+  year?: number;
+  department?: string;
+}
+
+export interface CreateEmployeeBonusData extends Partial<EmployeeBonus> {
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface UpdateEmployeeBonusData extends Partial<EmployeeBonus> {}
+
+// ============================================================================
+// EMPLOYEE INCENTIVE MODULE
+// ============================================================================
+
+export interface EmployeeIncentive {
+  incentiveId: string;
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface EmployeeIncentiveDocument extends EmployeeIncentive, Document {}
+
+export interface EmployeeIncentiveQuery extends BaseQuery {
+  employeeId?: string;
+  month?: number;
+  year?: number;
+  department?: string;
+}
+
+export interface CreateEmployeeIncentiveData extends Partial<EmployeeIncentive> {
+  employeeId: Types.ObjectId;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface UpdateEmployeeIncentiveData extends Partial<EmployeeIncentive> {}

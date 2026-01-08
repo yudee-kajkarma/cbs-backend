@@ -11,6 +11,9 @@ export interface UserJwtPayload {
   username: string;
   fullName: string;
   role: string;
+  employee?: {
+    id: string;
+  } | null;
   permissions: Record<string, Record<string, number>>;
   iat?: number;
   exp?: number;
@@ -27,7 +30,7 @@ export class JwtUtil {
    */
   static generateToken(payload: Omit<UserJwtPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
+      expiresIn: config.jwt.expiresIn as jwt.SignOptions['expiresIn'],
     });
   }
 

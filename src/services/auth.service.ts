@@ -1,5 +1,6 @@
 import { UserService } from './user.service';
 import { RoleService } from './role.service';
+import { EmployeeService } from './employee.service';
 import { JwtUtil, UserJwtPayload } from '../utils/jwt.util';
 import { throwError, isCustomError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -31,6 +32,11 @@ export interface LoginResponse {
     fullName: string;
     email: string;
     role: string;
+    employee?: {
+      id: string;
+      position: string;
+      department: string;
+    } | null;
   };
 }
 
@@ -57,8 +63,14 @@ export class AuthService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_CREDENTIALS);
       }
 
-      // Generate JWT token with permissions
-      const token = await this.generateUserToken(user);
+      // Find employee details if user has employee record
+      const employee = await EmployeeService.getByUserId(user._id.toString());
+
+      // Generate JWT token with permissions and employee data
+      const token = await this.generateUserToken(
+        user, 
+        employee ? employee._id.toString() : null
+      );
 
       return {
         token,
@@ -69,6 +81,11 @@ export class AuthService {
           fullName: user.fullName,
           email: user.email,
           role: user.role,
+          employee: employee ? {
+            id: employee._id.toString(),
+            position: employee.position!,
+            department: employee.department!,
+          } : null,
         },
       };
     } catch (error) {
@@ -86,9 +103,13 @@ export class AuthService {
   /**
    * Generate JWT token with user permissions
    * @param user - User document
+   * @param employeeId - Optional employee ID
    * @returns JWT token string
    */
-  static async generateUserToken(user: UserDocument): Promise<string> {
+  static async generateUserToken(
+    user: UserDocument,
+    employeeId?: string | null
+  ): Promise<string> {
     // Get permissions based on user role
     const permissions = await this.getUserPermissionsForToken(user);
 
@@ -98,6 +119,9 @@ export class AuthService {
       username: user.username,
       fullName: user.fullName,
       role: user.role,
+      employee: employeeId ? {
+        id: employeeId,
+      } : null,
       permissions,
     };
 
