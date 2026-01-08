@@ -690,6 +690,14 @@ export interface Employee {
 
 export interface EmployeeDocument extends Employee, Document {}
 
+/**
+ * Populated employee with user data (after .populate('userId'))
+ */
+export interface PopulatedEmployee extends Omit<Employee, 'userId'> {
+  _id: string;
+  userId: Pick<User, 'fullName' | 'email'>;
+}
+
 export interface EmployeeQuery extends BaseQuery {
   department?: string;
   status?: string;
@@ -1065,3 +1073,42 @@ export interface CreateEmployeeIncentiveData extends Partial<EmployeeIncentive> 
 }
 
 export interface UpdateEmployeeIncentiveData extends Partial<EmployeeIncentive> {}
+
+// ============================================================================
+// ACTIVITY LOG MODULE
+// ============================================================================
+
+export interface ActivityLog {
+  userId: Types.ObjectId;
+  employeeId?: Types.ObjectId;
+  activityType: string;
+  action: string;
+  module: string;
+  entityType?: string;
+  entityId?: Types.ObjectId;
+  description: string;
+  metadata?: Record<string, any>;
+}
+
+export interface ActivityLogDocument extends ActivityLog, Document {}
+
+export interface ActivityLogQuery extends BaseQuery {
+  userId?: string;
+  employeeId?: string;
+  activityType?: string;
+  module?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface CreateActivityLogData {
+  userId: Types.ObjectId | string;
+  employeeId?: Types.ObjectId | string;
+  activityType: string;
+  action: string;
+  module: string;
+  description: string;
+  entityType?: string;
+  entityId?: Types.ObjectId | string;
+  metadata?: Record<string, any>;
+}
