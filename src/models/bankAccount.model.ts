@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { Currency, allowedCurrencies } from "../constants/common.constants";
+import { BankBalanceStatus, allowedBankBalanceStatuses, allowedAccountTypes } from "../constants/daily-bank-balance.constants";
 import { BankAccountDocument } from "../interfaces/model.interface";
 
 const bankAccountSchema = new Schema<BankAccountDocument>(
@@ -50,7 +51,32 @@ const bankAccountSchema = new Schema<BankAccountDocument>(
             type: String,
             trim: true,
             maxlength: [500, 'File key cannot exceed 500 characters'],
-        },       
+        },
+        type: {
+            type: String,
+            enum: {
+                values: allowedAccountTypes,
+                message: '{VALUE} is not a valid account type',
+            },
+            default: 'Current',
+        },
+        currentBalance: {
+            type: Number,
+            default: 0,
+        },
+        displayCurrency: {
+            type: String,
+            trim: true,
+            default: 'KWD',
+        },
+        status: {
+            type: String,
+            enum: {
+                values: allowedBankBalanceStatuses,
+                message: '{VALUE} is not a valid status',
+            },
+            default: BankBalanceStatus.ACTIVE,
+        },
     },
     {
         timestamps: true,
@@ -61,9 +87,11 @@ const bankAccountSchema = new Schema<BankAccountDocument>(
 // Indexes for better query performance
 bankAccountSchema.index({ bankName: 1 }, { name: 'idx_bank_account_bank_name' });
 bankAccountSchema.index({ accountNumber: 1 }, { name: 'idx_bank_account_number', unique: true });
-bankAccountSchema.index({ accountHolder: 1 }, { name: 'idx_bank_account_holder' });
 bankAccountSchema.index({ currency: 1 }, { name: 'idx_bank_account_currency' });
+bankAccountSchema.index({ type: 1 }, { name: 'idx_bank_account_type' });
+bankAccountSchema.index({ status: 1 }, { name: 'idx_bank_account_status' });
 bankAccountSchema.index({ createdAt: -1 }, { name: 'idx_bank_account_created_desc' });
+bankAccountSchema.index({ updatedAt: -1 }, { name: 'idx_bank_account_updated_desc' });
 
 export default mongoose.model<BankAccountDocument>("BankAccount", bankAccountSchema, "bank_account");
 
