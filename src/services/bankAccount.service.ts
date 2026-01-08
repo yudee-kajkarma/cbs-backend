@@ -66,8 +66,10 @@ export class BankAccountService {
         filterFields: filterFields,
       });
 
-      // Format bank accounts without expensive S3 calls
-      const formatted = result.data.map((account) => this.formatBankAccountForList(account as BankAccountDocument));
+      // Format bank accounts with S3 URLs
+      const formatted = await Promise.all(
+        result.data.map((account) => this.formatBankAccount(account as BankAccountDocument))
+      );
 
       return {
         bankAccounts: formatted,
