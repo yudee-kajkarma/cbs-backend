@@ -1,9 +1,9 @@
 import Attendance from "../models/attendance.model";
-import Employee from "../models/employee.model";
 import LeaveApplication from "../models/leaveApplication.model";
 import { Request, Response } from "express";
 import { AttendancePolicyService } from "./attendance-policy.service";
 import { MetadataService } from "./metadata.service";
+import { EmployeeService } from "./employee.service";
 import { SSEService } from "./sse.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -19,6 +19,7 @@ import {
     AttendanceQuery,
     MonthlyStatistics,
     DailyAttendanceSummaryResponse,
+    PopulatedEmployee,
 } from "../interfaces/model.interface";
 
 export class AttendanceService {
@@ -58,7 +59,7 @@ export class AttendanceService {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_ALREADY_CHECKED_IN);
             }
 
-            const employee = await Employee.findById(employeeId);
+            const employee = await EmployeeService.getById(employeeId);
             if (!employee) {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
             }
@@ -112,7 +113,7 @@ export class AttendanceService {
                     empId: employeeData.employeeId,
                     name: employeeData.userId?.fullName || 'Unknown',
                     department: employeeData.department || 'N/A',
-                    checkInTime: checkInTime.toLocaleTimeString('en-US', { hour12: false }),
+                    checkInTime: checkInTime.toISOString(),
                     timestamp: new Date().toISOString()
                 });
 
@@ -191,10 +192,10 @@ export class AttendanceService {
             const formattedRecord = await this.formatAttendanceRecord(attendance._id);
 
             // Log activity
-            const employee = await Employee.findById(employeeId).select('userId').lean();
+            const employee = await EmployeeService.getById(employeeId);
             if (employee) {
                 await ActivityLogger.log({
-                    userId: employee.userId.toString(),
+                    userId: employee.userId._id ? employee.userId._id.toString() : employee.userId.toString(),
                     employeeId: employeeId,
                     type: ActivityType.CHECK_OUT,
                     action: 'Checked out',
@@ -218,7 +219,7 @@ export class AttendanceService {
                     empId: employeeData.employeeId,
                     name: employeeData.userId?.fullName || 'Unknown',
                     department: employeeData.department || 'N/A',
-                    checkOutTime: checkOutTime.toLocaleTimeString('en-US', { hour12: false }),
+                    checkOutTime: checkOutTime.toISOString(),
                     hoursWorked: parseFloat(workingHours.toFixed(2)),
                     timestamp: new Date().toISOString()
                 });
@@ -264,9 +265,12 @@ export class AttendanceService {
 
             const policy = await AttendancePolicyService.get();
 
-            const allEmployees = await Employee.find(employeeFilter)
-                .populate('userId', 'fullName email')
-                .lean();
+            const result = await EmployeeService.getAll({
+                ...employeeFilter,
+                limit: Number.MAX_SAFE_INTEGER,
+                page: 1
+            });
+            const allEmployees = result.employees;
 
             // Get today's attendance records
             const attendanceRecords = await Attendance.find(attendanceFilter)
@@ -296,7 +300,7 @@ export class AttendanceService {
             );
 
             // Build detailed records for each employee
-            let detailedRecords = allEmployees.map(employee => {
+            let detailedRecords = allEmployees.map((employee: PopulatedEmployee) => {
                 const empId = employee._id.toString();
                 const attendance = attendanceRecords.find(r =>
                     r.employeeId?._id?.toString() === empId
@@ -481,9 +485,9 @@ export class AttendanceService {
             // Find the updated employee record if employeeId is provided
             let updatedRecord = undefined;
             if (updatedEmployeeId) {
-                const employee = await Employee.findById(updatedEmployeeId).lean();
+                const employee = await EmployeeService.getById(updatedEmployeeId);
                 if (employee) {
-                    updatedRecord = summaryData.records.find(r => r.empId === (employee as any).employeeId);
+                    updatedRecord = summaryData.records.find(r => r.empId === employee.employeeId);
                 }
             }
 

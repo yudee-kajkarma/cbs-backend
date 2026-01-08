@@ -34,6 +34,21 @@ export class EmployeeService {
   }
 
   /**
+   * Get employee by user ID
+   */
+  static async getByUserId(userId: string): Promise<any> {
+    try {
+      const employee = await Employee.findOne({ userId })
+        .select('employeeId position department phoneNumber joinDate status')
+        .lean();
+
+      return employee;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'EmployeeService', method: 'getByUserId', userId });
+    }
+  }
+
+  /**
    * Get all employees with pagination and filtering
    */
   static async getAll(query: EmployeeQuery): Promise<any> {
