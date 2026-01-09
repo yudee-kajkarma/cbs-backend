@@ -2,7 +2,7 @@ export interface FileUploadMetadata {
   filename: string;
   mimeType: string;
   size: number;
-  fileType: 'image' | 'video' | 'certificate';
+  fileType: 'video' | 'document';
 }
 
 export interface PresignedUrlRequest {
@@ -15,7 +15,7 @@ export interface PresignedUrlResponse {
     filename: string;
     presignedUrl: string;
     s3Key: string;
-    publicUrl?: string; // For images and videos (public files)
+    publicUrl?: string; // For videos (public files)
     expiresIn: number;
   }>;
 }

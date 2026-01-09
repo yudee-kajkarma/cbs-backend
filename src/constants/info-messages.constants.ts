@@ -188,6 +188,10 @@ export const INFO_MESSAGES = {
     UPDATED_SUCCESSFULLY: "Attendance policy updated successfully",
     DELETED_SUCCESSFULLY: "Attendance policy deleted successfully",
   },
+  METADATA: {
+    SAVED_SUCCESSFULLY: "Metadata saved successfully",
+    RETRIEVED_SUCCESSFULLY: "Metadata retrieved successfully",
+  },
   PAYROLL_COMPENSATION: {
     CREATED_SUCCESSFULLY: "Payroll compensation settings created successfully",
     RETRIEVED_SUCCESSFULLY:
@@ -247,6 +251,7 @@ export const INFO_MESSAGES = {
     PROCESSED_SUCCESSFULLY: 'Monthly payroll processed successfully',
     MARKED_PAID_SUCCESSFULLY: 'Monthly payroll marked as paid successfully',
     BULK_PROCESSED_SUCCESSFULLY: 'All pending payrolls processed successfully',
+    BULK_RECALCULATED_SUCCESSFULLY: 'Bulk payroll recalculation completed successfully',
   },
   BONUS: {
     CREATED_SUCCESSFULLY: 'Employee bonus created successfully',
@@ -261,5 +266,23 @@ export const INFO_MESSAGES = {
     UPDATED_SUCCESSFULLY: 'Employee incentive updated successfully',
     DELETED_SUCCESSFULLY: 'Employee incentive deleted successfully',
     LIST_RETRIEVED_SUCCESSFULLY: 'Employee incentives list retrieved successfully',
+  },
+  DASHBOARD: {
+    ATTENDANCE_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Attendance overview retrieved successfully',
+    LEAVE_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Leave overview retrieved successfully',
+    LEAVE_APPLICATIONS_RETRIEVED_SUCCESSFULLY: 'Leave applications retrieved successfully',
+    ACTIVITY_LOG_RETRIEVED_SUCCESSFULLY: 'Activity log retrieved successfully',
+    HR_STATISTICS_RETRIEVED_SUCCESSFULLY: 'HR statistics retrieved successfully',
+    HR_ACTIVITY_FEED_RETRIEVED_SUCCESSFULLY: 'HR activity feed retrieved successfully',
+  },
+  ACTIVITY_LOG: {
+    ACTIVITIES_RETRIEVED_SUCCESSFULLY: 'Activities retrieved successfully',
+    OLD_ACTIVITIES_DELETED_SUCCESSFULLY: 'Old activity logs deleted successfully',
+  },
+  ANALYTICS: {
+    IT_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'IT analytics overview retrieved successfully',
+    ASSETS_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Assets analytics overview retrieved successfully',
+    COMPANY_DOCS_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Company Documents analytics overview retrieved successfully',
+    BANK_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Bank analytics overview retrieved successfully',
   },
 };

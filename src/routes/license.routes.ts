@@ -19,6 +19,10 @@ import {
 
 const router = Router();
 
+/**
+ * Company_documents module - License Resource Routes
+ */
+
 // ---------- CREATE ---------- Requires WRITE permission
 router.post(
   "/",

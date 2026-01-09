@@ -8,21 +8,6 @@ import { INFO_MESSAGES } from '../constants/info-messages.constants';
 
 export class MonthlyPayrollController {
   /**
-   * Generate monthly payroll for an employee
-   */
-  static async generatePayroll(req: Request, res: Response): Promise<void> {
-    try {
-      const { employeeId, month, year } = req.body;
-      const result = await MonthlyPayrollService.generatePayroll(employeeId, month, year);
-      const payrollDto = toDto(MonthlyPayrollResponseDto, result);
-      const response = ResponseUtil.success(INFO_MESSAGES.MONTHLY_PAYROLL.GENERATED_SUCCESSFULLY, payrollDto);
-      res.status(201).json(response);
-    } catch (error) {
-      ErrorHandler.handleControllerError(error, res, { method: 'generatePayroll', data: req.body });
-    }
-  }
-
-  /**
    * Get payroll by ID
    */
   static async getById(req: Request, res: Response): Promise<void> {
@@ -117,6 +102,20 @@ export class MonthlyPayrollController {
       res.status(200).send(csv);
     } catch (error) {
       ErrorHandler.handleControllerError(error, res, { method: 'exportReport', query: req.query });
+    }
+  }
+
+  /**
+   * Recalculate/update payroll for all active employees
+   */
+  static async recalculateAllPayrolls(req: Request, res: Response): Promise<void> {
+    try {
+      const { month, year } = req.body;
+      const result = await MonthlyPayrollService.recalculateAllEmployees(month, year);
+      const response = ResponseUtil.success(INFO_MESSAGES.MONTHLY_PAYROLL.BULK_RECALCULATED_SUCCESSFULLY, result);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'recalculateAllPayrolls', data: req.body });
     }
   }
 }

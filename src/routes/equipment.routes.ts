@@ -17,6 +17,10 @@ import { PERMISSIONS } from "../constants/permission.constants";
 
 const router = Router();
 
+
+/** * Asset Management module - Equipment Resource Routes
+ */
+
 // CREATE - Requires WRITE permission
 router.post(
   "/",

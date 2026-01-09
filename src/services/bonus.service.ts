@@ -2,9 +2,11 @@ import EmployeeBonus from "../models/employeeBonus.model";
 import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
+import { ActivityLogger } from "../utils/activity-logger.util";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
+import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
 import {
   EmployeeBonusDocument,
   EmployeeBonusQuery,
@@ -32,7 +34,28 @@ export class BonusService {
         bonusId,
       });
 
-      return await this.getById(bonus._id.toString());
+      const result = await this.getById(bonus._id.toString());
+
+      // Log activity
+      const employeeData = result.employeeId as any;
+      const userData = employeeData?.userId as any;
+      await ActivityLogger.log({
+        userId: employeeData?.userId?._id,
+        employeeId: data.employeeId!.toString(),
+        type: ActivityType.BONUS_CREATE,
+        action: 'Bonus created',
+        module: ActivityModule.PAYROLL,
+        entity: { type: 'EmployeeBonus', id: bonus._id.toString() },
+        description: `Bonus created for ${userData?.fullName || 'employee'}`,
+        metadata: {
+          bonusId,
+          amount: data.amount,
+          month: data.month,
+          year: data.year
+        }
+      });
+
+      return result;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'BonusService', 

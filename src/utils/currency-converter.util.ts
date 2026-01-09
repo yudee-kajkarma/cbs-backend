@@ -100,20 +100,14 @@ export class CurrencyConverter {
     static async formatWithDisplayCurrency(bankBalance: any): Promise<any> {
         const result = { ...bankBalance };
         const targetCurrency = bankBalance.displayCurrency || 'KWD';
+        const sourceCurrency = bankBalance.currency || 'KWD';
         
         result.currentBalanceInDisplay = await this.convertCurrencyWithFallback(
             bankBalance.currentBalance || 0,
-            bankBalance.currency || targetCurrency,
+            sourceCurrency,
             targetCurrency
         );
-
-        if (bankBalance.finalBalance !== undefined && bankBalance.finalBalance !== null) {
-            result.finalBalanceInDisplay = await this.convertCurrencyWithFallback(
-                bankBalance.finalBalance,
-                bankBalance.currency || targetCurrency,
-                targetCurrency
-            );
-        }
+        
 
         return result;
     }

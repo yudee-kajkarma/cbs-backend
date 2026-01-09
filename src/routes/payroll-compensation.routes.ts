@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { PayrollCompensationController } from "../controllers/payroll-compensation.controller";
 import { validateRequest } from "../middlewares/validate.middleware";
-import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { requireAdmin, requireHROrAdmin } from "../middlewares/role.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
 import { createPayrollCompensationSchema, updatePayrollCompensationSchema } from "../validators/payrollCompensation.validator";
 
@@ -11,7 +11,7 @@ const router = Router();
 router.post(
   "/",
   authenticate,
-  requireHROrAdmin,
+  requireAdmin,
   validateRequest(createPayrollCompensationSchema),
   PayrollCompensationController.create
 );
@@ -23,7 +23,7 @@ router.get("/", authenticate, requireHROrAdmin, PayrollCompensationController.ge
 router.put(
   "/",
   authenticate,
-  requireHROrAdmin,
+  requireAdmin,
   validateRequest(updatePayrollCompensationSchema),
   PayrollCompensationController.update
 );

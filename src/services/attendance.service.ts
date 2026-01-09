@@ -1,21 +1,25 @@
 import Attendance from "../models/attendance.model";
-import Employee from "../models/employee.model";
 import LeaveApplication from "../models/leaveApplication.model";
 import { Request, Response } from "express";
 import { AttendancePolicyService } from "./attendance-policy.service";
+import { MetadataService } from "./metadata.service";
+import { EmployeeService } from "./employee.service";
 import { SSEService } from "./sse.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { AttendanceUtil } from "../utils/attendance.util";
 import { AttendanceFilterUtil } from "../utils/attendance-filter.util";
+import { ActivityLogger } from "../utils/activity-logger.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { AttendanceStatus } from "../constants/attendance.constants";
 import { LeaveApplicationStatus, EmployeeStatus } from "../constants";
+import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
 import {
     AttendanceDocument,
     AttendanceQuery,
     MonthlyStatistics,
     DailyAttendanceSummaryResponse,
+    PopulatedEmployee,
 } from "../interfaces/model.interface";
 
 export class AttendanceService {
@@ -55,18 +59,20 @@ export class AttendanceService {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_ALREADY_CHECKED_IN);
             }
 
-            const employee = await Employee.findById(employeeId);
+            const employee = await EmployeeService.getById(employeeId);
             if (!employee) {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
             }
 
-            // Get attendance policy
+            // Get attendance policy and metadata
             const policy = await AttendancePolicyService.get();
+            const metadata = await MetadataService.get();
 
             const checkInTime = new Date();
             const { isLate, minutesLate } = AttendanceUtil.isLateArrival(
                 checkInTime,
-                policy.lateArrivalGracePeriod
+                policy.lateArrivalGracePeriod,
+                metadata.standardWorkStartTime
             );
 
             const attendance = await Attendance.create({
@@ -82,6 +88,23 @@ export class AttendanceService {
             });
 
             const formattedRecord = await this.formatAttendanceRecord(attendance._id);
+
+            // Log activity
+            await ActivityLogger.log({
+                userId: employee.userId.toString(),
+                employeeId: employeeId,
+                type: ActivityType.CHECK_IN,
+                action: 'Checked in',
+                module: ActivityModule.ATTENDANCE,
+                entity: { type: 'attendance', id: attendance._id },
+                description: `Checked in at ${checkInTime.toLocaleTimeString('en-US', { hour12: false })}`,
+                metadata: {
+                    checkInTime: checkInTime.toISOString(),
+                    isLateArrival: isLate,
+                    lateArrivalMinutes: minutesLate,
+                    ipAddress
+                }
+            });
 
             // Broadcast check-in event via SSE
             try {
@@ -168,6 +191,27 @@ export class AttendanceService {
 
             const formattedRecord = await this.formatAttendanceRecord(attendance._id);
 
+            // Log activity
+            const employee = await EmployeeService.getById(employeeId);
+            if (employee) {
+                await ActivityLogger.log({
+                    userId: employee.userId._id ? employee.userId._id.toString() : employee.userId.toString(),
+                    employeeId: employeeId,
+                    type: ActivityType.CHECK_OUT,
+                    action: 'Checked out',
+                    module: ActivityModule.ATTENDANCE,
+                    entity: { type: 'attendance', id: attendance._id },
+                    description: `Checked out at ${checkOutTime.toLocaleTimeString('en-US', { hour12: false })}`,
+                    metadata: {
+                        checkOutTime: checkOutTime.toISOString(),
+                        workingHours: parseFloat(workingHours.toFixed(2)),
+                        overtimeHours: parseFloat(overtimeHours.toFixed(2)),
+                        status,
+                        ipAddress
+                    }
+                });
+            }
+
             // Broadcast check-out event via SSE
             try {
                 const employeeData = formattedRecord.employeeId as any;
@@ -221,9 +265,12 @@ export class AttendanceService {
 
             const policy = await AttendancePolicyService.get();
 
-            const allEmployees = await Employee.find(employeeFilter)
-                .populate('userId', 'fullName email')
-                .lean();
+            const result = await EmployeeService.getAll({
+                ...employeeFilter,
+                limit: Number.MAX_SAFE_INTEGER,
+                page: 1
+            });
+            const allEmployees = result.employees;
 
             // Get today's attendance records
             const attendanceRecords = await Attendance.find(attendanceFilter)
@@ -253,7 +300,7 @@ export class AttendanceService {
             );
 
             // Build detailed records for each employee
-            let detailedRecords = allEmployees.map(employee => {
+            let detailedRecords = allEmployees.map((employee: PopulatedEmployee) => {
                 const empId = employee._id.toString();
                 const attendance = attendanceRecords.find(r =>
                     r.employeeId?._id?.toString() === empId
@@ -438,9 +485,9 @@ export class AttendanceService {
             // Find the updated employee record if employeeId is provided
             let updatedRecord = undefined;
             if (updatedEmployeeId) {
-                const employee = await Employee.findById(updatedEmployeeId).lean();
+                const employee = await EmployeeService.getById(updatedEmployeeId);
                 if (employee) {
-                    updatedRecord = summaryData.records.find(r => r.empId === (employee as any).employeeId);
+                    updatedRecord = summaryData.records.find(r => r.empId === employee.employeeId);
                 }
             }
 
