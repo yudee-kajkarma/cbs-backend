@@ -101,5 +101,20 @@ export class SimService {
       ErrorHandler.handleServiceError(error, { serviceName: 'SimService', method: 'delete', id });
     }
   }
-}
 
+  /**
+   * Get SIM statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await SimModel.countDocuments();
+      const active = await SimModel.countDocuments({ status: 'Active' });
+      const inactive = await SimModel.countDocuments({ status: { $ne: 'Active' } });
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SimService', method: 'getStats' });
+    }
+  }
+}
