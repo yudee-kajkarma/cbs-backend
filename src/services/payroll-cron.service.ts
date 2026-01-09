@@ -7,33 +7,36 @@ import { ErrorHandler } from "../utils/error-handler.util";
 export class PayrollCronService {
   
   /**
-   * Runs on the 1st day of every month at 00:05 (5 minutes past midnight)
-   * Generates payroll for the previous month
+   * Runs every day at 00:05 (12:05 AM)
+   * Updates or creates payroll for the current month based on daily attendance
    */
   static startMonthlyPayrollGenerator(): void {
-    cron.schedule('5 0 1 * *', async () => {
+    cron.schedule('5 0 * * *', async () => {
       await this.runMonthlyPayrollGenerator();
     });
+    console.log('Daily payroll update cron job scheduled at 00:05 (12:05 AM)');
   }
 
   /**
-   * Execute monthly payroll generation for all active employees
-   * Generates payroll for the previous month
+   * Execute daily payroll update for all active employees
+   * Updates or creates payroll for the current month
    */
   private static async runMonthlyPayrollGenerator(): Promise<void> {
     try {
       const now = new Date();
-      // Get previous month
-      const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const month = previousMonth.getMonth() + 1;
-      const year = previousMonth.getFullYear();
+      // Get current month
+      const month = now.getMonth() + 1;
+      const year = now.getFullYear();
+
+      console.log(`Starting daily payroll update for ${month}/${year}...`);
 
       // Get all active employees
       const activeEmployees = await Employee.find({
         status: { $in: [EmployeeStatus.ACTIVE, EmployeeStatus.ON_LEAVE] }
       });
 
-      let successCount = 0;
+      let createdCount = 0;
+      let updatedCount = 0;
       let skipCount = 0;
       let errorCount = 0;
 
@@ -45,22 +48,30 @@ export class PayrollCronService {
             continue;
           }
 
-          await MonthlyPayrollService.generatePayroll(
+          const result = await MonthlyPayrollService.updateOrCreatePayroll(
             employee._id.toString(),
             month,
             year
           );
           
-          successCount++;
-        } catch (error: any) {
-          // Skip if payroll already exists
-          if (error?.code === 'CBS-4013-1') {
+          if (result.action === 'created') {
+            createdCount++;
+          } else if (result.action === 'updated') {
+            updatedCount++;
+          } else if (result.action === 'skipped') {
             skipCount++;
-          } else {
-            errorCount++;
           }
+        } catch (error: any) {
+          errorCount++;
+          console.error(`Error processing payroll for employee ${employee._id}:`, error?.message);
         }
       }
+
+      console.log(`Daily payroll update completed for ${month}/${year}:`);
+      console.log(`  - Created: ${createdCount}`);
+      console.log(`  - Updated: ${updatedCount}`);
+      console.log(`  - Skipped: ${skipCount}`);
+      console.log(`  - Errors: ${errorCount}`);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'PayrollCronService', 

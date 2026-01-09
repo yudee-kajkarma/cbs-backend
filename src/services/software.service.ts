@@ -101,5 +101,25 @@ export class SoftwareService {
       ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'delete', id });
     }
   }
-}
 
+  /**
+   * Get software statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await SoftwareModel.countDocuments();
+      const active = await SoftwareModel.countDocuments({ status: 'Active' });
+      
+      // Count expired software (expiry date passed)
+      const now = new Date();
+      const expired = await SoftwareModel.countDocuments({ 
+        expiryDate: { $lt: now }
+      });
+
+      return { total, active, expired };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'getStats' });
+    }
+  }
+}
