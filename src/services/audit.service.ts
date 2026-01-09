@@ -175,4 +175,18 @@ export class AuditService {
       ErrorHandler.handleServiceError(error, { serviceName: 'AuditService', method: 'delete', id });
     }
   }
+
+  /**
+   * Get audit statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await Audit.countDocuments();
+
+      return { total };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'AuditService', method: 'getStats' });
+    }
+  }
 }

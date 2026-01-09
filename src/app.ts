@@ -37,6 +37,7 @@ import roleRoutes from './routes/role.routes';
 import authRoutes from './routes/auth.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import activityLogRoutes from './routes/activity-log.routes';
+import analyticsRoutes from './routes/analytics.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -95,6 +96,7 @@ app.use('/api/incentives', incentiveRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Error Handler
 app.use(errorMiddleware);
