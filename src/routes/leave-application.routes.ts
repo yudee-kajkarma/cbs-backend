@@ -17,6 +17,16 @@ import {
 
 const router = Router();
 
+
+// GET Employee Leave Summary/applications - Any Role
+router.get(
+  "/employee/:employeeId",
+  authenticate,
+  requireAnyRole,
+  validateParams(employeeIdParamSchema),
+  LeaveApplicationController.getEmployeeLeaveSummary
+);
+
 // CREATE 
 router.post(
   "/:employeeId",
@@ -28,7 +38,7 @@ router.post(
 );
 
 // LIST - Any Role
-router.get("/", authenticate, requireAnyRole, LeaveApplicationController.getAll);
+router.get("/", authenticate, requireHROrAdmin, LeaveApplicationController.getAll);
 
 // GET BY ID - Any Role
 router.get(

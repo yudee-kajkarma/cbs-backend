@@ -109,6 +109,14 @@ export class LeaveApplicationResponseDto extends BaseDto {
  */
 export class GetAllLeaveApplicationsResponseDto {
   @Expose()
+  summary!: {
+    pending: number;
+    approved: number;
+    rejected: number;
+    total: number;
+  };
+
+  @Expose()
   @Type(() => LeaveApplicationResponseDto)
   leaveApplications!: LeaveApplicationResponseDto[];
 

@@ -484,6 +484,10 @@ export interface BankAccount {
   currentChequeNumber?: string;
   address?: string;
   fileKey?: string;
+  type?: string;
+  currentBalance?: number;
+  displayCurrency?: string;
+  status?: string;
 }
 
 export interface BankAccountDocument extends BankAccount, Document {}
@@ -493,6 +497,9 @@ export interface BankAccountQuery extends BaseQuery {
   branch?: string;
   accountHolder?: string;
   accountNumber?: string;
+  type?: string;
+  status?: string;
+  currency?: string;
 }
 
 export interface CreateBankAccountData extends Partial<BankAccount> {}
@@ -521,37 +528,9 @@ export interface TelexTransfer {
 
 export interface TelexTransferQuery extends BaseQuery {}
 
-
-// BANK BALANCE MODULE
-// ============================================================================
-
-export interface BankBalance {
-  account: string;
-  bank: string;
-  branch?: string;
-  type: string;
-  currentBalance: number;
-  currency: string;
-  displayCurrency?: string;
-  finalBalance?: number;
-  status?: string;
-}
-
-export interface BankBalanceDocument extends BankBalance, Document {}
-
-export interface BankBalanceQuery extends BaseQuery {
-  account?: string;
-  bank?: string;
-  branch?: string;
-  type?: string;
-  status?: string;
-  currency?: string;
-}
-
 export interface CreateTelexTransferData extends Partial<TelexTransfer> {}
 export interface UpdateTelexTransferData extends Partial<TelexTransfer> {}
-export interface CreateBankBalanceData extends Partial<BankBalance> {}
-export interface UpdateBankBalanceData extends Partial<BankBalance> {}
+
 // FORECAST MODULE
 // ============================================================================
 
@@ -677,6 +656,11 @@ export interface UserQuery extends BaseQuery {
 export interface CreateUserData extends Partial<User> {}
 
 // Employee Interfaces
+export interface EmployeeDocument {
+  fileKey: string;
+  expiryDate?: Date;
+}
+
 export interface Employee {
   employeeId?: string;
   userId: Types.ObjectId | string;
@@ -686,9 +670,10 @@ export interface Employee {
   joinDate?: Date;
   salary?: number;
   status: EmployeeStatus;
+  documents?: EmployeeDocument[];
 }
 
-export interface EmployeeDocument extends Employee, Document {}
+export interface EmployeeMongoDocument extends Employee, Document {}
 
 /**
  * Populated employee with user data (after .populate('userId'))
@@ -753,6 +738,21 @@ export interface AttendancePolicy {
 export interface AttendancePolicyDocument extends AttendancePolicy, Document {}
 
 export interface UpdateAttendancePolicyData extends Partial<AttendancePolicy> {}
+
+// ============================================================================
+// METADATA MODULE
+// ============================================================================
+
+export interface Metadata {
+  standardWorkStartTime: string;
+  halfDayHoursThreshold: number;
+  autoCheckoutTime: string;
+  isActive: boolean;
+}
+
+export interface MetadataDocument extends Metadata, Document {}
+
+export interface UpdateMetadataData extends Partial<Metadata> {}
 
 // ============================================================================
 // PAYROLL COMPENSATION MODULE
@@ -984,6 +984,7 @@ export interface MonthlyPayroll {
   presentDays: number;
   absentDays: number;
   unpaidLeaveDays: number;
+  paidLeaveDays: number;
   salaryDeduction: number;
   socialInsurance: number;
   totalDeductions: number;
@@ -1111,4 +1112,133 @@ export interface CreateActivityLogData {
   entityType?: string;
   entityId?: Types.ObjectId | string;
   metadata?: Record<string, any>;
+}
+
+// ============================================================================
+// ANALYTICS MODULE
+// ============================================================================
+
+export interface ITOverviewAnalytics {
+  totalAssets: number;
+  modules: {
+    hardware: HardwareModuleStats;
+    software: SoftwareModuleStats;
+    networkEquipment: NetworkModuleStats;
+    support: SupportModuleStats;
+    sim: SimModuleStats;
+    hardwareTransfers: TransferModuleStats;
+  };
+}
+
+export interface HardwareModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export interface SoftwareModuleStats {
+  total: number;
+  active: number;
+  expired: number;
+}
+
+export interface NetworkModuleStats {
+  total: number;
+  online: number;
+  offline: number;
+  maintenance: number;
+}
+
+export interface SupportModuleStats {
+  total: number;
+  open: number;
+  inProgress: number;
+  resolved: number;
+}
+
+export interface SimModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export interface TransferModuleStats {
+  total: number;
+  active: number;
+  completed: number;
+}
+
+export interface AssetsOverviewAnalytics {
+  totalAssets: number;
+  modules: {
+    property: AssetModuleStats;
+    vehicle: AssetModuleStats;
+    equipment: AssetModuleStats;
+    furniture: AssetModuleStats;
+  };
+}
+
+export interface AssetModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+// ============================================================================
+// COMPANY DOCUMENTS ANALYTICS
+// ============================================================================
+
+export interface CompanyDocsOverviewAnalytics {
+  totalDocuments: number;
+  modules: {
+    legalDocs: CompanyDocModuleStats;
+    audit: CompanyDocModuleStats;
+    iso: CompanyDocModuleStats;
+  };
+}
+
+export interface CompanyDocModuleStats {
+  total: number;
+}
+
+// ============================================================================
+// BANK ANALYTICS
+// ============================================================================
+
+export interface BankOverviewAnalytics {
+  totalRecords: number;
+  modules: {
+    bankAccounts: BankAccountModuleStats;
+    cheques: ChequeModuleStats;
+    telexTransfers: TelexTransferModuleStats;
+    forecasts: ForecastModuleStats;
+  };
+}
+
+export interface BankAccountModuleStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
+export interface ChequeModuleStats {
+  total: number;
+  printed: number;
+  cleared: number;
+  pending: number;
+}
+
+export interface TelexTransferModuleStats {
+  total: number;
+  completed: number;
+  pending: number;
+  draft: number;
+}
+
+export interface ForecastModuleStats {
+  total: number;
+  income: number;
+  expense: number;
+  planned: number;
+  completed: number;
 }

@@ -2,6 +2,7 @@ import Attendance from "../models/attendance.model";
 import LeaveApplication from "../models/leaveApplication.model";
 import { Request, Response } from "express";
 import { AttendancePolicyService } from "./attendance-policy.service";
+import { MetadataService } from "./metadata.service";
 import { EmployeeService } from "./employee.service";
 import { SSEService } from "./sse.service";
 import { throwError } from "../utils/errors.util";
@@ -63,13 +64,15 @@ export class AttendanceService {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
             }
 
-            // Get attendance policy
+            // Get attendance policy and metadata
             const policy = await AttendancePolicyService.get();
+            const metadata = await MetadataService.get();
 
             const checkInTime = new Date();
             const { isLate, minutesLate } = AttendanceUtil.isLateArrival(
                 checkInTime,
-                policy.lateArrivalGracePeriod
+                policy.lateArrivalGracePeriod,
+                metadata.standardWorkStartTime
             );
 
             const attendance = await Attendance.create({

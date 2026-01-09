@@ -101,5 +101,21 @@ export class SupportService {
       ErrorHandler.handleServiceError(error, { serviceName: 'SupportService', method: 'delete', id });
     }
   }
-}
 
+  /**
+   * Get support statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await SupportModel.countDocuments();
+      const open = await SupportModel.countDocuments({ status: 'Open' });
+      const inProgress = await SupportModel.countDocuments({ status: 'In Progress' });
+      const resolved = await SupportModel.countDocuments({ status: { $in: ['Resolved', 'Closed'] } });
+
+      return { total, open, inProgress, resolved };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'SupportService', method: 'getStats' });
+    }
+  }
+}

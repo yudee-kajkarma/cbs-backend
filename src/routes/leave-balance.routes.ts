@@ -26,11 +26,10 @@ router.post(
 // LIST - HR or Admin only
 router.get("/", authenticate, requireHROrAdmin, LeaveBalanceController.getAll);
 
-// GET BY EMPLOYEE ID - HR or Admin only
+// GET BY EMPLOYEE ID -
 router.get(
   "/employee/:employeeId",
   authenticate,
-  // requireHROrAdmin,
   validateParams(leaveBalanceIdSchema),
   LeaveBalanceController.getByEmployeeId
 );

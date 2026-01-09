@@ -1,4 +1,4 @@
-import DocumentModel from "../models/document.model";
+import DocumentModel from "../models/legal-docs.model";
 import { FileUploadService } from "./file-upload.service";
 import { validateS3Keys } from "../utils/aws.util";
 import { PaginationService } from './pagination.service';
@@ -180,6 +180,20 @@ export class DocumentService {
       return await FileUploadService.generateDownloadUrl(doc.fileKey);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'getDownloadUrl', id });
+    }
+  }
+
+  /**
+   * Get legal documents statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await DocumentModel.countDocuments();
+
+      return { total };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'getStats' });
     }
   }
 }

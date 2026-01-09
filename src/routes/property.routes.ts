@@ -17,6 +17,10 @@ import {
 
 const router = Router();
 
+/**
+ * Asset Management module - Land and Building Resource Routes
+ */
+
 // CREATE - Requires WRITE permission
 router.post(
   "/",
