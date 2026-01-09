@@ -1,4 +1,5 @@
-import { ATTENDANCE_RULES, AttendanceStatus, SalaryStatus } from "../constants/attendance.constants";
+import { AttendanceStatus, SalaryStatus } from "../constants/attendance.constants";
+import { MetadataService } from "../services/metadata.service";
 
 /**
  * Attendance Utility Functions
@@ -27,9 +28,9 @@ export class AttendanceUtil {
   /**
    * Check if arrival is late based on policy
    */
-  static isLateArrival(checkInTime: Date, gracePeriodMinutes: number): { isLate: boolean, minutesLate: number } {
+  static isLateArrival(checkInTime: Date, gracePeriodMinutes: number, standardWorkStartTime: string): { isLate: boolean, minutesLate: number } {
     const expectedStart = new Date(checkInTime);
-    const [hours, minutes] = ATTENDANCE_RULES.STANDARD_WORK_START_TIME.split(':');
+    const [hours, minutes] = standardWorkStartTime.split(':');
     expectedStart.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     
     const graceEndTime = new Date(expectedStart.getTime() + gracePeriodMinutes * 60000);
@@ -73,6 +74,28 @@ export class AttendanceUtil {
       } else if (policy.workingDaysPerWeek === 6 && dayOfWeek >= 1 && dayOfWeek <= 6) {
         workingDays++;
       }
+    }
+    
+    return workingDays;
+  }
+  
+  /**
+   * Get working days in a date range (for mid-month calculations)
+   */
+  static getWorkingDaysInRange(startDate: Date, endDate: Date, policy: any): number {
+    let workingDays = 0;
+    const current = new Date(startDate);
+    
+    while (current <= endDate) {
+      const dayOfWeek = current.getDay();
+      
+      if (policy.workingDaysPerWeek === 5 && dayOfWeek >= 1 && dayOfWeek <= 5) {
+        workingDays++;
+      } else if (policy.workingDaysPerWeek === 6 && dayOfWeek >= 1 && dayOfWeek <= 6) {
+        workingDays++;
+      }
+      
+      current.setDate(current.getDate() + 1);
     }
     
     return workingDays;

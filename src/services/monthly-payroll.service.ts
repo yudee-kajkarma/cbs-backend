@@ -26,13 +26,20 @@ import {
 export class MonthlyPayrollService {
 
   /**
-   * Generate monthly payroll for an employee
+   * Update or create monthly payroll for an employee (for daily cron job)
+   * If payroll exists and status is Pending, it recalculates and updates
+   * If payroll exists and status is Processed or Paid, it skips the update
    */
-  static async generatePayroll(employeeId: string, month: number, year: number): Promise<MonthlyPayrollDocument> {
+  static async updateOrCreatePayroll(employeeId: string, month: number, year: number): Promise<{ action: 'created' | 'updated' | 'skipped', payroll?: any, reason?: string }> {
     try {
-      const existing = await MonthlyPayroll.findOne({ employeeId, month, year });
-      if (existing) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.MONTHLY_PAYROLL_ALREADY_EXISTS);
+      const existing = await MonthlyPayroll.findOne({ employeeId, month, year }).lean();
+
+      // Skip if payroll is already Processed or Paid 
+      if (existing && (existing.status === MonthlyPayrollStatus.PROCESSED || existing.status === MonthlyPayrollStatus.PAID)) {
+        return {
+          action: 'skipped',
+          reason: `Payroll already ${existing.status}`,
+        };
       }
 
       // Get employee details
@@ -45,7 +52,7 @@ export class MonthlyPayrollService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_SALARY_NOT_SET);
       }
 
-      // Get attendance policy (throws error if not found)
+      // Get attendance policy 
       const policy = await AttendancePolicyService.get();
       
       // Get payroll compensation settings
@@ -61,47 +68,70 @@ export class MonthlyPayrollService {
       const endDate = new Date(year, month, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      // Calculate working days in the month
+      // Determine the effective end date for calculation
+      // If current date is within the month, use today; otherwise use month end
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const effectiveEndDate = (today >= startDate && today <= endDate) ? today : endDate;
+      effectiveEndDate.setHours(23, 59, 59, 999);
+
+      // Calculate working days up to effective date 
+      const workingDaysTillToday = AttendanceUtil.getWorkingDaysInRange(startDate, effectiveEndDate, policy);
+
+      // Calculate total working days in entire month 
       const workingDays = AttendanceUtil.getWorkingDaysInMonth(month, year, policy);
 
-      // Get attendance records for the month
+      // Get attendance records for the month up to effective date
       const attendanceRecords = await Attendance.find({
         employeeId,
-        date: { $gte: startDate, $lte: endDate }
+        date: { $gte: startDate, $lte: effectiveEndDate }
       }).lean();
 
-      // Get unpaid leave applications
-      const unpaidLeaveApps = await LeaveApplication.find({
+      // Get ALL approved leave applications (not just unpaid)
+      const allLeaveApps = await LeaveApplication.find({
         employeeId,
-        leaveType: 'Unpaid Leave',
         status: LeaveApplicationStatus.APPROVED,
-        startDate: { $lte: endDate },
+        startDate: { $lte: effectiveEndDate },
         endDate: { $gte: startDate }
       }).lean();
 
-      // Calculate unpaid leave days in this month
+      // Calculate unpaid leave days up to effective date
       let unpaidLeaveDays = 0;
-      unpaidLeaveApps.forEach(leave => {
+      let paidLeaveDays = 0;
+      
+      allLeaveApps.forEach(leave => {
         const leaveStart = leave.startDate > startDate ? leave.startDate : startDate;
-        const leaveEnd = leave.endDate < endDate ? leave.endDate : endDate;
+        const leaveEnd = leave.endDate < effectiveEndDate ? leave.endDate : effectiveEndDate;
         const days = Math.ceil((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        unpaidLeaveDays += days;
+        
+        if (leave.leaveType === 'Unpaid Leave') {
+          unpaidLeaveDays += days;
+        } else {
+          // Paid leaves (Emergency, Sick, Annual, etc.) - count as present
+          paidLeaveDays += days;
+        }
       });
 
-      // Count present and absent days
+      // Count present and absent days (only for elapsed days)
       const presentDays = attendanceRecords.filter(a => 
         a.status === AttendanceStatus.PRESENT || a.status === AttendanceStatus.LATE
       ).length;
-      const absentDays = Math.max(0, workingDays - presentDays - unpaidLeaveDays);
+      
+      // Absent = working days till today - present - paid leaves - unpaid leaves
+      const absentDays = Math.max(0, workingDaysTillToday - presentDays - paidLeaveDays - unpaidLeaveDays);
 
-      // Calculate attendance percentage
-      const attendancePercentage = workingDays > 0 ? (presentDays / workingDays) * 100 : 0;
+      // Calculate attendance percentage (based on elapsed days, paid leaves NOT counted as present)
+      const attendancePercentage = workingDaysTillToday > 0 ? (presentDays / workingDaysTillToday) * 100 : 0;
 
       // Calculate salary components
       const totalSalary = employee.salary;
       const basicSalary = employee.salary; // For now, basic = total
 
-      const dailySalary = workingDays > 0 ? totalSalary / workingDays : 0;
+      // Calculate total working days in entire month (for daily salary rate)
+      const totalWorkingDaysInMonth = AttendanceUtil.getWorkingDaysInMonth(month, year, policy);
+
+      // Daily salary based on FULL month working days, not elapsed days
+      const dailySalary = totalWorkingDaysInMonth > 0 ? totalSalary / totalWorkingDaysInMonth : 0;
       const salaryDeduction = (absentDays + unpaidLeaveDays) * dailySalary;
 
       // Calculate social insurance deduction
@@ -109,10 +139,10 @@ export class MonthlyPayrollService {
 
       // Calculate overtime pay
       let overtimePay = 0;
-      if (workingDays > 0) {
+      if (totalWorkingDaysInMonth > 0) {
         attendanceRecords.forEach(record => {
           if (record.overtimeHours > 0) {
-            const hourlyRate = totalSalary / (workingDays * policy.standardHoursPerDay);
+            const hourlyRate = totalSalary / (totalWorkingDaysInMonth * policy.standardHoursPerDay);
             overtimePay += record.overtimeHours * hourlyRate * policy.overtimeRateMultiplier;
           }
         });
@@ -130,12 +160,8 @@ export class MonthlyPayrollService {
       const totalDeductions = salaryDeduction + socialInsurance;
       const netSalary = Math.max(0, totalSalary - totalDeductions + bonusAmount + incentiveAmount + overtimePay);
 
-      // Generate payroll ID
-      const payrollId = await ReferenceGenerator.generateMonthlyPayrollReference(month, year);
-
-      // Create payroll record
-      const payroll = await MonthlyPayroll.create({
-        payrollId,
+      // Prepare payroll data
+      const payrollData: any = {
         employeeId,
         month,
         year,
@@ -143,9 +169,10 @@ export class MonthlyPayrollService {
         basicSalary,
         attendancePercentage: Math.round(attendancePercentage * 100) / 100,
         workingDays,
-        presentDays,
+        presentDays: presentDays,
         absentDays,
         unpaidLeaveDays,
+        paidLeaveDays,
         salaryDeduction: Math.round(salaryDeduction * 100) / 100,
         socialInsurance: Math.round(socialInsurance * 100) / 100,
         totalDeductions: Math.round(totalDeductions * 100) / 100,
@@ -154,38 +181,128 @@ export class MonthlyPayrollService {
         overtimePay: Math.round(overtimePay * 100) / 100,
         netSalary: Math.round(netSalary * 100) / 100,
         status: MonthlyPayrollStatus.PENDING,
-      });
+      };
 
-      const result = await this.getById(payroll._id.toString());
+      let payroll: any;
+      let action: 'created' | 'updated';
 
-      // Log activity
-      const employeeData = result.employeeId as any;
-      const userData = employeeData?.userId as any;
-      await ActivityLogger.log({
-        userId: employeeData?.userId?._id,
-        employeeId,
-        type: ActivityType.PAYROLL_CREATE,
-        action: 'Payroll generated',
-        module: ActivityModule.PAYROLL,
-        entity: { type: 'MonthlyPayroll', id: payroll._id.toString() },
-        description: `Monthly payroll generated for ${userData?.fullName || 'employee'} for ${month}/${year}`,
-        metadata: {
-          payrollId: result.payrollId,
-          month,
-          year,
-          netSalary: result.netSalary,
-          attendancePercentage: result.attendancePercentage,
-          presentDays,
-          absentDays
-        }
-      });
+      if (existing) {
+        payroll = await MonthlyPayroll.findOneAndUpdate(
+          { employeeId, month, year, status: MonthlyPayrollStatus.PENDING },
+          { $set: payrollData },
+          { new: true, runValidators: true }
+        );
+        action = 'updated';
 
-      return result;
+        const result = await this.getById(payroll._id.toString());
+
+        return { action, payroll: result };
+      } else {
+        const payrollId = await ReferenceGenerator.generateMonthlyPayrollReference(month, year);
+        payrollData.payrollId = payrollId;
+
+        payroll = await MonthlyPayroll.create(payrollData);
+        action = 'created';
+
+        const result = await this.getById(payroll._id.toString());
+
+        // Log activity for creation
+        const employeeData = result.employeeId as any;
+        const userData = employeeData?.userId as any;
+        await ActivityLogger.log({
+          userId: employeeData?.userId?._id,
+          employeeId,
+          type: ActivityType.PAYROLL_CREATE,
+          action: 'Payroll generated',
+          module: ActivityModule.PAYROLL,
+          entity: { type: 'MonthlyPayroll', id: payroll._id.toString() },
+          description: `Monthly payroll generated for ${userData?.fullName || 'employee'} for ${month}/${year}`,
+          metadata: {
+            payrollId: result.payrollId,
+            month,
+            year,
+            netSalary: result.netSalary,
+            attendancePercentage: result.attendancePercentage,
+            presentDays: presentDays,
+            absentDays
+          }
+        });
+
+        return { action, payroll: result };
+      }
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'MonthlyPayrollService', 
-        method: 'generatePayroll', 
+        method: 'updateOrCreatePayroll', 
         employeeId, 
+        month, 
+        year 
+      });
+    }
+  }
+
+  /**
+   * Recalculate or create payroll for all active employees (manual trigger)
+   * Same logic as daily cron job but can be triggered manually
+   */
+  static async recalculateAllEmployees(month: number, year: number): Promise<any> {
+    try {
+      const result = await EmployeeService.getAll({
+        status: 'Active,On Leave',
+        limit: Number.MAX_SAFE_INTEGER,
+        page: 1
+      });
+      const activeEmployees = result.employees;
+
+      let createdCount = 0;
+      let updatedCount = 0;
+      let skipCount = 0;
+      let errorCount = 0;
+      const errors: any[] = [];
+
+      for (const employee of activeEmployees) {
+        try {
+          if (!employee.salary || employee.salary === 0) {
+            skipCount++;
+            continue;
+          }
+
+          const result = await this.updateOrCreatePayroll(
+            employee._id.toString(),
+            month,
+            year
+          );
+          
+          if (result.action === 'created') {
+            createdCount++;
+          } else if (result.action === 'updated') {
+            updatedCount++;
+          } else if (result.action === 'skipped') {
+            skipCount++;
+          }
+        } catch (error: any) {
+          errorCount++;
+          errors.push({
+            employeeId: employee._id.toString(),
+            error: error?.message || 'Unknown error'
+          });
+        }
+      }
+
+      return {
+        month,
+        year,
+        totalEmployees: activeEmployees.length,
+        createdCount,
+        updatedCount,
+        skipCount,
+        errorCount,
+        errors: errorCount > 0 ? errors : undefined
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'MonthlyPayrollService', 
+        method: 'recalculateAllEmployees', 
         month, 
         year 
       });

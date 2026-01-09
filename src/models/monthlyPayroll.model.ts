@@ -62,6 +62,12 @@ const monthlyPayrollSchema = new Schema<MonthlyPayrollDocument>(
       min: [0, 'Unpaid leave days cannot be negative'],
       default: 0,
     },
+    paidLeaveDays: {
+      type: Number,
+      required: [true, 'Paid leave days is required'],
+      min: [0, 'Paid leave days cannot be negative'],
+      default: 0,
+    },
     salaryDeduction: {
       type: Number,
       required: [true, 'Salary deduction is required'],

@@ -101,6 +101,20 @@ export class NewHardwareService {
       ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'delete', id });
     }
   }
+
+  /**
+   * Get hardware statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await NewHardwareModel.countDocuments();
+      const active = await NewHardwareModel.countDocuments({ status: 'Active' });
+      const inactive = await NewHardwareModel.countDocuments({ status: { $ne: 'Active' } });
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NewHardwareService', method: 'getStats' });
+    }
+  }
 }
-
-

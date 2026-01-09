@@ -20,13 +20,6 @@ export const allowedAttendanceFilterStatuses = Object.values(AttendanceFilterSta
 
 export const ATTENDANCE_ID_PREFIX = 'ATT';
 
-// Business rules
-export const ATTENDANCE_RULES = {
-  STANDARD_WORK_START_TIME: '09:00',  // 9 AM
-  HALF_DAY_HOURS_THRESHOLD: 4,        // Less than 4 hours = half day
-  AUTO_CHECKOUT_TIME: '23:59',        // Auto checkout if not done
-};
-
 // Salary calculation status
 export enum SalaryStatus {
   FULL = 'Full',

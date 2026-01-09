@@ -70,6 +70,9 @@ export class MonthlyPayrollResponseDto extends BaseDto {
   unpaidLeaveDays!: number;
 
   @Expose()
+  paidLeaveDays!: number;
+
+  @Expose()
   salaryDeduction!: number;
 
   @Expose()

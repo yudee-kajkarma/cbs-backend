@@ -28,19 +28,29 @@ const s3Client = new S3Client({
 export class FileUploadService {
   // File validation rules - SECURITY CHECKPOINT
   private static readonly VALIDATION_RULES: Record<string, FileValidationRules> = {
-    image: {
-      maxFileSize: 5 * 1024 * 1024, // 5MB
-      allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
-      maxFilesPerType: 10,
-    },
     video: {
       maxFileSize: 50 * 1024 * 1024, // 50MB
       allowedMimeTypes: ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/webm'],
       maxFilesPerType: 5,
     },
-    certificate: {
+    document: {
       maxFileSize: 20 * 1024 * 1024, // 20MB
-      allowedMimeTypes: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+      allowedMimeTypes: [
+        'image/jpeg', 
+        'image/jpg', 
+        'image/png', 
+        'image/webp', 
+        'image/gif',
+        'application/pdf',
+        'application/msword', // .doc
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+        'application/vnd.ms-excel', // .xls
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-powerpoint', // .ppt
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+        'text/plain', // .txt
+        'text/csv', // .csv
+      ],
       maxFilesPerType: 10,
     },
   };
@@ -127,12 +137,12 @@ export class FileUploadService {
           // Determine directory structure based on file type
           let key: string;
 
-          if (file.fileType === 'certificate') {
-            // Certificates go to private folder
-            key = `ims/private/${request.type}/certificates/${timestamp}_${randomSuffix}_${file.filename}`;
+          if (file.fileType === 'document') {
+            // Documents go to private folder
+            key = `cbs/private/${request.type}/${timestamp}_${randomSuffix}_${file.filename}`;
           } else {
-            // Images and videos go to public folder
-            key = `ims/public/${request.type}/${file.fileType}s/${timestamp}_${randomSuffix}_${file.filename}`;
+            // Videos go to public folder
+            key = `cbs/public/${request.type}/${file.fileType}s/${timestamp}_${randomSuffix}_${file.filename}`;
           }
 
           // Generate presigned URL with retry logic
@@ -160,9 +170,9 @@ export class FileUploadService {
             }
           );
 
-          // Generate public URL for images and videos
+          // Generate public URL for videos only (documents are private)
           let publicUrl: string | undefined;
-          if (file.fileType !== 'certificate') {
+          if (file.fileType !== 'document') {
             publicUrl = `https://${tenantBucket}.s3.${config.aws.region}.amazonaws.com/${key}`;
           }
 

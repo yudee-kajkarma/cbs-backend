@@ -5,12 +5,6 @@ export const payrollIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required()
 });
 
-export const generatePayrollSchema = Joi.object({
-  employeeId: Joi.string().length(24).hex().required(),
-  month: Joi.number().integer().min(1).max(12).required(),
-  year: Joi.number().integer().min(2000).max(2100).required()
-});
-
 export const updatePayrollSchema = Joi.object({
   id: Joi.string().length(24).hex().required(),
   status: Joi.string().valid(...allowedMonthlyPayrollStatuses).required()
@@ -40,6 +34,11 @@ export const statisticsQuerySchema = Joi.object({
 });
 
 export const exportReportQuerySchema = Joi.object({
+  month: Joi.number().integer().min(1).max(12).required(),
+  year: Joi.number().integer().min(2000).max(2100).required()
+});
+
+export const recalculateAllPayrollsSchema = Joi.object({
   month: Joi.number().integer().min(1).max(12).required(),
   year: Joi.number().integer().min(2000).max(2100).required()
 });
