@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
-import { allowedDocumentCategories } from "../constants/document.constants";
+import { allowedDocumentCategories } from "../constants/legal-docs.constants";
 import { IDocument } from "../interfaces/model.interface";
 
-const documentSchema = new Schema<IDocument>(
+const legalDocSchema = new Schema<IDocument>(
   {
     name: { 
       type: String, 
@@ -40,8 +40,8 @@ const documentSchema = new Schema<IDocument>(
 );
 
 // Indexes for better query performance
-documentSchema.index({ name: 1 });
-documentSchema.index({ category: 1 });
-documentSchema.index({ documentDate: -1 });
-documentSchema.index({ createdAt: -1 });
-export default model<IDocument>("Document", documentSchema);
+legalDocSchema.index({ name: 1 });
+legalDocSchema.index({ category: 1 });
+legalDocSchema.index({ documentDate: -1 });
+legalDocSchema.index({ createdAt: -1 });
+export default model<IDocument>("LegalDoc", legalDocSchema, "legal_docs");

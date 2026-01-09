@@ -1,6 +1,15 @@
+/**
+ * Legal Documents Routes
+ * 
+ * Module: Company Documents
+ * Resource: legal_docs
+ * 
+ * All routes require authentication and appropriate permissions (READ/WRITE) from the company_documents module.
+ */
+
 import { Router } from "express";
 
-import { DocumentController } from "../controllers/document.controller";
+import { DocumentController } from "../controllers/legal-docs.controller";
 
 import {
   validateRequest,
@@ -17,9 +26,13 @@ import {
   updateDocumentSchema,
   getDocumentByIdSchema,
   listDocumentQuerySchema,
-} from "../validators/document.validator";
+} from "../validators/legal-docs.validator";
 
 const router = Router();
+
+/**
+ * Company_documents module - Legal Documents Resource Routes
+ */
 
 // CREATE - Requires WRITE permission
 router.post(

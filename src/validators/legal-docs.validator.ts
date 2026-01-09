@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { allowedDocumentCategories } from "../constants/document.constants";
+import { allowedDocumentCategories } from "../constants/legal-docs.constants";
 
 export const createDocumentSchema = Joi.object({
   name: Joi.string().required(),
