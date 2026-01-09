@@ -12,7 +12,7 @@ const router = Router();
  * @access  Private (IT Management - Read)
  */
 router.get(
-  '/overview',
+  '/it-overview',
   authenticate,
   checkPermission('it_management', 'hardware', PERMISSIONS.READ),
   AnalyticsController.getITOverview
