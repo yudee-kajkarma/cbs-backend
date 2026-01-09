@@ -14,6 +14,7 @@ import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { LeaveApplicationStatus } from "../constants/leave-policy.constants";
 import { EmployeeStatus } from "../constants";
 import { ActivityType } from "../constants/activity-log.constants";
+import { ActivityLogDocument } from "../interfaces";
 
 export class DashboardService {
 
@@ -185,12 +186,11 @@ export class DashboardService {
         .lean();
 
       return {
-        recentActivities: recentActivities.map((activity: any) => ({
+        recentActivities: recentActivities.map((activity: ActivityLogDocument) => ({
           activityType: activity.activityType,
           action: activity.action,
           description: activity.description,
           module: activity.module,
-          createdAt: activity.createdAt,
           metadata: activity.metadata,
         })),
       };
@@ -430,7 +430,13 @@ export class DashboardService {
         .lean();
 
       return {
-        recentActivities: activities
+        recentActivities: activities.map((activity: ActivityLogDocument) => ({
+          activityType: activity.activityType,
+          action: activity.action,
+          description: activity.description,
+          module: activity.module,
+          metadata: activity.metadata,
+        })),
       };
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 

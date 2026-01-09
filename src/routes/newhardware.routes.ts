@@ -18,6 +18,9 @@ import {
 
 const router = Router();
 
+/** * IT Management module - Hardware Resource Routes
+ */
+
 // CREATE - Requires WRITE permission
 router.post(
   "/",

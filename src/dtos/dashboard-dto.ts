@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Type, Transform } from 'class-transformer';
 import { BaseDto } from './base-dto';
 
 /**
@@ -181,23 +181,6 @@ export class LeaveApplicationsOverviewResponseDto extends BaseDto {
 
 
 /**
- * DTO for Activity Log Metadata
- */
-export class ActivityLogMetadataDto {
-  @Expose()
-  checkInTime?: string;
-
-  @Expose()
-  isLateArrival?: boolean;
-
-  @Expose()
-  lateArrivalMinutes?: number;
-
-  @Expose()
-  ipAddress?: string;
-}
-
-/**
  * DTO for Activity Log Item
  */
 export class DashboardActivityLogDto {
@@ -217,8 +200,8 @@ export class DashboardActivityLogDto {
   createdAt!: Date;
 
   @Expose()
-  @Type(() => ActivityLogMetadataDto)
-  metadata?: ActivityLogMetadataDto;
+  @Transform(({ obj }) => obj.metadata || {}, { toClassOnly: true })
+  metadata?: Record<string, any>;
 }
 
 /**

@@ -1,5 +1,6 @@
+
 import { Router } from "express";
-import { BankBalanceController } from "../controllers/bankBalance.controller";
+import { BankBalanceController } from "../controllers/dailyBankBalance.controller";
 import {
   validateRequest,
   validateParams,
@@ -15,9 +16,18 @@ import {
   getBankBalanceListSchema,
   getBankBalanceSummarySchema,
   bulkUpdateBankBalanceSchema,
-} from "../validators/bankBalance.validator";
+} from "../validators/dailyBankBalance.validator";
 
 const router = Router();
+
+/**
+ * Daily Bank Balance Routes
+ * 
+ * Module: Banking
+ * Resource: daily_bank_balance
+ * 
+ * All routes require authentication and appropriate permissions (READ/WRITE) from the banking module.
+ */
 
 // CREATE - Requires WRITE permission
 router.post(

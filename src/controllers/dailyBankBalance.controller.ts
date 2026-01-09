@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { BankBalanceService } from "../services/bankBalance.service";
-import { BankBalanceResponseDto, BankBalanceSummaryDto } from "../dtos/bank-balance-dto";
+import { BankBalanceService } from "../services/dailyBankBalance.service";
+import { BankBalanceResponseDto, BankBalanceSummaryDto } from "../dtos/daily-bank-balance-dto";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ResponseUtil } from "../utils/response-formatter.util";
 import { toDto, toDtoList } from "../utils/dto-mapper.util";

@@ -1,6 +1,6 @@
 export * from './audit.constants';
 
-export * from './document.constants';
+export * from './legal-docs.constants';
 
 export * from './iso.constants';
 
