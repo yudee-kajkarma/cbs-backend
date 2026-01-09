@@ -287,6 +287,11 @@ export const ERROR_MESSAGES = {
       message: 'Bank account with this account number already exists',
       status: 409
     },
+    BULK_UPDATE_INVALID: {
+      code: 'CBS-4019-1',
+      message: 'Updates array is required and cannot be empty',
+      status: 400
+    },
 
     // Bank Balance Errors
     BANK_BALANCE_NOT_FOUND: {

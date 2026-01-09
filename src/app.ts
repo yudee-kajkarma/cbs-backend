@@ -20,7 +20,6 @@ import vehicleRoutes from './routes/vehicle.routes';
 import equipmentRoutes from './routes/equipment.routes';
 import bankAccountRoutes from './routes/bankAccount.routes';
 import telexTransferRoutes from './routes/telex-transfer.routes';
-import dailyBankBalanceRoutes from './routes/dailyBankBalance.routes';
 import forecastRoutes from './routes/forecast.routes';
 import chequeRoutes from './routes/cheque.routes';
 import payeeRoutes from './routes/payee.routes';
@@ -38,6 +37,7 @@ import roleRoutes from './routes/role.routes';
 import authRoutes from './routes/auth.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import activityLogRoutes from './routes/activity-log.routes';
+import analyticsRoutes from './routes/analytics.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
 import { config } from './config/config'; 
@@ -80,7 +80,6 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
 app.use('/api/telex-transfers', telexTransferRoutes);
-app.use('/api/daily-bank-balances', dailyBankBalanceRoutes);
 app.use('/api/forecasts', forecastRoutes);
 app.use('/api/cheques', chequeRoutes);
 app.use('/api/payees', payeeRoutes);
@@ -97,6 +96,7 @@ app.use('/api/incentives', incentiveRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Error Handler
 app.use(errorMiddleware);

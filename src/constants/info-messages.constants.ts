@@ -279,4 +279,10 @@ export const INFO_MESSAGES = {
     ACTIVITIES_RETRIEVED_SUCCESSFULLY: 'Activities retrieved successfully',
     OLD_ACTIVITIES_DELETED_SUCCESSFULLY: 'Old activity logs deleted successfully',
   },
+  ANALYTICS: {
+    IT_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'IT analytics overview retrieved successfully',
+    ASSETS_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Assets analytics overview retrieved successfully',
+    COMPANY_DOCS_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Company Documents analytics overview retrieved successfully',
+    BANK_OVERVIEW_RETRIEVED_SUCCESSFULLY: 'Bank analytics overview retrieved successfully',
+  },
 };

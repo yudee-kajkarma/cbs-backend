@@ -21,6 +21,17 @@ export class EmployeeUserDto {
 }
 
 /**
+ * Document DTO for employee documents
+ */
+export class EmployeeDocumentDto {
+  @Expose()
+  fileKey!: string;
+
+  @Expose()
+  expiryDate!: Date;
+}
+
+/**
  * Response DTO for Employee entity
  */
 export class EmployeeResponseDto extends BaseDto {
@@ -48,6 +59,10 @@ export class EmployeeResponseDto extends BaseDto {
 
   @Expose()
   status!: EmployeeStatus;
+
+  @Expose()
+  @Type(() => EmployeeDocumentDto)
+  documents?: EmployeeDocumentDto[];
 }
 
 /**
