@@ -747,6 +747,8 @@ export interface Metadata {
   standardWorkStartTime: string;
   halfDayHoursThreshold: number;
   autoCheckoutTime: string;
+  timeZone: string;
+  allowTimeZone: boolean;
   isActive: boolean;
 }
 
@@ -852,8 +854,18 @@ export interface Attendance {
   date: Date;
   checkInTime: Date;
   checkInIP: string;
+  checkInLocation?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  checkInTimeZone?: string;
   checkOutTime?: Date;
   checkOutIP?: string;
+  checkOutLocation?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  checkOutTimeZone?: string;
   workingHours: number;
   overtimeHours: number;
   isLateArrival: boolean;
@@ -937,6 +949,7 @@ export interface DailyAttendanceRecord {
   salaryStatus: string;
   deductionAmount: number;
   salaryForDay: number;
+  timeZone: string;
 }
 
 export interface DailyAttendanceSummaryResponse {

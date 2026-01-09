@@ -51,10 +51,28 @@ export class AttendanceResponseDto extends BaseDto {
   checkInIP?: string;
 
   @Expose()
+  checkInLocation?: {
+    latitude?: number;
+    longitude?: number;
+  };
+
+  @Expose()
+  checkInTimeZone?: string;
+
+  @Expose()
   checkOutTime?: Date;
 
   @Expose()
   checkOutIP?: string;
+
+  @Expose()
+  checkOutLocation?: {
+    latitude?: number;
+    longitude?: number;
+  };
+
+  @Expose()
+  checkOutTimeZone?: string;
 
   @Expose()
   workingHours!: number;
@@ -108,6 +126,9 @@ export class DailyAttendanceRecordDto {
 
   @Expose()
   salaryForDay!: number;
+
+  @Expose()
+  timeZone!: string;
 }
 
 /**

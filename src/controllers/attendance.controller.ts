@@ -24,9 +24,15 @@ export class AttendanceController {
         return;
       }
       
+      // Extract location from request body (optional)
+      const location = req.body?.location ? {
+        latitude: req.body.location.latitude,
+        longitude: req.body.location.longitude
+      } : undefined;
+      
       const result = action === 'check-in' 
-        ? await AttendanceService.checkIn(employeeId, ipAddress)
-        : await AttendanceService.checkOut(employeeId, ipAddress);
+        ? await AttendanceService.checkIn(employeeId, ipAddress, location)
+        : await AttendanceService.checkOut(employeeId, ipAddress, location);
       
       const message = action === 'check-in' 
         ? INFO_MESSAGES.ATTENDANCE.CHECKED_IN_SUCCESSFULLY 

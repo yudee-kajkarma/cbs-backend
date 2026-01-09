@@ -10,6 +10,7 @@ import { ErrorHandler } from "../utils/error-handler.util";
 import { AttendanceUtil } from "../utils/attendance.util";
 import { AttendanceFilterUtil } from "../utils/attendance-filter.util";
 import { ActivityLogger } from "../utils/activity-logger.util";
+import { TimezoneUtil } from "../utils/timezone.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { AttendanceStatus } from "../constants/attendance.constants";
 import { LeaveApplicationStatus, EmployeeStatus } from "../constants";
@@ -45,7 +46,11 @@ export class AttendanceService {
     /**
      * Check-in for the day
      */
-    static async checkIn(employeeId: string, ipAddress: string): Promise<AttendanceDocument> {
+    static async checkIn(
+        employeeId: string, 
+        ipAddress: string, 
+        location?: { latitude?: number; longitude?: number }
+    ): Promise<AttendanceDocument> {
         try {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -75,11 +80,31 @@ export class AttendanceService {
                 metadata.standardWorkStartTime
             );
 
+            // Detect timezone from location if provided
+            const checkInTimeZone = location?.latitude && location?.longitude
+                ? TimezoneUtil.detectTimezone(location.latitude, location.longitude)
+                : null;
+
+            // Validate timezone based on metadata settings
+            if (!metadata.allowTimeZone) {
+                // Location is required when timezone restriction is enabled
+                if (!location?.latitude || !location?.longitude) {
+                    throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LOCATION_REQUIRED);
+                }
+                
+                // Check if detected timezone matches configured timezone
+                if (checkInTimeZone !== metadata.timeZone) {
+                    throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TIMEZONE_MISMATCH);
+                }
+            }
+
             const attendance = await Attendance.create({
                 employeeId,
                 date: today,
                 checkInTime,
                 checkInIP: ipAddress,
+                checkInLocation: location,
+                checkInTimeZone,
                 isLateArrival: isLate,
                 lateArrivalMinutes: minutesLate,
                 workingHours: 0,
@@ -90,8 +115,12 @@ export class AttendanceService {
             const formattedRecord = await this.formatAttendanceRecord(attendance._id);
 
             // Log activity
+            const userId = employee.userId?._id 
+                ? employee.userId._id.toString() 
+                : (employee.userId ? employee.userId.toString() : employeeId);
+            
             await ActivityLogger.log({
-                userId: employee.userId.toString(),
+                userId,
                 employeeId: employeeId,
                 type: ActivityType.CHECK_IN,
                 action: 'Checked in',
@@ -136,7 +165,11 @@ export class AttendanceService {
     /**
      * Check-out for the day
      */
-    static async checkOut(employeeId: string, ipAddress: string): Promise<AttendanceDocument> {
+    static async checkOut(
+        employeeId: string, 
+        ipAddress: string,
+        location?: { latitude?: number; longitude?: number }
+    ): Promise<AttendanceDocument> {
         try {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -175,12 +208,42 @@ export class AttendanceService {
                 attendance.isLateArrival
             );
 
+            // Detect timezone from location if provided
+            const checkOutTimeZone = location?.latitude && location?.longitude
+                ? TimezoneUtil.detectTimezone(location.latitude, location.longitude)
+                : null;
+
+            // Get metadata for timezone validation
+            const metadata = await MetadataService.get();
+            
+            // Validate timezone based on metadata settings
+            if (!metadata.allowTimeZone) {
+                // Location is required when timezone restriction is enabled
+                if (!location?.latitude || !location?.longitude) {
+                    throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LOCATION_REQUIRED);
+                }
+                
+                // Check if detected timezone matches configured timezone
+                if (checkOutTimeZone !== metadata.timeZone) {
+                    throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TIMEZONE_MISMATCH);
+                }
+            }
+
+            // Validate that checkout timezone matches checkin timezone
+            if (attendance.checkInTimeZone && checkOutTimeZone) {
+                if (attendance.checkInTimeZone !== checkOutTimeZone) {
+                    throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.CHECKOUT_TIMEZONE_MISMATCH);
+                }
+            }
+
             await Attendance.findByIdAndUpdate(
                 attendance._id,
                 {
                     $set: {
                         checkOutTime,
                         checkOutIP: ipAddress,
+                        checkOutLocation: location,
+                        checkOutTimeZone,
                         workingHours,
                         overtimeHours,
                         status
@@ -264,6 +327,7 @@ export class AttendanceService {
             employeeFilter.status = EmployeeStatus.ACTIVE;
 
             const policy = await AttendancePolicyService.get();
+            const metadata = await MetadataService.get();
 
             const result = await EmployeeService.getAll({
                 ...employeeFilter,
@@ -307,12 +371,20 @@ export class AttendanceService {
                 );
                 const isOnLeave = employeesOnLeave.includes(empId);
 
+                // Determine timeZone based on allowTimeZone setting
+                // If allowTimeZone is true: use checkInTimeZone from attendance record
+                // If allowTimeZone is false: use metadata.timeZone (configured timeZone)
+                const timeZone = metadata.allowTimeZone && attendance?.checkInTimeZone
+                    ? attendance.checkInTimeZone
+                    : metadata.timeZone;
+
                 return AttendanceUtil.buildEmployeeAttendanceRecord(
                     employee,
                     attendance,
                     isOnLeave,
                     workingDaysPerMonth,
-                    policy
+                    policy,
+                    timeZone
                 );
             });
 

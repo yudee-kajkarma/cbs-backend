@@ -18,6 +18,15 @@ const metadataSchema = new Schema<MetadataDocument>(
       required: [true, 'Auto checkout time is required'],
       default: '23:59',
     },
+    timeZone: {
+      type: String,
+      required: [true, 'Timezone is required'],
+      default: 'UTC',
+    },
+    allowTimeZone: {
+      type: Boolean,
+      default: false,
+    },
     isActive: {
       type: Boolean,
       default: true,

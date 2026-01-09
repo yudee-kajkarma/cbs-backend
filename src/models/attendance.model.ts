@@ -21,10 +21,24 @@ const attendanceSchema = new Schema<AttendanceDocument>(
       type: String,
       required: [true, 'Check-in IP is required'],
     },
+    checkInLocation: {
+      latitude: { type: Number },
+      longitude: { type: Number }
+    },
+    checkInTimeZone: {
+      type: String,
+    },
     checkOutTime: {
       type: Date,
     },
     checkOutIP: {
+      type: String,
+    },
+    checkOutLocation: {
+      latitude: { type: Number },
+      longitude: { type: Number }
+    },
+    checkOutTimeZone: {
       type: String,
     },
     workingHours: {

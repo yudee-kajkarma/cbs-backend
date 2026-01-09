@@ -102,13 +102,10 @@ export class AttendanceUtil {
   }
   
   /**
-   * Format time to HH:mm:ss
+   * Format time to ISO string (UTC)
    */
   static formatTime(date: Date): string {
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
+    return date.toISOString();
   }
   
   /**
@@ -169,7 +166,8 @@ export class AttendanceUtil {
     attendance: any,
     isOnLeave: boolean,
     workingDaysPerMonth: number,
-    policy: any
+    policy: any,
+    timeZone?: string
   ): any {
     const salaryInfo = this.calculateDailySalary(
       attendance,
@@ -209,7 +207,8 @@ export class AttendanceUtil {
       status: displayStatus,
       salaryStatus: salaryInfo.status,
       deductionAmount: salaryInfo.deduction,
-      salaryForDay: salaryInfo.amount
+      salaryForDay: salaryInfo.amount,
+      timeZone: timeZone || 'UTC'
     };
   }
 

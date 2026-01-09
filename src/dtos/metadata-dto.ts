@@ -14,6 +14,12 @@ export class MetadataResponseDto {
     autoCheckoutTime!: string;
 
     @Expose()
+    timeZone!: string;
+
+    @Expose()
+    allowTimeZone!: boolean;
+
+    @Expose()
     isActive!: boolean;
 
     @Expose()

@@ -456,6 +456,21 @@ export const ERROR_MESSAGES = {
       message: 'Invalid action. Must be check-in or check-out',
       status: 400
     },
+    TIMEZONE_MISMATCH: {
+      code: 'CBS-4037',
+      message: 'Check-in/Check-out must be done from the configured timezone location',
+      status: 403
+    },
+    CHECKOUT_TIMEZONE_MISMATCH: {
+      code: 'CBS-4039',
+      message: 'Check-out timezone must match check-in timezone',
+      status: 403
+    },
+    LOCATION_REQUIRED: {
+      code: 'CBS-4038',
+      message: 'Location is required for check-in/check-out',
+      status: 400
+    },
     // Role Errors
     ROLE_NOT_FOUND: {
       code: 'CBS-4028',
