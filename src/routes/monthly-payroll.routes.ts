@@ -4,29 +4,16 @@ import { validateRequest, validateParams, validateQuery } from "../middlewares/v
 import { requireHROrAdmin } from "../middlewares/role.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
 import {
-  generatePayrollSchema,
   updatePayrollSchema,
   payrollIdSchema,
   payrollQuerySchema,
   processAllPayrollSchema,
   statisticsQuerySchema,
   exportReportQuerySchema,
+  recalculateAllPayrollsSchema,
 } from "../validators/monthly-payroll.validator";
 
 const router = Router();
-
-/**
- * @route   POST /api/monthly-payroll/generate
- * @desc    Generate monthly payroll for an employee
- * @access  Private (HR/Admin)
- */
-router.post(
-  "/",
-  authenticate,
-  requireHROrAdmin,
-  validateRequest(generatePayrollSchema),
-  MonthlyPayrollController.generatePayroll
-);
 
 /**
  * @route   POST /api/monthly-payroll/process-all
@@ -39,6 +26,19 @@ router.post(
   requireHROrAdmin,
   validateRequest(processAllPayrollSchema),
   MonthlyPayrollController.processAllPending
+);
+
+/**
+ * @route   POST /api/monthly-payroll/recalculate-all
+ * @desc    Recalculate/update payroll for all active employees
+ * @access  Private (HR/Admin)
+ */
+router.post(
+  "/recalculate-all",
+  authenticate,
+  requireHROrAdmin,
+  validateRequest(recalculateAllPayrollsSchema),
+  MonthlyPayrollController.recalculateAllPayrolls
 );
 
 /**

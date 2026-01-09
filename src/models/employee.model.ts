@@ -1,8 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { EmployeeDocument } from '../interfaces';
+import { EmployeeMongoDocument } from '../interfaces';
 import { allowedEmployeeStatuses, EmployeeStatus } from '../constants';
 
-const employeeSchema = new Schema<EmployeeDocument>(
+const employeeSchema = new Schema<EmployeeMongoDocument>(
   {
     employeeId: {
       type: String,
@@ -42,6 +42,20 @@ const employeeSchema = new Schema<EmployeeDocument>(
       },
       default: EmployeeStatus.ACTIVE,
     },
+    documents: [
+      {
+        fileKey: {
+          type: String,
+          required: [true, 'File key is required'],
+          trim: true,
+          maxlength: [500, 'File key cannot exceed 500 characters'],
+        },
+        expiryDate: {
+          type: Date,
+          required: [true, 'Expiry date is required'],
+        },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -55,4 +69,4 @@ employeeSchema.index({ department: 1 }, { name: 'idx_employee_department' });
 employeeSchema.index({ status: 1 }, { name: 'idx_employee_status' });
 employeeSchema.index({ createdAt: -1 }, { name: 'idx_employee_created_desc' });
 
-export default mongoose.model<EmployeeDocument>("employee", employeeSchema, "employee");
+export default mongoose.model<EmployeeMongoDocument>("employee", employeeSchema, "employee");

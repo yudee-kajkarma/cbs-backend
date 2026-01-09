@@ -155,5 +155,22 @@ export class NetworkEquipmentService {
       ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'findBySerialExcludeId', serial, id });
     }
   }
+
+  /**
+   * Get network equipment statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await NetworkEquipmentModel.countDocuments();
+      const online = await NetworkEquipmentModel.countDocuments({ status: 'Online' });
+      const offline = await NetworkEquipmentModel.countDocuments({ status: 'Offline' });
+      const maintenance = await NetworkEquipmentModel.countDocuments({ status: 'Maintenance' });
+
+      return { total, online, offline, maintenance };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'getStats' });
+    }
+  }
 }
 

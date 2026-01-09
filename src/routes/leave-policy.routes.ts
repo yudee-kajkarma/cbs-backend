@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { LeavePolicyController } from "../controllers/leave-policy.controller";
 import { validateRequest } from "../middlewares/validate.middleware";
-import { requireHROrAdmin } from "../middlewares/role.middleware";
+import { requireAdmin, requireHROrAdmin } from "../middlewares/role.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
 import { createLeavePolicySchema, updateLeavePolicySchema } from "../validators/leave-policy.validator";
 
@@ -11,7 +11,7 @@ const router = Router();
 router.post(
   "/",
   authenticate,
-  requireHROrAdmin,
+  requireAdmin,
   validateRequest(createLeavePolicySchema),
   LeavePolicyController.create
 );
@@ -23,7 +23,7 @@ router.get("/", authenticate, requireHROrAdmin, LeavePolicyController.get);
 router.put(
   "/",
   authenticate,
-  requireHROrAdmin,
+  requireAdmin,
   validateRequest(updateLeavePolicySchema),
   LeavePolicyController.update
 );

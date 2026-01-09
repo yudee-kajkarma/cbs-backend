@@ -117,4 +117,20 @@ export class EquipmentService {
       ErrorHandler.handleServiceError(error, { serviceName: 'EquipmentService', method: 'delete', id });
     }
   }
+
+  /**
+   * Get equipment statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await EquipmentModel.countDocuments();
+      const active = await EquipmentModel.countDocuments({ status: 'Active' });
+      const inactive = await EquipmentModel.countDocuments({ status: { $ne: 'Active' } });
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'EquipmentService', method: 'getStats' });
+    }
+  }
 }

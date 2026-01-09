@@ -29,25 +29,18 @@ export async function validateS3Keys(keys: string[]): Promise<string[]> {
 
 /**
  * Extract and validate all S3 keys from media data (works for both create and update)
- * @param data - Any object with media fields (images, videos, certificates)
+ * @param data - Any object with media fields (videos, documents)
  * @returns Promise<void>
  */
 export async function validateMediaKeys(data: any): Promise<void> {
   const allKeys: string[] = [];
 
   // Collect all S3 keys from media fields
-  if (data.images?.keys) {
-    allKeys.push(...data.images.keys);
-  }
   if (data.videos?.keys) {
     allKeys.push(...data.videos.keys);
   }
-  if (data.certificates) {
-    for (const certificate of data.certificates) {
-      if (certificate.files?.keys) {
-        allKeys.push(...certificate.files.keys);
-      }
-    }
+  if (data.documents?.keys) {
+    allKeys.push(...data.documents.keys);
   }
 
   if (allKeys.length === 0) return;
@@ -65,17 +58,13 @@ export async function validateMediaKeys(data: any): Promise<void> {
     });
   }
 
-  // Convert S3 keys to public URLs for images and videos
-  if (data.images?.keys && data.images.keys.length > 0) {
-    data.images.urls = convertS3KeysToPublicUrls(data.images.keys);
-    // Remove keys property since we don't store keys for public media
-    delete data.images.keys;
-  }
+  // Convert S3 keys to public URLs for videos only (documents are private)
   if (data.videos?.keys && data.videos.keys.length > 0) {
     data.videos.urls = convertS3KeysToPublicUrls(data.videos.keys);
     // Remove keys property since we don't store keys for public media
     delete data.videos.keys;
   }
+  // Documents remain as keys (private, not converted to public URLs)
 }
 
 /**
@@ -84,5 +73,5 @@ export async function validateMediaKeys(data: any): Promise<void> {
  * @returns boolean - True if validation is needed
  */
 export function hasMediaKeys(data: any): boolean {
-  return !!(data.images?.keys || data.videos?.keys || data.certificates?.some((cert: any) => cert.files?.keys));
+  return !!(data.videos?.keys || data.documents?.keys);
 }

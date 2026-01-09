@@ -9,24 +9,36 @@ export const fileUploadMetadataSchema = Joi.object({
   }),
   mimeType: Joi.string()
     .valid(
-      // Images
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/webp',
-      'image/gif',
       // Videos
       'video/mp4',
       'video/avi',
       'video/mov',
       'video/wmv',
       'video/webm',
-      // Certificates
-      'application/pdf'
+      // Documents - Images
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      // Documents - PDF
+      'application/pdf',
+      // Documents - Word
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      // Documents - Excel
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      // Documents - PowerPoint
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      // Documents - Text
+      'text/plain',
+      'text/csv'
     )
     .required()
     .messages({
-      'any.only': 'Invalid file format. Allowed formats: JPEG, PNG, WebP, GIF, MP4, AVI, MOV, WMV, WebM, PDF',
+      'any.only': 'Invalid file format. Allowed formats: Videos (MP4, AVI, MOV, WMV, WebM), Images (JPEG, PNG, WebP, GIF), Documents (PDF, Word, Excel, PowerPoint, TXT, CSV)',
       'any.required': 'MIME type is required',
     }),
   size: Joi.number()
@@ -38,8 +50,8 @@ export const fileUploadMetadataSchema = Joi.object({
       'number.max': 'File size cannot exceed 100MB',
       'any.required': 'File size is required',
     }),
-  fileType: Joi.string().valid('image', 'video', 'certificate').required().messages({
-    'any.only': 'File type must be one of: image, video, certificate',
+  fileType: Joi.string().valid('video', 'document').required().messages({
+    'any.only': 'File type must be one of: video, document',
     'any.required': 'File type is required',
   }),
 });

@@ -146,4 +146,25 @@ export class TelexTransferService {
             ErrorHandler.handleServiceError(error, { serviceName: 'TelexTransferService', method: 'delete', id });
         }
     }
+
+    /**
+     * Get telex transfer statistics for analytics
+     */
+    static async getStats(): Promise<{ total: number; completed: number; pending: number; draft: number }> {
+        try {
+            const [total, completed, pending, draft] = await Promise.all([
+                TelexTransfer.countDocuments(),
+                TelexTransfer.countDocuments({ status: 'Completed' }),
+                TelexTransfer.countDocuments({ status: 'Pending' }),
+                TelexTransfer.countDocuments({ status: 'Draft' })
+            ]);
+
+            return { total, completed, pending, draft };
+        } catch (error) {
+            ErrorHandler.handleServiceError(error, {
+                serviceName: 'TelexTransferService',
+                method: 'getStats'
+            });
+        }
+    }
 }

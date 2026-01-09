@@ -13,6 +13,8 @@ import {
   updateBankAccountSchema,
   bankAccountIdSchema,
   getBankAccountListSchema,
+  getBankAccountSummarySchema,
+  bulkUpdateBankAccountSchema,
 } from "../validators/bankAccount.validator";
 
 const router = Router();
@@ -24,6 +26,24 @@ router.post(
   checkPermission("banking", "cheque_printing", PERMISSIONS.WRITE),
   validateRequest(createBankAccountSchema),
   BankAccountController.create
+);
+
+// SUMMARY - Requires READ permission 
+router.get(
+  "/summary",
+  authenticate,
+  checkPermission("banking", "daily_bank_balance", PERMISSIONS.READ),
+  validateQuery(getBankAccountSummarySchema),
+  BankAccountController.getSummary
+);
+
+// BULK UPDATE - Requires WRITE permission 
+router.post(
+  "/bulk-update",
+  authenticate,
+  checkPermission("banking", "daily_bank_balance", PERMISSIONS.WRITE),
+  validateRequest(bulkUpdateBankAccountSchema),
+  BankAccountController.bulkUpdate
 );
 
 // LIST - Requires READ permission

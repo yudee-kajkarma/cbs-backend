@@ -165,4 +165,18 @@ export class ISOService {
       ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'remove', id });
     }
   }
+
+  /**
+   * Get ISO statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await ISOModel.countDocuments();
+
+      return { total };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'getStats' });
+    }
+  }
 }
