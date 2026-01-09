@@ -1,4 +1,6 @@
 import Employee from "../models/employee.model";
+import { FileUploadService } from "./file-upload.service";
+import { validateS3Keys } from "../utils/aws.util";
 import { PaginationService } from "./pagination.service";
 import { LeaveBalanceService } from "./leave-balance.service";
 import { throwError } from "../utils/errors.util";
@@ -6,7 +8,7 @@ import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import {
   EmployeeQuery,
-  UpdateEmployeeData
+  UpdateEmployeeData,
 } from "../interfaces/model.interface";
 import leavePolicyModel from "../models/leavePolicy.model";
 import AttendancePolicy from "../models/attendancePolicy.model";
@@ -90,6 +92,12 @@ export class EmployeeService {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
       }
 
+      // Validate file keys if documents are being updated
+      if (data.documents && data.documents.length > 0) {
+        const fileKeys = data.documents.map(doc => doc.fileKey);
+        await validateS3Keys(fileKeys);
+      }
+
       // Check if joinDate is being added/updated and employee didn't have one before
       const isAddingJoinDate = data.joinDate && !employee.joinDate;
 
@@ -147,6 +155,13 @@ export class EmployeeService {
       const employee = await Employee.findById(id);
       if (!employee) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.EMPLOYEE_NOT_FOUND);
+      }
+
+      if (employee.documents && employee.documents.length > 0) {
+        const fileKeys = employee.documents.map(doc => doc.fileKey).filter(Boolean);
+        if (fileKeys.length > 0) {
+          await FileUploadService.deleteFiles(fileKeys);
+        }
       }
 
       await Employee.findByIdAndDelete(id);

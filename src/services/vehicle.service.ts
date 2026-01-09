@@ -123,4 +123,20 @@ export class VehicleService {
       ErrorHandler.handleServiceError(error, { serviceName: 'VehicleService', method: 'delete', id });
     }
   }
+
+  /**
+   * Get vehicle statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await VehicleModel.countDocuments();
+      const active = await VehicleModel.countDocuments({ status: 'Active' });
+      const inactive = await VehicleModel.countDocuments({ status: { $ne: 'Active' } });
+
+      return { total, active, inactive };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'VehicleService', method: 'getStats' });
+    }
+  }
 }

@@ -182,4 +182,18 @@ export class DocumentService {
       ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'getDownloadUrl', id });
     }
   }
+
+  /**
+   * Get legal documents statistics for analytics
+   * @returns Statistics object with counts
+   */
+  static async getStats() {
+    try {
+      const total = await DocumentModel.countDocuments();
+
+      return { total };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'getStats' });
+    }
+  }
 }

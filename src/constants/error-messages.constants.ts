@@ -123,9 +123,16 @@ export const ERROR_MESSAGES = {
       status: 400
     },
     
+    // Metadata Errors
+    METADATA_NOT_FOUND: {
+      code: 'CBS-4008-5',
+      message: 'Metadata not found',
+      status: 404
+    },
+    
     // Payroll Compensation Errors
     PAYROLL_COMPENSATION_NOT_FOUND: {
-      code: 'CBS-4008-5',
+      code: 'CBS-4008-6',
       message: 'Payroll compensation settings not found',
       status: 404
     },
@@ -279,6 +286,11 @@ export const ERROR_MESSAGES = {
       code: 'CBS-4019',
       message: 'Bank account with this account number already exists',
       status: 409
+    },
+    BULK_UPDATE_INVALID: {
+      code: 'CBS-4019-1',
+      message: 'Updates array is required and cannot be empty',
+      status: 400
     },
 
     // Bank Balance Errors
