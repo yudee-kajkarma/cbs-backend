@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import { TransferType, HardwareCondition, HardwareList, TransferUserList, TransferStatus } from "../constants";
 import { IHardwareTransfer } from '../interfaces';
 
-const hardwareTransferSchema = new Schema<IHardwareTransfer>(
+export const hardwareTransferSchema = new Schema<IHardwareTransfer>(
   {
     hardwareName: { 
       type: String, 
@@ -92,4 +92,5 @@ hardwareTransferSchema.index({ transferDate: -1 }, { name: 'idx_hardware_transfe
 hardwareTransferSchema.index({ status: 1 }, { name: 'idx_hardware_transfer_status' });
 hardwareTransferSchema.index({ createdAt: -1 }, { name: 'idx_hardware_transfer_created_desc' });
 
-export default model<IHardwareTransfer>("HardwareTransfer", hardwareTransferSchema);
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

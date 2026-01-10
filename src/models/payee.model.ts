@@ -1,8 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { allowedPayeeCategories } from "../constants/payee.constants";
 import { PayeeDocument } from '../interfaces';
 
-const payeeSchema = new Schema<PayeeDocument>(
+export const payeeSchema = new Schema<PayeeDocument>(
   {
     name: {
       type: String,
@@ -63,6 +63,4 @@ payeeSchema.index({ name: 1 });
 payeeSchema.index({ category: 1 });
 payeeSchema.index({ email: 1 });
 
-const Payee = mongoose.model<PayeeDocument>('Payee', payeeSchema, 'payee');
-
-export default Payee;
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

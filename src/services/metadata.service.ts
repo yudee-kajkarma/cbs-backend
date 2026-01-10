@@ -1,4 +1,4 @@
-import Metadata from "../models/metadata.model";
+import { Metadata } from "../models";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";

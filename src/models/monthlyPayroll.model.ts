@@ -1,8 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { MonthlyPayrollDocument } from '../interfaces';
 import { MonthlyPayrollStatus, allowedMonthlyPayrollStatuses } from '../constants/monthly-payroll.constants';
 
-const monthlyPayrollSchema = new Schema<MonthlyPayrollDocument>(
+export const monthlyPayrollSchema = new Schema<MonthlyPayrollDocument>(
   {
     payrollId: {
       type: String,
@@ -10,7 +10,7 @@ const monthlyPayrollSchema = new Schema<MonthlyPayrollDocument>(
     },
     employeeId: {
       type: Schema.Types.ObjectId,
-      ref: 'employee',
+      ref: 'Employee',
       required: [true, 'Employee ID is required'],
     },
     month: {
@@ -134,4 +134,5 @@ monthlyPayrollSchema.index({ status: 1 }, { name: 'idx_monthly_payroll_status' }
 monthlyPayrollSchema.index({ month: 1, year: 1 }, { name: 'idx_monthly_payroll_period' });
 monthlyPayrollSchema.index({ createdAt: -1 }, { name: 'idx_monthly_payroll_created_desc' });
 
-export default mongoose.model<MonthlyPayrollDocument>("MonthlyPayroll", monthlyPayrollSchema, "monthly_payroll");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

@@ -1,8 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { LeaveApplicationDocument } from '../interfaces';
 import { allowedLeaveTypes, allowedLeaveApplicationStatuses, LeaveApplicationStatus } from '../constants/leave-policy.constants';
 
-const leaveApplicationSchema = new Schema<LeaveApplicationDocument>(
+export const leaveApplicationSchema = new Schema<LeaveApplicationDocument>(
   {
     requestId: {
       type: String,
@@ -10,7 +10,7 @@ const leaveApplicationSchema = new Schema<LeaveApplicationDocument>(
     },
     employeeId: {
       type: Schema.Types.ObjectId,
-      ref: 'employee',
+      ref: 'Employee',
       required: [true, 'Employee ID is required'],
     },
     leaveType: {
@@ -86,4 +86,5 @@ leaveApplicationSchema.index({ status: 1, appliedOn: -1 }, { name: 'idx_leave_ap
 leaveApplicationSchema.index({ leaveType: 1, status: 1 }, { name: 'idx_leave_app_type_status' });
 leaveApplicationSchema.index({ createdAt: -1 }, { name: 'idx_leave_app_created_desc' });
 
-export default mongoose.model<LeaveApplicationDocument>("LeaveApplication", leaveApplicationSchema, "leave_application");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

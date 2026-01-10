@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import Employee from "../models/employee.model";
+import { Employee } from "../models";
 import { EmployeeStatus } from "../constants/common.constants";
 import { MonthlyPayrollService } from "./monthly-payroll.service";
 import { ErrorHandler } from "../utils/error-handler.util";

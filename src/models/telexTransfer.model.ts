@@ -1,11 +1,11 @@
-import mongoose, { Document, Schema } from "mongoose";
+import { Schema, Document, Types } from "mongoose";
 import { allowedTelexTransferStatuses, TelexTransferStatus, allowedAuthorizedPersons } from "../constants/telex-transfer.constants";
 import { allowedCurrencies, Currency } from "../constants/common.constants";
 
 export interface TelexTransferDocument extends Document {
   referenceNo: string;
   transferDate: Date;
-  senderBank: mongoose.Types.ObjectId;
+  senderBank: Types.ObjectId;
   senderAccountNo: string;
   beneficiaryName: string;
   beneficiaryBankName: string;
@@ -21,7 +21,7 @@ export interface TelexTransferDocument extends Document {
   updatedAt: Date;
 }
 
-const telexTransferSchema = new Schema<TelexTransferDocument>(
+export const telexTransferSchema = new Schema<TelexTransferDocument>(
   {
     referenceNo: {
       type: String,
@@ -120,4 +120,5 @@ const telexTransferSchema = new Schema<TelexTransferDocument>(
 telexTransferSchema.index({ referenceNo: 1 }, { name: 'idx_telex_reference_no', unique: true });
 telexTransferSchema.index({ createdAt: -1 }, { name: 'idx_telex_created_desc' });
 
-export default mongoose.model<TelexTransferDocument>("TelexTransfer", telexTransferSchema, "telex_transfer");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

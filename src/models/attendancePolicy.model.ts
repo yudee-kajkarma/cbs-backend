@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { AttendancePolicyDocument } from '../interfaces';
 
-const attendancePolicySchema = new Schema<AttendancePolicyDocument>(
+export const attendancePolicySchema = new Schema<AttendancePolicyDocument>(
   {
     standardHoursPerDay: {
       type: Number,
@@ -49,4 +49,5 @@ const attendancePolicySchema = new Schema<AttendancePolicyDocument>(
 // Indexes for performance
 attendancePolicySchema.index({ isActive: 1 });
 
-export default mongoose.model<AttendancePolicyDocument>("AttendancePolicy", attendancePolicySchema, "attendance_policy");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

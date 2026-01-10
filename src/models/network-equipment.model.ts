@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 import { INetworkEquipment } from '../interfaces/model.interface';
 import { EquipmentStatus, allowedEquipmentStatuses, allowedEquipmentTypes } from '../constants/network-equipment.constants';
 
-const networkEquipmentSchema = new Schema<INetworkEquipment>(
+export const networkEquipmentSchema = new Schema<INetworkEquipment>(
   {
     equipmentName: { 
       type: String, 
@@ -91,4 +91,5 @@ networkEquipmentSchema.index({ location: 1 });
 networkEquipmentSchema.index({ status: 1 });
 networkEquipmentSchema.index({ createdAt: -1 });
 
-export default model<INetworkEquipment>("NetworkEquipment", networkEquipmentSchema);
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts
