@@ -67,7 +67,7 @@ router.put(
  * @desc    Activate tenant
  * @access  Super Admin only
  */
-router.post('/:id/accept', authenticate, requireSuperAdmin, validateParams(tenantIdSchema), TenantController.activate);
+router.post('/:id/activate', authenticate, requireSuperAdmin, validateParams(tenantIdSchema), TenantController.activate);
 
 /**
  * @route   POST /api/tenants/:id/suspend
