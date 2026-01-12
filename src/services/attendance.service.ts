@@ -345,6 +345,10 @@ export class AttendanceService {
             const policy = await AttendancePolicyService.get();
             const metadata = await MetadataService.get();
 
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
+
             if (!metadata) {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
             }
@@ -485,6 +489,10 @@ export class AttendanceService {
             endDate.setHours(23, 59, 59, 999);
 
             const policy = await AttendancePolicyService.get();
+
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
 
             // Get all attendance records for the month
             const records = await Attendance.find({

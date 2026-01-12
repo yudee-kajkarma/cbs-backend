@@ -62,6 +62,10 @@ export class AttendanceUtil {
    * Get working days in month
    */
   static getWorkingDaysInMonth(month: number, year: number, policy: any): number {
+    if (!policy || !policy.workingDaysPerWeek) {
+      throw new Error('Attendance policy is required to calculate working days');
+    }
+
     const totalDays = new Date(year, month, 0).getDate();
     let workingDays = 0;
     
@@ -83,6 +87,10 @@ export class AttendanceUtil {
    * Get working days in a date range (for mid-month calculations)
    */
   static getWorkingDaysInRange(startDate: Date, endDate: Date, policy: any): number {
+    if (!policy || !policy.workingDaysPerWeek) {
+      throw new Error('Attendance policy is required to calculate working days');
+    }
+
     let workingDays = 0;
     const current = new Date(startDate);
     
