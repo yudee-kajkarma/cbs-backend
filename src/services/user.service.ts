@@ -160,6 +160,7 @@ export class UserService {
         userRefId,
         tenantRefId,
         fullName: data.fullName,
+        email: data.email,
         role: data.role,
         roles: data.roles || [],
       });
