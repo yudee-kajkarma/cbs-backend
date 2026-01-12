@@ -81,6 +81,14 @@ export class PaginationService {
           const value = params[field];
           if (typeof value === 'string' && ['true', 'false'].includes(value)) {
             filter[field] = value === 'true';
+          } else if (typeof value === 'string' && value.includes(',')) {
+            // Handle comma-separated values (e.g., "Active,On Leave")
+            const values = value.split(',').map(v => v.trim()).filter(v => v !== '');
+            if (values.length > 1) {
+              filter[field] = { $in: values };
+            } else if (values.length === 1) {
+              filter[field] = values[0];
+            }
           } else {
             filter[field] = value;
           }
