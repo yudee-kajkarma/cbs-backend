@@ -35,12 +35,12 @@ export class MetadataService {
   /**
    * Get the single metadata
    */
-  static async get(): Promise<MetadataDocument> {
+  static async get(): Promise<MetadataDocument | null> {
     try {
       const metadata = await Metadata.findOne().lean();
       
       if (!metadata) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+        return null;
       }
       
       return metadata as MetadataDocument;

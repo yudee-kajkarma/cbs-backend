@@ -193,6 +193,7 @@ export const INFO_MESSAGES = {
   METADATA: {
     SAVED_SUCCESSFULLY: "Metadata saved successfully",
     RETRIEVED_SUCCESSFULLY: "Metadata retrieved successfully",
+    NOT_FOUND: "No metadata found",
   },
   PAYROLL_COMPENSATION: {
     CREATED_SUCCESSFULLY: "Payroll compensation settings created successfully",

@@ -77,6 +77,10 @@ export class AttendanceService {
                 throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
             }
 
+            if (!metadata) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+            }
+
             const checkInTime = new Date();
             const { isLate, minutesLate } = AttendanceUtil.isLateArrival(
                 checkInTime,
@@ -224,6 +228,10 @@ export class AttendanceService {
             // Get metadata for timezone validation
             const metadata = await MetadataService.get();
             
+            if (!metadata) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+            }
+            
             // Validate timezone based on metadata settings
             if (!metadata.allowTimeZone) {
                 // Location is required when timezone restriction is enabled
@@ -336,6 +344,10 @@ export class AttendanceService {
 
             const policy = await AttendancePolicyService.get();
             const metadata = await MetadataService.get();
+
+            if (!metadata) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+            }
 
             const result = await EmployeeService.getAll({
                 ...employeeFilter,
