@@ -575,11 +575,11 @@ export class AttendanceService {
             const onLeave = summaryData.records.filter(r => r.status === 'On Leave').length;
 
             // Find the updated employee record if employeeId is provided
-            let updatedRecord = undefined;
+            let record = undefined;
             if (updatedEmployeeId) {
                 const employee = await EmployeeService.getById(updatedEmployeeId);
                 if (employee) {
-                    updatedRecord = summaryData.records.find(r => r.empId === employee.employeeId);
+                    record = summaryData.records.find(r => r.empId === employee.employeeId);
                 }
             }
 
@@ -593,7 +593,7 @@ export class AttendanceService {
                     present: summaryData.summary.present,
                     attendancePercent: summaryData.summary.attendancePercent
                 },
-                updatedRecord,
+                records: record,
                 timestamp: new Date().toISOString()
             });
         } catch (error) {
