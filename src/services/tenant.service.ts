@@ -203,8 +203,8 @@ export class TenantService {
       console.log(`✓ Tenant database provisioned for: ${tenant.tenantRefId}`);
 
       // Step 2: Provision S3 bucket for file storage
-      // await InfraService.provisionS3ForTenant(tenant.tenantRefId);
-      // console.log(`✓ S3 bucket provisioned for: ${tenant.tenantRefId}`);
+      await InfraService.provisionS3ForTenant(tenant.tenantRefId);
+      console.log(`✓ S3 bucket provisioned for: ${tenant.tenantRefId}`);
 
       // Step 3: Update tenant status and remove credentials (within transaction)
       tenant.status = TenantStatus.ACTIVE;
