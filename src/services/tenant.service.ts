@@ -15,6 +15,7 @@ import { getIdentityUserModel } from '../utils/admin-connection';
 import { PaginationService } from './pagination.service';
 import { ReferenceGenerator } from '../utils/reference-generator.util';
 import { InfraService } from './infra.service';
+import { UserService } from './user.service';
 
 /**
  * Tenant Service
@@ -27,9 +28,22 @@ export class TenantService {
     try {
       const TenantModel = await getTenantModel();
 
+    // Check if tenant email already exists
     const existingTenant = await TenantModel.findOne({ companyEmail: data.companyEmail });
     if (existingTenant) {
       throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TENANT_EXISTS);
+    }
+
+    // Check if admin username already exists in identity database
+    const usernameExists = await UserService.checkUsernameExistsInIdentity(data.username);
+    if (usernameExists) {
+      throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_USERNAME_EXISTS);
+    }
+
+    // Check if admin email already exists in identity database
+    const emailExists = await UserService.checkEmailExistsInIdentity(data.companyEmail);
+    if (emailExists) {
+      throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_EMAIL_EXISTS);
     }
 
     // Generate unique tenant reference ID
