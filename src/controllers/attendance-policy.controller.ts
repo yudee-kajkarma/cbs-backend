@@ -8,25 +8,18 @@ import { INFO_MESSAGES } from "../constants/info-messages.constants";
 
 export class AttendancePolicyController {
   /**
-   * Create attendance policy
-   */
-  static async create(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await AttendancePolicyService.create(req.body);
-      const attendancePolicyDto = toDto(AttendancePolicyResponseDto, result);
-      const response = ResponseUtil.success(INFO_MESSAGES.ATTENDANCE_POLICY.CREATED_SUCCESSFULLY, attendancePolicyDto);
-      res.status(201).json(response);
-    } catch (error) {
-      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
-    }
-  }
-
-  /**
    * Get attendance policy 
    */
   static async get(req: Request, res: Response): Promise<void> {
     try {
       const result = await AttendancePolicyService.get();
+      
+      if (!result) {
+        const response = ResponseUtil.success(INFO_MESSAGES.ATTENDANCE_POLICY.NOT_FOUND, null);
+        res.status(200).json(response);
+        return;
+      }
+      
       const attendancePolicyDto = toDto(AttendancePolicyResponseDto, result);
       const response = ResponseUtil.success(INFO_MESSAGES.ATTENDANCE_POLICY.RETRIEVED_SUCCESSFULLY, attendancePolicyDto);
       res.status(200).json(response);

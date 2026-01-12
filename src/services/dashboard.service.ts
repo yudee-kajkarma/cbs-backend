@@ -28,6 +28,9 @@ export class DashboardService {
       const currentYear = today.getFullYear();
 
       const policy = await AttendancePolicyService.get();
+      if (!policy) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+      }
 
       const [todayAttendance, monthlyStats] = await Promise.all([
         this.getTodayAttendance(employeeId),

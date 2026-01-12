@@ -24,7 +24,7 @@ export class InfraService {
       }
 
       const env = config.env; // 'development', 'staging', 'production'
-      const bucketName = `cbs-${env}-${tenantRefId.toLowerCase()}`;
+      const bucketName = `cbs-${tenantRefId.toLowerCase()}`;
       
       const s3 = new AWS.S3({
         accessKeyId: config.aws.accessKeyId,

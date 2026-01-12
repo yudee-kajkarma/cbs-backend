@@ -7,19 +7,10 @@ import { createLeavePolicySchema, updateLeavePolicySchema } from "../validators/
 
 const router = Router();
 
-// CREATE - HR or Admin only
-router.post(
-  "/",
-  authenticate,
-  requireAdmin,
-  validateRequest(createLeavePolicySchema),
-  LeavePolicyController.create
-);
-
 // GET - HR or Admin only
 router.get("/", authenticate, requireHROrAdmin, LeavePolicyController.get);
 
-// UPDATE - HR or Admin only
+// UPDATE (or CREATE if not exists) - Admin only
 router.put(
   "/",
   authenticate,

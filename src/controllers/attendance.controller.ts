@@ -130,4 +130,23 @@ export class AttendanceController {
       ErrorHandler.handleControllerError(error, res, { method: 'streamLiveAttendance', query: req.query });
     }
   }
+
+  /**
+   * Get today's attendance status for an employee
+   */
+  static async getTodayStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { employeeId } = req.params;
+      
+      const todayStatus = await AttendanceService.getTodayStatus(employeeId);
+      
+      const response = ResponseUtil.success(
+        INFO_MESSAGES.ATTENDANCE.TODAY_STATUS_FETCHED,
+        todayStatus
+      );
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getTodayStatus', employeeId: req.params.employeeId });
+    }
+  }
 }

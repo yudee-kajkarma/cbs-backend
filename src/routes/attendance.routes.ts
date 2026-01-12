@@ -88,4 +88,15 @@ router.get(
   AttendanceController.getMonthlyStatistics
 );
 
+/**
+ * @route   GET /api/attendance/today/:employeeId
+ * @desc    Get today's attendance status for employee (check-in/check-out status)
+ * @access  Private
+ */
+router.get(
+  '/today/:employeeId',
+  authenticate,
+  AttendanceController.getTodayStatus
+);
+
 export default router;

@@ -176,7 +176,10 @@ export class TenantService {
       return tenant;
     }
 
-    // Provision tenant resources (first-time activation)
+    // Provision tenant resources (first-time activation) using atomic transaction
+    const adminSession = await mongoose.startSession();
+    let tenantConnection: mongoose.Connection | null = null;
+    
     try {
       // Create admin user with database initialization
       if (!tenant.adminUsername || !tenant.adminPassword) {
@@ -192,31 +195,58 @@ export class TenantService {
         address: tenant.address,
       };
 
-      // Step 1: Create admin user and tenant database
-      await this.createAdminUser(tenant.tenantRefId, adminData);
+      // Start transaction on admin database
+      adminSession.startTransaction();
+
+      // Step 1: Create admin user and tenant database (atomic)
+      tenantConnection = await this.createAdminUserAtomic(tenant.tenantRefId, adminData, adminSession);
       console.log(`✓ Tenant database provisioned for: ${tenant.tenantRefId}`);
 
       // Step 2: Provision S3 bucket for file storage
-      await InfraService.provisionS3ForTenant(tenant.tenantRefId);
-      console.log(`✓ S3 bucket provisioned for: ${tenant.tenantRefId}`);
+      // await InfraService.provisionS3ForTenant(tenant.tenantRefId);
+      // console.log(`✓ S3 bucket provisioned for: ${tenant.tenantRefId}`);
 
-      // Update tenant status and remove credentials
+      // Step 3: Update tenant status and remove credentials (within transaction)
       tenant.status = TenantStatus.ACTIVE;
       tenant.isProvisioned = true;
       tenant.adminUsername = undefined;
       tenant.adminPassword = undefined;
-      await tenant.save();
+      await tenant.save({ session: adminSession });
 
-        return tenant;
-      } catch (provisionError) {
-        // Log the actual error for debugging
-        console.error('Tenant provisioning failed:', {
-          tenantRefId: tenant.tenantRefId,
-          error: provisionError instanceof Error ? provisionError.message : 'Unknown error',
-          stack: provisionError instanceof Error ? provisionError.stack : undefined
-        });
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TENANT_PROVISIONING_FAILED);
+      // Commit transaction
+      await adminSession.commitTransaction();
+      console.log(`✓ Tenant activation completed successfully for: ${tenant.tenantRefId}`);
+
+      return tenant;
+    } catch (provisionError) {
+      // Rollback transaction on admin database
+      await adminSession.abortTransaction();
+      
+      // Clean up tenant database if it was created
+      if (tenantConnection) {
+        try {
+          const databaseName = getTenantDatabaseName(tenant.tenantRefId);
+          await tenantConnection.dropDatabase();
+          await tenantConnection.close();
+          console.log(`✓ Rolled back tenant database: ${databaseName}`);
+        } catch (cleanupError) {
+          console.error('Failed to clean up tenant database during rollback:', cleanupError);
+        }
       }
+
+      // Log the actual error for debugging
+      console.error('Tenant provisioning failed:', {
+        tenantRefId: tenant.tenantRefId,
+        error: provisionError instanceof Error ? provisionError.message : 'Unknown error',
+        stack: provisionError instanceof Error ? provisionError.stack : undefined
+      });
+      throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TENANT_PROVISIONING_FAILED);
+    } finally {
+      adminSession.endSession();
+      if (tenantConnection && tenantConnection.readyState === 1) {
+        await tenantConnection.close();
+      }
+    }
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'TenantService', method: 'activate', tenantId });
     }
@@ -285,6 +315,85 @@ export class TenantService {
 
   /**
    * Create admin user in tenant database (dual-write to CBS_Admin.users and tenant DB)
+   * ATOMIC VERSION - Uses MongoDB transactions to ensure all-or-nothing creation
+   */
+  static async createAdminUserAtomic(tenantRefId: string, data: CreateTenantData, adminSession: mongoose.ClientSession): Promise<mongoose.Connection> {
+    const baseUri = config.mongodb.uri.replace(/\/[^\/]*$/, '');
+    const databaseName = getTenantDatabaseName(tenantRefId);
+    const tenantUri = `${baseUri}/${databaseName}`;
+
+    // Step 1: Check if admin user already exists in CBS_Admin.users (idempotency)
+    const IdentityUserModel = await getIdentityUserModel();
+    let existingUser = await IdentityUserModel.findOne({ username: data.username, tenantRefId }).session(adminSession);
+    
+    let userRefId: string;
+    
+    if (existingUser) {
+      throw new Error(`Admin user already exists for tenant ${tenantRefId}. Cannot recreate.`);
+    }
+
+    // Generate unique userRefId manually (first user in tenant)
+    userRefId = ReferenceGenerator.generateUserRefIdManual();
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    // Create user in CBS_Admin.users (authentication) within transaction
+    await IdentityUserModel.create([{
+      userRefId,
+      tenantRefId,
+      username: data.username,
+      email: data.companyEmail,
+      password: hashedPassword,
+      isActive: true,
+    }], { session: adminSession });
+    console.log(`✓ Created admin user in CBS_Admin for tenant ${tenantRefId}`);
+
+    // Step 2: Create user in tenant database (business data)
+    const tenantConnection = await mongoose.createConnection(tenantUri);
+
+    try {
+      // Create User and Employee models for this tenant
+      const UserModel = tenantConnection.model('User', userSchema, 'users');
+      const EmployeeModel = tenantConnection.model('Employee', employeeSchema, 'employees');
+
+      // Generate unique userId manually (first user in tenant)
+      const userId = ReferenceGenerator.generateUserIdManual(SYSTEM_ROLES.ADMIN);
+
+      // Create admin user (business data only - no credentials)
+      const adminUser = await UserModel.create({
+        userId,
+        userRefId, 
+        tenantRefId,
+        fullName: data.companyName,
+        email: data.companyEmail,
+        role: SYSTEM_ROLES.ADMIN,
+        roles: [], 
+      });
+
+      // Generate unique employeeId manually (first employee in tenant)
+      const employeeId = ReferenceGenerator.generateEmployeeIdManual();
+      await EmployeeModel.create({
+        employeeId,
+        userId: adminUser._id,
+        position: 'Administrator',
+        department: 'Management',
+        status: 'Active',
+        joinDate: new Date(),
+      });
+      console.log(`✓ Created admin user and employee in tenant database ${tenantRefId}`);
+
+      return tenantConnection;
+    } catch (error) {
+      // Clean up on error
+      await tenantConnection.close();
+      throw error;
+    }
+  }
+
+  /**
+   * Create admin user in tenant database (dual-write to CBS_Admin.users and tenant DB)
+   * LEGACY VERSION - Kept for backward compatibility
    */
   static async createAdminUser(tenantRefId: string, data: CreateTenantData): Promise<void> {
     const baseUri = config.mongodb.uri.replace(/\/[^\/]*$/, '');
@@ -342,7 +451,8 @@ export class TenantService {
           userId,
           userRefId, 
           tenantRefId,
-          fullName: data.companyName, 
+          fullName: data.companyName,
+          email: data.companyEmail,
           role: SYSTEM_ROLES.ADMIN,
           roles: [], 
         });

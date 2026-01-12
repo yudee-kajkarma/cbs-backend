@@ -10,55 +10,33 @@ import {
 export class PayrollCompensationService {
   
   /**
-   * Create payroll compensation settings 
-   */
-  static async create(data: UpdatePayrollCompensationData): Promise<PayrollCompensationDocument> {
-    try {
-      const existingSettings = await PayrollCompensation.findOne();
-      
-      if (existingSettings) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.PAYROLL_COMPENSATION_EXISTS);
-      }
-
-      const settings = await PayrollCompensation.create(data);
-      return settings.toObject();
-    } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'PayrollCompensationService', method: 'create', data });
-    }
-  }
-
-  /**
    * Get the single payroll compensation settings
    */
-  static async get(): Promise<PayrollCompensationDocument> {
+  static async get(): Promise<PayrollCompensationDocument | null> {
     try {
       const settings = await PayrollCompensation.findOne().lean();
       
-      if (!settings) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.PAYROLL_COMPENSATION_NOT_FOUND);
-      }
-      
-      return settings as PayrollCompensationDocument;
+      return settings as PayrollCompensationDocument | null;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'PayrollCompensationService', method: 'get' });
     }
   }
 
   /**
-   * Update the single payroll compensation settings
+   * Update the single payroll compensation settings (upsert: creates if doesn't exist, updates if exists)
    */
   static async update(data: UpdatePayrollCompensationData): Promise<PayrollCompensationDocument> {
     try {
-      const existing = await PayrollCompensation.findOne();
-      
-      if (!existing) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.PAYROLL_COMPENSATION_NOT_FOUND);
-      }
-
-      const updated = await PayrollCompensation.findByIdAndUpdate(
-        existing._id,
+      // Use findOneAndUpdate with upsert to create if not exists, update if exists
+      const updated = await PayrollCompensation.findOneAndUpdate(
+        {}, // Empty filter - find any document (singleton pattern)
         { $set: data },
-        { new: true, lean: true }
+        { 
+          new: true, 
+          lean: true,
+          upsert: true, // Create if doesn't exist
+          setDefaultsOnInsert: true // Apply schema defaults when creating
+        }
       );
 
       return updated as PayrollCompensationDocument;

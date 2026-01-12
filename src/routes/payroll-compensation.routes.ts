@@ -7,19 +7,10 @@ import { createPayrollCompensationSchema, updatePayrollCompensationSchema } from
 
 const router = Router();
 
-// CREATE - HR or Admin only
-router.post(
-  "/",
-  authenticate,
-  requireAdmin,
-  validateRequest(createPayrollCompensationSchema),
-  PayrollCompensationController.create
-);
-
 // GET - HR or Admin only
 router.get("/", authenticate, requireHROrAdmin, PayrollCompensationController.get);
 
-// UPDATE - HR or Admin only
+// UPDATE (or CREATE if not exists) - Admin only
 router.put(
   "/",
   authenticate,

@@ -21,6 +21,7 @@ import {
     DailyAttendanceSummaryResponse,
     PopulatedEmployee,
 } from "../interfaces/model.interface";
+import { INFO_MESSAGES } from "../constants/info-messages.constants";
 
 export class AttendanceService {
 
@@ -71,6 +72,10 @@ export class AttendanceService {
             // Get attendance policy and metadata
             const policy = await AttendancePolicyService.get();
             const metadata = await MetadataService.get();
+
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
 
             const checkInTime = new Date();
             const { isLate, minutesLate } = AttendanceUtil.isLateArrival(
@@ -187,6 +192,10 @@ export class AttendanceService {
             }
 
             const policy = await AttendancePolicyService.get();
+
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
 
             // Calculate working hours
             const checkOutTime = new Date();
@@ -664,4 +673,52 @@ export class AttendanceService {
             ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'streamLiveAttendance' });
         }
     }
+
+  /**
+   * Get today's attendance status for an employee
+   */
+  static async getTodayStatus(employeeId: string): Promise<any> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const attendance = await Attendance.findOne({
+        employeeId,
+        date: today,
+      })
+        .populate({
+          path: 'employeeId',
+          select: 'employeeId position department',
+          populate: {
+            path: 'userId',
+            select: 'fullName email'
+          }
+        })
+        .lean();
+
+      if (!attendance) {
+        return {
+          hasCheckedIn: false,
+          hasCheckedOut: false,
+          date: today,
+          message: INFO_MESSAGES.ATTENDANCE.NO_ATTENDANCE_TODAY,
+        };
+      }
+
+      return {
+        hasCheckedIn: !!attendance.checkInTime,
+        hasCheckedOut: !!attendance.checkOutTime,
+        checkInTime: attendance.checkInTime,
+        checkOutTime: attendance.checkOutTime,
+        workDuration: attendance.workDuration,
+        status: attendance.status,
+        isLate: attendance.isLate,
+        isEarlyCheckout: attendance.isEarlyCheckout,
+        date: attendance.date,
+        employee: attendance.employeeId,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'getTodayStatus', employeeId });
+    }
+  }
 }

@@ -10,38 +10,13 @@ import {
 export class LeavePolicyService {
   
   /**
-   * Create leave policy 
-   */
-  static async create(data: UpdateLeavePolicyData): Promise<LeavePolicyDocument> {
-    try {
-      const existingPolicy = await LeavePolicy.findOne();
-      
-      if (existingPolicy) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_EXISTS);
-      }
-
-      const policy = await LeavePolicy.create(data);
-      return policy.toObject();
-    } catch (error) {
-      ErrorHandler.handleServiceError(error, { serviceName: 'LeavePolicyService', method: 'create', data });
-    }
-  }
-
-  /**
    * Get the single leave policy
    */
-  static async get(): Promise<LeavePolicyDocument> {
+  static async get(): Promise<LeavePolicyDocument | null> {
     try {
       const policy = await LeavePolicy.findOne().lean();
       
-      if (!policy) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
-      }
-      if (!policy) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
-      }
-      
-      return policy as LeavePolicyDocument;
+      return policy as LeavePolicyDocument | null;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'LeavePolicyService', method: 'get' });
     }

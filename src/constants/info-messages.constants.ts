@@ -181,12 +181,14 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: "Leave policy deleted successfully",
     LIST_RETRIEVED_SUCCESSFULLY: "Leave policies list retrieved successfully",
     ACTIVE_POLICY_RETRIEVED: "Active leave policy retrieved successfully",
+    NOT_FOUND: "No leave policy found",
   },
   ATTENDANCE_POLICY: {
     CREATED_SUCCESSFULLY: "Attendance policy created successfully",
     RETRIEVED_SUCCESSFULLY: "Attendance policy retrieved successfully",
     UPDATED_SUCCESSFULLY: "Attendance policy updated successfully",
     DELETED_SUCCESSFULLY: "Attendance policy deleted successfully",
+    NOT_FOUND: "No attendance policy found",
   },
   METADATA: {
     SAVED_SUCCESSFULLY: "Metadata saved successfully",
@@ -198,6 +200,7 @@ export const INFO_MESSAGES = {
       "Payroll compensation settings retrieved successfully",
     UPDATED_SUCCESSFULLY: "Payroll compensation settings updated successfully",
     DELETED_SUCCESSFULLY: "Payroll compensation settings deleted successfully",
+    NOT_FOUND: "No payroll compensation settings found",
   },
   LEAVE_BALANCE: {
     CREATED_SUCCESSFULLY: "Leave balance created successfully",
@@ -240,6 +243,8 @@ export const INFO_MESSAGES = {
     NETWORK_MESSAGE_AUTHORIZED: 'You are authorized to mark attendance.',
     NETWORK_MESSAGE_UNAUTHORIZED: 'Please connect to company WiFi network to mark attendance.',
     SSE_CONNECTED: 'Connected to live attendance stream',
+    TODAY_STATUS_FETCHED: "Today's attendance status retrieved successfully",
+    NO_ATTENDANCE_TODAY: 'No attendance record for today',
   },
   MONTHLY_PAYROLL: {
     CREATED_SUCCESSFULLY: 'Monthly payroll created successfully',

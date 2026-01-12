@@ -28,6 +28,12 @@ export const userSchema = new Schema<UserDocument>(
       trim: true,
       maxlength: [100, 'Full name cannot exceed 100 characters'],
     },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      trim: true,
+      lowercase: true,
+    },
     role: {
       type: String,
       required: [true, 'Role is required'],
@@ -52,6 +58,7 @@ export const userSchema = new Schema<UserDocument>(
 // Indexes for better query performance
 userSchema.index({ userId: 1 }, { name: 'idx_user_userId', unique: true });
 userSchema.index({ userRefId: 1 }, { name: 'idx_user_userRefId', unique: true });
+userSchema.index({ email: 1 }, { name: 'idx_user_email' });
 userSchema.index({ role: 1 }, { name: 'idx_user_role' });
 userSchema.index({ roles: 1 }, { name: 'idx_user_roles' });
 userSchema.index({ createdAt: -1 }, { name: 'idx_user_created_desc' });

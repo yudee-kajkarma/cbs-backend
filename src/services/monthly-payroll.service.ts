@@ -134,7 +134,7 @@ export class MonthlyPayrollService {
 
       // Calculate overtime pay
       let overtimePay = 0;
-      if (totalWorkingDaysInMonth > 0) {
+      if (totalWorkingDaysInMonth > 0 && policy) {
         attendanceRecords.forEach((record: any) => {
           if (record.overtimeHours > 0) {
             const hourlyRate = totalSalary / (totalWorkingDaysInMonth * policy.standardHoursPerDay);
