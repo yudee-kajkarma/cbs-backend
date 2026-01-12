@@ -36,12 +36,6 @@ export const bankAccountSchema = new Schema<BankAccountDocument>(
             },
             default: Currency.KWD,
         },
-        currentChequeNumber: {
-            type: String,
-            trim: true,
-            unique: true,
-            maxlength: [50, 'Current cheque number cannot exceed 50 characters'],
-        },
         address: {
             type: String,
             trim: true,

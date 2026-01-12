@@ -481,7 +481,6 @@ export interface BankAccount {
   accountHolder: string;
   accountNumber: string;
   currency?: Currency;
-  currentChequeNumber?: string;
   address?: string;
   fileKey?: string;
   type?: string;
@@ -652,6 +651,7 @@ export interface User {
   userRefId: string; // Links to IdentityUser in identity_db
   tenantRefId: string; // Reference to tenant this user belongs to
   fullName: string;
+  email: string;
   role: UserRole;
   roles: Types.ObjectId[]; // Array of Role IDs for granular permissions (USER role)
 }

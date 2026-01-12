@@ -32,7 +32,7 @@ export class ChequeService {
 
       const cheque = await Cheque.create({ ...data, chequeNumber });
       const populated = await Cheque.findById(cheque._id)
-        .populate('bankAccount', 'bankName branch accountNumber currentChequeNumber currency')
+        .populate('bankAccount', 'bankName branch accountNumber currency')
         .lean();
 
       return this.formatCheque(populated);
@@ -57,7 +57,7 @@ export class ChequeService {
         populateOptions: [
           {
             path: 'bankAccount',
-            select: 'bankName branch accountNumber currentChequeNumber currency',
+            select: 'bankName branch accountNumber currency',
           },
         ],
       });
@@ -78,7 +78,7 @@ export class ChequeService {
   static async getOne(id: string): Promise<any> {
     try {
       const cheque = await Cheque.findById(id)
-        .populate('bankAccount', 'bankName branch accountNumber currentChequeNumber currency')
+        .populate('bankAccount', 'bankName branch accountNumber currency')
         .lean();
       
       if (!cheque) {
@@ -101,7 +101,7 @@ export class ChequeService {
         data,
         { new: true, runValidators: true }
       )
-        .populate('bankAccount', 'bankName branch accountNumber currentChequeNumber currency')
+        .populate('bankAccount', 'bankName branch accountNumber currency')
         .lean();
 
       if (!updated) {
