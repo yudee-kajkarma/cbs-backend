@@ -103,6 +103,14 @@ export const vehicleSchema = new Schema<VehicleDocument>(
         message: '{VALUE} is not a valid currency',
       },
     },
+    depreciationCost: {
+      type: Number,
+      min: [0, 'Depreciation cost cannot be negative'],
+    },
+    maintenanceValue: {
+      type: Number,
+      min: [0, 'Maintenance value cannot be negative'],
+    },
     assignedTo: {
       type: String,
       trim: true,

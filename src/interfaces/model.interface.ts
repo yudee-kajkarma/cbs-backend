@@ -407,6 +407,8 @@ export interface Vehicle {
   purchaseCurrency?: string;
   currentValue?: number;
   currentCurrency?: string;
+  depreciationCost?: number;
+  maintenanceValue?: number;
   assignedTo?: string;
   department?: string;
   mileage?: number;

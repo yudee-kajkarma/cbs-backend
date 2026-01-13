@@ -42,6 +42,8 @@ export class VehicleService {
         'status',
         'department',
         'mileage',
+        'depreciationCost',
+        'maintenanceValue',
         'purchaseDate',
         'registrationExpiry',
         'insuranceExpiry',
