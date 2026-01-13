@@ -143,8 +143,12 @@ export class EmployeeService {
 
       // Validate file keys if documents are being updated
       if (data.documents && data.documents.length > 0) {
-        const fileKeys = data.documents.map(doc => doc.fileKey);
-        await validateS3Keys(fileKeys);
+        const fileKeys = data.documents
+          .map(doc => doc.fileKey)
+          .filter((key): key is string => key !== undefined && key !== null);
+        if (fileKeys.length > 0) {
+          await validateS3Keys(fileKeys);
+        }
       }
 
       // Check if joinDate is being added/updated and employee didn't have one before
