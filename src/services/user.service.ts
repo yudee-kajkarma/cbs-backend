@@ -300,6 +300,40 @@ export class UserService {
     }
   }
 
+  /**   * Get all admin users with pagination and filtering
+   */
+
+  static async getAllAdmins(query: UserQuery): Promise<any> {
+    try {
+      const searchableFields = ["fullName", "email"];
+      const allowedSortFields = [
+        "fullName",
+        "email",
+        "createdAt",
+        "updatedAt",
+      ];
+      const filterFields = ["role"];
+
+      // Force filter to only return Admin role users
+      const adminQuery = { ...query, role: SYSTEM_ROLES.ADMIN };
+
+      const result = await PaginationService.paginate(User, adminQuery, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+        populateOptions: [{ path: "roles" }],
+      });
+
+      return result.data;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "getAll",
+        query,
+      });
+    }
+  }
+
   /**
    * Update user (dual-update to identity_db and tenant DB)
    */

@@ -33,6 +33,20 @@ export class UserResponseDto extends BaseDto {
 }
 
 /**
+ * Simple Response DTO for Admin list
+ */
+export class AdminListResponseDto {
+  @Expose()
+  fullName!: string;
+
+  @Expose()
+  email!: string;
+
+  @Expose()
+  role!: UserRole;
+}
+
+/**
  * Response DTO for paginated user list
  */
 export class GetAllUsersResponseDto {
