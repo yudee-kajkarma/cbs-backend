@@ -684,7 +684,7 @@ export interface UpdateUserData extends Partial<User> {
 
 // Employee Interfaces
 export interface EmployeeDocument {
-  fileKey: string;
+  fileKey?: string;
   expiryDate?: Date;
 }
 
@@ -776,6 +776,7 @@ export interface Metadata {
   autoCheckoutTime: string;
   timeZone: string;
   allowTimeZone: boolean;
+  companyNetworkIpRanges: string[];
   isActive: boolean;
 }
 

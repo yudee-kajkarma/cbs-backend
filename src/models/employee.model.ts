@@ -46,13 +46,11 @@ export const employeeSchema = new Schema<EmployeeMongoDocument>(
       {
         fileKey: {
           type: String,
-          required: [true, 'File key is required'],
           trim: true,
           maxlength: [500, 'File key cannot exceed 500 characters'],
         },
         expiryDate: {
           type: Date,
-          required: [true, 'Expiry date is required'],
         },
       },
     ],
