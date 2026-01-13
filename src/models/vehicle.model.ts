@@ -52,7 +52,6 @@ export const vehicleSchema = new Schema<VehicleDocument>(
     chassisNumber: {
       type: String,
       required: [true, 'Chassis number (VIN) is required'],
-      unique: true,
       trim: true,
       maxlength: [50, 'Chassis number cannot exceed 50 characters'],
     },

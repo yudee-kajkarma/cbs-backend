@@ -22,6 +22,8 @@ export const createVehicleSchema: ObjectSchema = Joi.object({
   purchaseCurrency: Joi.string().valid(...Object.values(Currency)).optional(),
   currentValue: Joi.number().min(0).optional().allow(null),
   currentCurrency: Joi.string().valid(...Object.values(Currency)).optional(),
+  depreciationCost: Joi.number().min(0).optional(),
+  maintenanceValue: Joi.number().min(0).optional(),
   assignedTo: Joi.string().max(100).optional().allow("", "Unassigned"),
   department: Joi.string().valid(...Object.values(VehicleDepartment)).optional(),
   mileage: Joi.number().min(0).optional().allow(null),
