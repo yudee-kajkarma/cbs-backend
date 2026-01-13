@@ -38,6 +38,9 @@ export class BankAccountResponseDto extends BaseDto {
     currentBalance?: number;
 
     @Expose()
+    finalBalance?: number;
+
+    @Expose()
     displayCurrency?: string;
 
     @Expose()

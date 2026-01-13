@@ -30,6 +30,7 @@ export const updateBankAccountSchema = Joi.object({
     fileKey: Joi.string().max(500).optional(),
     type: Joi.string().valid(...Object.values(AccountType)).optional(),
     currentBalance: Joi.number().optional(),
+    finalBalance: Joi.number().optional(),
     displayCurrency: Joi.string().trim().optional(),
     status: Joi.string().valid(...Object.values(BankBalanceStatus)).optional(),
 }).min(1);
@@ -58,6 +59,7 @@ export const getBankAccountListSchema = Joi.object({
             "accountNumber",
             "type",
             "currentBalance",
+            "finalBalance",
             "status",
             "createdAt",
             "updatedAt"

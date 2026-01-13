@@ -68,7 +68,7 @@ export class BankAccountService {
   static async getAll(query: BankAccountQuery): Promise<any> {
     try {
       const searchableFields = ['bankName', 'branch', 'accountHolder', 'accountNumber'];
-      const allowedSortFields = ['bankName', 'accountHolder', 'accountNumber', 'currency', 'type', 'currentBalance', 'status', 'createdAt', 'updatedAt'];
+      const allowedSortFields = ['bankName', 'accountHolder', 'accountNumber', 'currency', 'type', 'currentBalance', 'finalBalance', 'status', 'createdAt', 'updatedAt'];
       const filterFields = ['currency', 'bankName', 'type', 'status'];
 
       const result = await PaginationService.paginate(BankAccount, query, {

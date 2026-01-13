@@ -485,6 +485,7 @@ export interface BankAccount {
   fileKey?: string;
   type?: string;
   currentBalance?: number;
+  finalBalance?: number;
   displayCurrency?: string;
   status?: string;
 }

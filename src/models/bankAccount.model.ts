@@ -58,6 +58,10 @@ export const bankAccountSchema = new Schema<BankAccountDocument>(
             type: Number,
             default: 0,
         },
+        finalBalance: {
+            type: Number,
+            default: 0,
+        },
         displayCurrency: {
             type: String,
             trim: true,
