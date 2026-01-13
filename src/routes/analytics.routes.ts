@@ -14,7 +14,7 @@ const router = Router();
 router.get(
   '/it-overview',
   authenticate,
-  checkPermission('it_management', 'hardware', PERMISSIONS.READ),
+  // checkPermission('it_management', 'hardware', PERMISSIONS.READ),
   AnalyticsController.getITOverview
 );
 
@@ -26,7 +26,7 @@ router.get(
 router.get(
   '/assets-overview',
   authenticate,
-  checkPermission('asset_management', 'land_and_building', PERMISSIONS.READ),
+  // checkPermission('asset_management', 'land_and_building', PERMISSIONS.READ),
   AnalyticsController.getAssetsOverview
 );
 
@@ -38,7 +38,7 @@ router.get(
 router.get(
   '/company-docs-overview',
   authenticate,
-  checkPermission('company_documents', 'legal_docs', PERMISSIONS.READ),
+  // checkPermission('company_documents', 'legal_docs', PERMISSIONS.READ),
   AnalyticsController.getCompanyDocsOverview
 );
 
@@ -50,7 +50,7 @@ router.get(
 router.get(
   '/bank-overview',
   authenticate,
-  checkPermission('banking', 'cheque_printing', PERMISSIONS.READ),
+  // checkPermission('banking', 'cheque_printing', PERMISSIONS.READ),
   AnalyticsController.getBankOverview
 );
 
