@@ -15,6 +15,7 @@ import {
   createTelexTransferSchema,
   updateTelexTransferSchema,
   telexTransferIdSchema,
+  telexTransferActionSchema,
   approveTelexTransferSchema
 } from "../validators/telex-transfer.validator";
 
@@ -58,10 +59,10 @@ router.put(
 
 // APPROVE/REJECT - Requires WRITE permission (Admin only)
 router.patch(
-  "/:id/:action(approve|reject)",
+  "/:id/:action",
   authenticate,
   checkPermission("banking", "telex_transfer", PERMISSIONS.WRITE),
-  validateParams(telexTransferIdSchema),
+  validateParams(telexTransferActionSchema),
   TelexTransferController.updateStatus
 );
 

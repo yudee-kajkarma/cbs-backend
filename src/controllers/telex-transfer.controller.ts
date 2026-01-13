@@ -96,6 +96,9 @@ export class TelexTransferController {
       const { id, action } = req.params;
       const user = req.user;
       
+      console.log('Action parameter received:', action); // Debug log
+      console.log('All params:', req.params); // Debug log
+      
       const status = action === "approve" ? "Approved" : "Rejected";
       const message = action === "approve" 
         ? INFO_MESSAGES.TELEX_TRANSFER.APPROVED_SUCCESSFULLY 

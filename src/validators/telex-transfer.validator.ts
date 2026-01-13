@@ -6,6 +6,11 @@ export const telexTransferIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required()
 });
 
+export const telexTransferActionSchema = Joi.object({
+  id: Joi.string().length(24).hex().required(),
+  action: Joi.string().valid('approve', 'reject').required()
+});
+
 export const createTelexTransferSchema = Joi.object({
   referenceNo: Joi.string().optional().max(50),
   transferDate: Joi.date().required(),
