@@ -27,6 +27,11 @@ export const ERROR_MESSAGES = {
       message: 'User account is inactive',
       status: 403
     },
+    USER_MISSING_JOIN_DATE: {
+      code: 'CBS-4000-6',
+      message: 'User is not allowed to login. Join date is required',
+      status: 403
+    },
     
     // Employee Errors
     EMPLOYEE_NOT_FOUND: {
