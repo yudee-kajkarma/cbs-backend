@@ -147,6 +147,29 @@ export class TelexTransferService {
     }
 
     /**
+     * Approve/Reject telex transfer by admin
+     */
+    static async approve(
+        id: string,
+        data: { authorizedBy: string; status: string }
+    ): Promise<any> {
+        try {
+            await this.getById(id);
+
+            const updateData = {
+                authorizedBy: data.authorizedBy,
+                status: data.status,
+            };
+
+            const updated = await this.update(id, updateData);
+
+            return updated;
+        } catch (error) {
+            ErrorHandler.handleServiceError(error, { serviceName: 'TelexTransferService', method: 'approve', id, data });
+        }
+    }
+
+    /**
      * Get telex transfer statistics for analytics
      */
     static async getStats(): Promise<{ total: number; completed: number; pending: number; draft: number }> {

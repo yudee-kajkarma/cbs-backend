@@ -1,5 +1,4 @@
 export enum TelexTransferStatus {
-  DRAFT = "Draft",
   PENDING = "Pending",
   APPROVED = "Approved",
   REJECTED = "Rejected",

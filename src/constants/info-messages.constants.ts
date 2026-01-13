@@ -96,6 +96,15 @@ export const INFO_MESSAGES = {
     DELETED_SUCCESSFULLY: "Support ticket deleted successfully",
     LIST_RETRIEVED_SUCCESSFULLY: "Support tickets list retrieved successfully",
   },
+  TELEX_TRANSFER: {
+    CREATED_SUCCESSFULLY: "Telex transfer created successfully",
+    RETRIEVED_SUCCESSFULLY: "Telex transfer retrieved successfully",
+    UPDATED_SUCCESSFULLY: "Telex transfer updated successfully",
+    DELETED_SUCCESSFULLY: "Telex transfer deleted successfully",
+    LIST_RETRIEVED_SUCCESSFULLY: "Telex transfers list retrieved successfully",
+    APPROVED_SUCCESSFULLY: "Telex transfer approved successfully",
+    REJECTED_SUCCESSFULLY: "Telex transfer rejected successfully",
+  },
   FILE_UPLOAD: {
     PRESIGNED_URLS_GENERATED_SUCCESSFULLY:
       "Presigned URLs generated successfully",
