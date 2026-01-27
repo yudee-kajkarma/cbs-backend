@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import { HardwareType, OperatingSystem, RAM, Storage, Department, HardwareStatus } from "../constants";
 import { NewHardwareDocument } from '../interfaces';
 
-const NewHardwareSchema = new Schema<NewHardwareDocument>(
+export const NewHardwareSchema = new Schema<NewHardwareDocument>(
   {
     deviceName: {
       type: String,
@@ -92,4 +92,4 @@ NewHardwareSchema.index({ status: 1 }, { name: 'idx_hardware_status' });
 NewHardwareSchema.index({ department: 1 }, { name: 'idx_hardware_department' });
 NewHardwareSchema.index({ status: 1, createdAt: -1 }, { name: 'idx_hardware_status_created' });
 
-export const NewHardwareModel = mongoose.model<NewHardwareDocument>("NewHardware", NewHardwareSchema);
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

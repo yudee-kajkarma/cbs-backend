@@ -1,4 +1,4 @@
-import BankAccount from "../models/bankAccount.model";
+import { BankAccount } from "../models";
 import { FileUploadService } from "./file-upload.service";
 import { validateS3Keys } from "../utils/aws.util";
 import { PaginationService } from "./pagination.service";

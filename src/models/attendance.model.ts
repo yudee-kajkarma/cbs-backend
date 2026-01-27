@@ -1,12 +1,12 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { AttendanceDocument } from '../interfaces';
 import { AttendanceStatus } from '../constants/attendance.constants';
 
-const attendanceSchema = new Schema<AttendanceDocument>(
+export const attendanceSchema = new Schema<AttendanceDocument>(
   {
     employeeId: {
       type: Schema.Types.ObjectId,
-      ref: 'employee',
+      ref: 'Employee',
       required: [true, 'Employee ID is required'],
     },
     date: {
@@ -21,10 +21,24 @@ const attendanceSchema = new Schema<AttendanceDocument>(
       type: String,
       required: [true, 'Check-in IP is required'],
     },
+    checkInLocation: {
+      latitude: { type: Number },
+      longitude: { type: Number }
+    },
+    checkInTimeZone: {
+      type: String,
+    },
     checkOutTime: {
       type: Date,
     },
     checkOutIP: {
+      type: String,
+    },
+    checkOutLocation: {
+      latitude: { type: Number },
+      longitude: { type: Number }
+    },
+    checkOutTimeZone: {
       type: String,
     },
     workingHours: {
@@ -61,4 +75,5 @@ attendanceSchema.index({ date: 1, status: 1 });
 attendanceSchema.index({ date: 1, checkInTime: 1 });
 attendanceSchema.index({ createdAt: -1 });
 
-export default mongoose.model<AttendanceDocument>("Attendance", attendanceSchema, "attendance");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

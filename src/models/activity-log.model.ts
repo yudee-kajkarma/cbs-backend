@@ -1,8 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { ActivityLogDocument } from '../interfaces';
 import { ActivityType, allowedActivityTypes, ActivityModule, allowedActivityModules } from '../constants/activity-log.constants';
 
-const activityLogSchema = new Schema<ActivityLogDocument>(
+export const activityLogSchema = new Schema<ActivityLogDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -11,7 +11,7 @@ const activityLogSchema = new Schema<ActivityLogDocument>(
     },
     employeeId: {
       type: Schema.Types.ObjectId,
-      ref: 'employee',
+      ref: 'Employee',
     },
     activityType: {
       type: String,
@@ -57,4 +57,5 @@ activityLogSchema.index({ activityType: 1, createdAt: -1 });
 activityLogSchema.index({ module: 1, createdAt: -1 });
 activityLogSchema.index({ entityType: 1, entityId: 1 });
 
-export default mongoose.model<ActivityLogDocument>("ActivityLog", activityLogSchema, "activity_logs");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

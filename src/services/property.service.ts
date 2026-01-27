@@ -1,4 +1,4 @@
-import { PropertyModel } from "../models/property.model";
+import { Property as PropertyModel } from "../models";
 import { Property, PropertyQuery, CreatePropertyData, UpdatePropertyData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';

@@ -22,6 +22,11 @@ export const ERROR_MESSAGES = {
       message: 'User with this username already exists',
       status: 409
     },
+    USER_INACTIVE: {
+      code: 'CBS-4000-5',
+      message: 'User account is inactive',
+      status: 403
+    },
     
     // Employee Errors
     EMPLOYEE_NOT_FOUND: {
@@ -307,6 +312,23 @@ export const ERROR_MESSAGES = {
       status: 404
     },
     
+    // Tenant Errors
+    TENANT_NOT_FOUND: {
+      code: 'CBS-4021',
+      message: 'Tenant not found',
+      status: 404
+    },
+    TENANT_INACTIVE: {
+      code: 'CBS-4021-2',
+      message: 'Tenant is not active',
+      status: 403
+    },
+    TENANT_CONFIRMATION_REQUIRED: {
+      code: 'CBS-4021-1',
+      message: 'Confirmation required. Set confirm: "PERMANENTLY_DELETE" in request body',
+      status: 400
+    },
+    
     // Forecast Errors
     FORECAST_NOT_FOUND: {
       code: 'CBS-4022',
@@ -456,6 +478,21 @@ export const ERROR_MESSAGES = {
       message: 'Invalid action. Must be check-in or check-out',
       status: 400
     },
+    TIMEZONE_MISMATCH: {
+      code: 'CBS-4037',
+      message: 'Check-in/Check-out must be done from the configured timezone location',
+      status: 403
+    },
+    CHECKOUT_TIMEZONE_MISMATCH: {
+      code: 'CBS-4039',
+      message: 'Check-out timezone must match check-in timezone',
+      status: 403
+    },
+    LOCATION_REQUIRED: {
+      code: 'CBS-4038',
+      message: 'Location is required for check-in/check-out',
+      status: 400
+    },
     // Role Errors
     ROLE_NOT_FOUND: {
       code: 'CBS-4028',
@@ -523,6 +560,46 @@ export const ERROR_MESSAGES = {
       code: 'CBS-4040',
       message: 'Authentication token is required',
       status: 401
+    },
+    TENANT_ID_MISSING: {
+      code: 'CBS-4041',
+      message: 'Tenant ID not found in JWT token. Multi-tenant authentication required.',
+      status: 400
+    },
+    TENANT_DB_NAME_NOT_FOUND: {
+      code: 'CBS-4042',
+      message: 'Tenant database name not found on request',
+      status: 500
+    },
+    TENANT_CONNECTION_NOT_FOUND: {
+      code: 'CBS-4043',
+      message: 'No active connection found for tenant',
+      status: 500
+    },
+    MISSING_ADMIN_CREDENTIALS: {
+      code: 'CBS-4044',
+      message: 'Admin credentials not found in tenant record',
+      status: 400
+    },
+    TENANT_EXISTS: {
+      code: 'CBS-4045',
+      message: 'Tenant with this email already exists',
+      status: 409
+    },
+    TENANT_ID_GENERATION_FAILED: {
+      code: 'CBS-4046',
+      message: 'Failed to generate unique tenant ID',
+      status: 500
+    },
+    TENANT_EMAIL_IN_USE: {
+      code: 'CBS-4047',
+      message: 'Email already in use by another tenant',
+      status: 409
+    },
+    TENANT_PROVISIONING_FAILED: {
+      code: 'CBS-5003',
+      message: 'Failed to provision tenant resources',
+      status: 500
     },
   },
   

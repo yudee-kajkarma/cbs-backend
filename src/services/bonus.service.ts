@@ -1,4 +1,4 @@
-import EmployeeBonus from "../models/employeeBonus.model";
+import { EmployeeBonus } from "../models";
 import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
@@ -121,7 +121,7 @@ export class BonusService {
       });
 
       // Calculate total bonus amount for filtered results
-      const totalAmount = populatedData.reduce((sum, bonus) => sum + bonus.amount, 0);
+      const totalAmount = populatedData.reduce((sum: number, bonus: any) => sum + bonus.amount, 0);
 
       return {
         bonuses: populatedData,
@@ -191,7 +191,7 @@ export class BonusService {
   static async getTotalByPeriod(month: number, year: number): Promise<number> {
     try {
       const bonuses = await EmployeeBonus.find({ month, year }).lean();
-      return bonuses.reduce((sum, b) => sum + b.amount, 0);
+      return bonuses.reduce((sum: number, b: any) => sum + b.amount, 0);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'BonusService', 

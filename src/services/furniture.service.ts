@@ -1,5 +1,5 @@
-import { FurnitureModel } from "../models/furniture.model";
-import { Furniture, FurnitureQuery, CreateFurnitureData, UpdateFurnitureData } from "../interfaces";
+import { Furniture as FurnitureModel } from "../models";
+import { FurnitureQuery, CreateFurnitureData, UpdateFurnitureData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';
 import { ErrorHandler } from '../utils/error-handler.util';

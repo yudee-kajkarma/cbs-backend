@@ -1,5 +1,4 @@
-import TelexTransfer from "../models/telexTransfer.model";
-import BankAccount from "../models/bankAccount.model";
+import { TelexTransfer, BankAccount } from "../models";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";

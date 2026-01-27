@@ -631,16 +631,27 @@ export interface PayeeQuery extends BaseQuery {
 export interface CreatePayeeData extends Partial<Payee> {}
 export interface UpdatePayeeData extends Partial<Payee> {}
 
-// ============================================================================
-// USER MODULE
-// ============================================================================
+// IDENTITY USER MODULE (identity_db - Authentication)
+
+export interface IdentityUser {
+  userRefId: string;
+  tenantRefId: string; // Links to tenant this user belongs to
+  username: string; // Globally unique across all tenants
+  email: string; // Globally unique across all tenants
+  password: string; // Hashed password
+  isActive: boolean;
+  lastLoginAt?: Date;
+}
+
+export interface IdentityUserDocument extends IdentityUser, Document {}
+
+// USER MODULE (CBS_{tenantRefId})
 
 export interface User {
-  userId?: string;
+  userId?: string; // Business reference ID (e.g., "UA170502341234")
+  userRefId: string; // Links to IdentityUser in identity_db
+  tenantRefId: string; // Reference to tenant this user belongs to
   fullName: string;
-  email: string;
-  username: string;
-  password: string;
   role: UserRole;
   roles: Types.ObjectId[]; // Array of Role IDs for granular permissions (USER role)
 }
@@ -653,7 +664,20 @@ export interface UserQuery extends BaseQuery {
   username?: string;
 }
 
-export interface CreateUserData extends Partial<User> {}
+export interface CreateUserData {
+  username: string; 
+  email: string;
+  password: string; 
+  fullName: string; 
+  role: string;
+  roles?: Types.ObjectId[]; 
+}
+
+export interface UpdateUserData extends Partial<User> {
+  username?: string; 
+  email?: string;
+  password?: string; 
+}
 
 // Employee Interfaces
 export interface EmployeeDocument {
@@ -680,7 +704,7 @@ export interface EmployeeMongoDocument extends Employee, Document {}
  */
 export interface PopulatedEmployee extends Omit<Employee, 'userId'> {
   _id: string;
-  userId: Pick<User, 'fullName' | 'email'>;
+  userId: Pick<User, 'fullName'>; 
 }
 
 export interface EmployeeQuery extends BaseQuery {
@@ -747,6 +771,8 @@ export interface Metadata {
   standardWorkStartTime: string;
   halfDayHoursThreshold: number;
   autoCheckoutTime: string;
+  timeZone: string;
+  allowTimeZone: boolean;
   isActive: boolean;
   companyIpRanges: string[]; // Array of CIDR IP ranges
 }
@@ -853,8 +879,18 @@ export interface Attendance {
   date: Date;
   checkInTime: Date;
   checkInIP: string;
+  checkInLocation?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  checkInTimeZone?: string;
   checkOutTime?: Date;
   checkOutIP?: string;
+  checkOutLocation?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  checkOutTimeZone?: string;
   workingHours: number;
   overtimeHours: number;
   isLateArrival: boolean;
@@ -938,6 +974,7 @@ export interface DailyAttendanceRecord {
   salaryStatus: string;
   deductionAmount: number;
   salaryForDay: number;
+  timeZone: string;
 }
 
 export interface DailyAttendanceSummaryResponse {
@@ -1242,4 +1279,58 @@ export interface ForecastModuleStats {
   expense: number;
   planned: number;
   completed: number;
+}
+
+// ============================================================================
+// TENANT MODULE (CBS_Admin)
+// ============================================================================
+
+export interface Tenant {
+  tenantRefId: string;
+  companyName: string;
+  companyEmail: string;
+  companyPhone: string;
+  address?: {
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+  };
+  status: string;
+  adminUsername?: string;        // Temporary - removed after provisioning
+  adminPassword?: string;        // Temporary - removed after provisioning
+  isProvisioned: boolean;        // True if DB and admin user created
+}
+
+export interface TenantDocument extends Tenant, Document {}
+
+export interface TenantQuery extends BaseQuery {
+  status?: string;
+}
+
+export interface CreateTenantData {
+  companyName: string;
+  companyEmail: string;
+  companyPhone: string;
+  username: string;
+  password: string;
+  address?: {
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+  };
+}
+
+export interface UpdateTenantData {
+  companyName?: string;
+  companyEmail?: string;
+  companyPhone?: string;
+  address?: {
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+  };
+  status?: string;
 }

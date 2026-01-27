@@ -1,7 +1,13 @@
-import User from "../models/user.model";
-import Employee from "../models/employee.model";
+import { User, Employee } from "../models";
+import { getTenantModel as getAdminTenantModel } from "../utils/admin-connection";
+import { getIdentityUserModel } from "../utils/admin-connection";
+import { getTenantContext, getConnectionByTenantDbName, addActiveConnection } from "../utils/tenant-context";
+import { registerAllModelsOnConnection } from "../utils/register-models";
+import { userSchema } from "../models/user.model";
+import { config } from "../config/config";
+import mongoose from "mongoose";
 import { PaginationService } from "./pagination.service";
-import { throwError } from "../utils/errors.util";
+import { throwError, isCustomError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
@@ -18,6 +24,16 @@ import { PermissionManager } from "../constants/permission.constants";
 import { SYSTEM_ROLES } from "../constants/enums.constants";
 
 export class UserService {
+  /**
+   * Generate globally unique userRefId
+   * Format: USER-{timestamp}{random}
+   */
+  private static generateUserRefId(): string {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+    return `USER-${timestamp}${random}`;
+  }
+
   /**
    * Generate a unique user ID with format based on role
    */
@@ -90,49 +106,116 @@ export class UserService {
   }
 
   /**
-   * Create a new user
+   * Create a new user (dual-write to identity_db and tenant DB)
    */
   static async create(data: CreateUserData): Promise<UserDocument> {
     try {
-      // Check if email already exists
-      const existingEmail = await User.findOne({ email: data.email });
-      if (existingEmail) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_EMAIL_EXISTS);
+      // Step 1: Validate required fields for identity
+      if (!data.username || !data.email || !data.password) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_INPUT);
       }
 
-      // Check if username already exists
-      const existingUsername = await User.findOne({ username: data.username });
+      // Step 2: Check global username uniqueness in identity_db
+      const IdentityUserModel = await getIdentityUserModel();
+      const existingUsername = await IdentityUserModel.findOne({ username: data.username });
       if (existingUsername) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_USERNAME_EXISTS);
       }
 
-      // Validate role is provided
+      // Step 3: Check global email uniqueness in identity_db
+      const existingEmail = await IdentityUserModel.findOne({ email: data.email });
+      if (existingEmail) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_EMAIL_EXISTS);
+      }
+
+      // Step 4: Validate role is provided
       if (!data.role) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_INPUT);
       }
 
-      // Generate unique userId
-      const userId = await this.generateUniqueUserId(data.role);
+      // Step 5: Get tenant context
+      const tenantContext = getTenantContext();
+      const tenantRefId = tenantContext.tenantId;
 
-      // Hash password before saving
-      const hashedPassword = await bcrypt.hash(data.password!, 10);
+      // Step 6: Generate unique userRefId (globally unique) and userId (role-based)
+      const userRefId = this.generateUserRefId(); // e.g., "USER-173652341234512345"
+      const userId = await this.generateUniqueUserId(data.role); // e.g., "HR-001"
 
-      // Create user
-      const user = await User.create({
-        ...data,
-        userId,
+      // Step 7: Hash password
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+
+      // Step 8: Create user in CBS_Admin.users (credentials)
+      const identityUser = await IdentityUserModel.create({
+        userRefId,
+        tenantRefId,
+        username: data.username,
+        email: data.email,
         password: hashedPassword,
+        isActive: true,
       });
 
-      // Auto-create employee record
-      await this.createEmployeeForUser(user._id);
+      // Step 9: Create user in tenant DB (business data)
+      const tenantUser = await User.create({
+        userId,
+        userRefId,
+        tenantRefId,
+        fullName: data.fullName,
+        role: data.role,
+        roles: data.roles || [],
+      });
 
-      return user.toObject();
+      // Step 10: Auto-create employee record
+      await this.createEmployeeForUser(tenantUser._id);
+
+      return tenantUser.toObject();
     } catch (error) {
+      // TODO: Implement compensating transaction if tenant user creation fails
       ErrorHandler.handleServiceError(error, {
         serviceName: "UserService",
         method: "create",
         data,
+      });
+    }
+  }
+
+  /**
+   * Find tenant user by userRefId (for login after identity verification)
+   * @param userRefId - User reference ID from identity_db
+   * @param tenantRefId - Tenant reference ID
+   * @returns User document from tenant database
+   */
+  static async findByUserRefId(userRefId: string, tenantRefId: string): Promise<UserDocument> {
+    try {
+      // Use connection pooling - reuse existing connection or create new one
+      const tenantDbName = `CBS_${tenantRefId}`;
+      let tenantConnection = getConnectionByTenantDbName(tenantDbName);
+      
+      // If no connection exists, create and cache it
+      if (!tenantConnection) {
+        const baseUri = config.mongodb.uri.replace(/\/[^\/]*$/, '');
+        const tenantUri = `${baseUri}/${tenantDbName}`;
+        tenantConnection = await mongoose.createConnection(tenantUri);
+        addActiveConnection(tenantDbName, tenantConnection);
+        await registerAllModelsOnConnection(tenantConnection);
+      }
+      
+      const UserModel = tenantConnection.model('User', userSchema, 'users');
+      const user = await UserModel.findOne({ userRefId });
+
+      if (!user) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
+      }
+
+      return user.toObject() as UserDocument;
+    } catch (error) {
+      if (isCustomError(error)) {
+        throw error;
+      }
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "findByUserRefId",
+        userRefId,
+        tenantRefId
       });
     }
   }
@@ -217,46 +300,72 @@ export class UserService {
   }
 
   /**
-   * Update user by ID
+   * Update user (dual-update to identity_db and tenant DB)
    */
   static async update(id: string, data: UpdateUserData): Promise<any> {
     try {
-      // Check if user exists
-      const user = await User.findById(id);
-      if (!user) {
+      // Step 1: Check if tenant user exists
+      const tenantUser = await User.findById(id);
+      if (!tenantUser) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
       }
 
-      // Check email uniqueness if email is being updated
-      if (data.email && data.email !== user.email) {
-        const existingEmail = await User.findOne({ email: data.email });
-        if (existingEmail) {
-          throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_EMAIL_EXISTS);
-        }
+      const IdentityUserModel = await getIdentityUserModel();
+
+      // Step 2: Find identity user by userRefId
+      const identityUser = await IdentityUserModel.findOne({ userRefId: tenantUser.userRefId });
+      if (!identityUser) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
       }
 
-      // Check username uniqueness if username is being updated
-      if (data.username && data.username !== user.username) {
-        const existingUsername = await User.findOne({
-          username: data.username,
-        });
-        if (existingUsername) {
+      // Step 3: Handle credential updates (identity_db)
+      const identityUpdates: any = {};
+      
+      if (data.username && data.username !== identityUser.username) {
+        // Check global username uniqueness
+        const existingUsername = await IdentityUserModel.findOne({ username: data.username });
+        if (existingUsername && existingUsername.userRefId !== tenantUser.userRefId) {
           throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_USERNAME_EXISTS);
         }
+        identityUpdates.username = data.username;
       }
 
-      // Hash password if being updated
+      if (data.email && data.email !== identityUser.email) {
+        // Check global email uniqueness
+        const existingEmail = await IdentityUserModel.findOne({ email: data.email });
+        if (existingEmail && existingEmail.userRefId !== tenantUser.userRefId) {
+          throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_EMAIL_EXISTS);
+        }
+        identityUpdates.email = data.email;
+      }
+
       if (data.password) {
-        data.password = await bcrypt.hash(data.password, 10);
+        identityUpdates.password = await bcrypt.hash(data.password, 10);
       }
 
-      const updated = await User.findByIdAndUpdate(
+      // Step 4: Update identity_db if there are credential changes
+      if (Object.keys(identityUpdates).length > 0) {
+        await IdentityUserModel.findOneAndUpdate(
+          { userRefId: tenantUser.userRefId },
+          { $set: identityUpdates },
+          { new: true, runValidators: true }
+        );
+      }
+
+      // Step 5: Handle business data updates (tenant DB)
+      const tenantUpdates: any = {};
+      if (data.fullName) tenantUpdates.fullName = data.fullName;
+      if (data.role) tenantUpdates.role = data.role;
+      if (data.roles !== undefined) tenantUpdates.roles = data.roles;
+
+      // Step 6: Update tenant DB
+      const updatedTenantUser = await User.findByIdAndUpdate(
         id,
-        { $set: data },
+        { $set: tenantUpdates },
         { new: true, runValidators: true }
       ).lean();
 
-      return updated;
+      return updatedTenantUser;
     } catch (error) {
       ErrorHandler.handleServiceError(error, {
         serviceName: "UserService",
@@ -268,16 +377,24 @@ export class UserService {
   }
 
   /**
-   * Delete user by ID
+   * Delete user (dual-delete from identity_db and tenant DB)
    */
   static async delete(id: string): Promise<void> {
     try {
-      const user = await User.findById(id);
-      if (!user) {
+      // Step 1: Check if tenant user exists
+      const tenantUser = await User.findById(id);
+      if (!tenantUser) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
       }
 
+      // Step 2: Delete from identity_db
+      const IdentityUserModel = await getIdentityUserModel();
+      await IdentityUserModel.findOneAndDelete({ userRefId: tenantUser.userRefId });
+
+      // Step 3: Delete from tenant DB
       await User.findByIdAndDelete(id);
+
+      // Note: Employee records are cascade-deleted or handled separately
     } catch (error) {
       ErrorHandler.handleServiceError(error, {
         serviceName: "UserService",
@@ -345,6 +462,15 @@ export class UserService {
       });
     }
   }
+
+  /**
+   * DEPRECATED: This method is no longer needed with identity_db architecture
+   * Login now queries identity_db directly (see auth.service.ts)
+   * Kept for reference during migration period
+   */
+  // static async findByUsernameOrEmailForLogin(identifier: string): Promise<UserDocument> {
+  //   // See AuthService.login() - now uses getIdentityUserModel()
+  // }
 
   /**
    * Find user by username or email (for authentication)

@@ -1,8 +1,8 @@
-import mongoose, { Document, Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { allowedAuditTypes, AuditType } from "../constants";
 import { Audit, AuditDocument } from '../interfaces';
 
-const auditSchema = new Schema<AuditDocument>(
+export const auditSchema = new Schema<AuditDocument>(
   {
     name: {
       type: String,
@@ -60,4 +60,5 @@ auditSchema.index({ completionDate: -1 }, { name: 'idx_audit_completion_date_des
 auditSchema.index({ createdAt: -1 }, { name: 'idx_audit_created_desc' });
 auditSchema.index({ auditor: 1, createdAt: -1 }, { name: 'idx_audit_auditor_created' });
 
-export default mongoose.model<AuditDocument>("Audit", auditSchema);
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

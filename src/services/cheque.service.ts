@@ -1,5 +1,4 @@
-import Cheque from "../models/cheque.model";
-import BankAccount from "../models/bankAccount.model";
+import { Cheque, BankAccount } from "../models";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";

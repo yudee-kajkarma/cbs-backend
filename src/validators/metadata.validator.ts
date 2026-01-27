@@ -14,6 +14,10 @@ export const createMetadataSchema = Joi.object({
   autoCheckoutTime: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).required().messages({
     'string.pattern.base': 'Auto checkout time must be in HH:MM format (e.g., 23:59)'
   }),
+  timeZone: Joi.string().required().messages({
+    'string.empty': 'Timezone is required'
+  }),
+  allowTimeZone: Joi.boolean().optional(),
   isActive: Joi.boolean().optional(),
   companyIpRanges: Joi.array()
     .items(
@@ -37,6 +41,10 @@ export const updateMetadataSchema = Joi.object({
   autoCheckoutTime: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).optional().messages({
     'string.pattern.base': 'Auto checkout time must be in HH:MM format (e.g., 23:59)'
   }),
+  timeZone: Joi.string().optional().messages({
+    'string.empty': 'Timezone cannot be empty'
+  }),
+  allowTimeZone: Joi.boolean().optional(),
   isActive: Joi.boolean().optional(),
   companyIpRanges: Joi.array()
     .items(

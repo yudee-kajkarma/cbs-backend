@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { Currency, allowedCurrencies } from "../constants/common.constants";
 import { BankBalanceStatus, allowedBankBalanceStatuses, allowedAccountTypes } from "../constants/daily-bank-balance.constants";
 import { BankAccountDocument } from "../interfaces/model.interface";
 
-const bankAccountSchema = new Schema<BankAccountDocument>(
+export const bankAccountSchema = new Schema<BankAccountDocument>(
     {
         bankName: {
             type: String,
@@ -93,6 +93,7 @@ bankAccountSchema.index({ status: 1 }, { name: 'idx_bank_account_status' });
 bankAccountSchema.index({ createdAt: -1 }, { name: 'idx_bank_account_created_desc' });
 bankAccountSchema.index({ updatedAt: -1 }, { name: 'idx_bank_account_updated_desc' });
 
-export default mongoose.model<BankAccountDocument>("BankAccount", bankAccountSchema, "bank_account");
 
 
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts
