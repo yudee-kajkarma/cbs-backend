@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { VehicleType, FuelType, VehicleStatus, VehicleDepartment } from "../constants/vehicle.constants";
 import { Currency } from "../constants/common.constants";
 import { VehicleDocument } from '../interfaces/model.interface';
 
-const vehicleSchema = new Schema<VehicleDocument>(
+export const vehicleSchema = new Schema<VehicleDocument>(
   {
     vehicleName: {
       type: String,
@@ -151,4 +151,5 @@ vehicleSchema.index({ plateNumber: 1 }, { name: 'idx_vehicle_plate' });
 vehicleSchema.index({ department: 1 }, { name: 'idx_vehicle_department' });
 vehicleSchema.index({ createdAt: -1 }, { name: 'idx_vehicle_created_desc' });
 
-export default mongoose.model<VehicleDocument>("Vehicle", vehicleSchema);
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

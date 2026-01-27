@@ -1,6 +1,4 @@
-import LeaveBalance from "../models/leaveBalance.model";
-import LeavePolicy from "../models/leavePolicy.model";
-import Employee from "../models/employee.model";
+import { LeaveBalance, LeavePolicy, Employee } from "../models";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";

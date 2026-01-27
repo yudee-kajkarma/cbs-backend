@@ -3,7 +3,7 @@ import { ISim } from '../interfaces/model.interface';
 import { SimCarrier, SimStatus, allowedSimCarriers, allowedSimStatuses } from '../constants/sim.constants';
 import { Currency, allowedCurrencies, Department, allowedDepartments } from '../constants/common.constants';
 
-const simSchema = new Schema<ISim>(
+export const simSchema = new Schema<ISim>(
   {
     simNumber: { 
       type: String, 
@@ -123,4 +123,5 @@ simSchema.index({ assignedTo: 1 });
 simSchema.index({ expiryDate: 1 });
 simSchema.index({ createdAt: -1 });
 
-export default model<ISim>("Sim", simSchema);
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

@@ -1,8 +1,8 @@
-import { Schema, model } from "mongoose";
+import { Schema } from "mongoose";
 import { ISO } from '../interfaces';
 import { allowedISOStandards } from "../constants";
 
-const ISOSchema = new Schema<ISO>(
+export const ISOSchema = new Schema<ISO>(
   {
     certificateName: { type: String, required: true },
 
@@ -25,4 +25,3 @@ const ISOSchema = new Schema<ISO>(
   }
 );
 
-export default model<ISO>("ISO", ISOSchema);

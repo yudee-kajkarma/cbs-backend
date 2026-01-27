@@ -1,8 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { FurnitureCategory, FurnitureCondition, Currency, FurnitureStatus } from "../constants";
 import { FurnitureDocument } from '../interfaces';
 
-const FurnitureSchema = new Schema<FurnitureDocument>(
+export const FurnitureSchema = new Schema<FurnitureDocument>(
   {
     itemName: {
       type: String,
@@ -121,4 +121,4 @@ FurnitureSchema.index({ status: 1 }, { name: 'idx_furniture_status' });
 FurnitureSchema.index({ location: 1 }, { name: 'idx_furniture_location' });
 FurnitureSchema.index({ status: 1, createdAt: -1 }, { name: 'idx_furniture_status_created' });
 
-export const FurnitureModel = mongoose.model<FurnitureDocument>("Furniture", FurnitureSchema);
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

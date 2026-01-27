@@ -3,6 +3,7 @@
  * Matches UserRole in user.constants.ts
  */
 export const SYSTEM_ROLES = {
+  SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
   HR: "HR",
   USER: "USER",

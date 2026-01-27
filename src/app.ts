@@ -38,7 +38,10 @@ import authRoutes from './routes/auth.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import activityLogRoutes from './routes/activity-log.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import tenantRoutes from './routes/tenant.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
+import { tenantMiddleware } from './middlewares/tenant.middleware';
+import { authenticate } from './middlewares/auth.middleware';
 
 import { config } from './config/config'; 
 const app = express();
@@ -55,12 +58,24 @@ app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint (public)
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// Public Routes (no authentication required)
+// Public Routes (no authentication or tenant context required)
 app.use('/api/auth', authRoutes);
 
-// Routes
+// SYSTEM ADMIN ROUTES (CBS_Admin database)
+// Super admin and tenant management routes - for system administrators only
+// These routes DO NOT use tenant middleware - they operate on CBS_Admin database
+app.use('/api/tenants', tenantRoutes);
+
+// MULTI-TENANT PROTECTED ROUTES
+// All routes below this line require JWT authentication and tenant context
+// First authenticate the user, then set up tenant context based on the JWT payload
+app.use(authenticate);
+app.use(tenantMiddleware);
+
+// Protected Routes (require tenant context)
 app.use('/api/users', userRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use("/api/iso", isoRoutes);

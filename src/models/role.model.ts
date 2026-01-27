@@ -1,9 +1,9 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import { Schema, Document, Types } from 'mongoose';
 
 /**
  * Role Schema
  */
-const roleSchema = new Schema(
+export const roleSchema = new Schema(
   {
     name: {
       type: String,
@@ -59,10 +59,11 @@ export interface RoleDocument extends Document {
   permissions: Record<string, Record<string, number>>;
   isSystemRole: boolean;
   isActive: boolean;
-  createdBy?: mongoose.Types.ObjectId;
+  createdBy?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export default mongoose.model<RoleDocument>('Role', roleSchema, 'Role');
 
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

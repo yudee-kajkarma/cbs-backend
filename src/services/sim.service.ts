@@ -1,4 +1,4 @@
-import  SimModel  from "../models/sim.model";
+import { Sim } from "../models";
 import { SimQuery, CreateSimData, ISim } from "../interfaces/model.interface";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
@@ -17,7 +17,7 @@ export class SimService {
    */
   static async create(data: CreateSimData) {
     try {
-      return await SimModel.create(data);
+      return await Sim.create(data);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'SimService', method: 'create', data });
     }
@@ -34,7 +34,7 @@ export class SimService {
       const allowedSortFields = ['simNumber', 'carrier', 'assignedTo', 'status', 'createdAt', 'updatedAt'];
       const filterFields = ['carrier', 'status'];
 
-      const result = await PaginationService.paginate(SimModel, query, {
+      const result = await PaginationService.paginate(Sim, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -57,7 +57,7 @@ export class SimService {
    */
   static async getById(id: string) {
     try {
-      const sim = await SimModel.findById(id);
+      const sim = await Sim.findById(id);
       if (!sim) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SIM_NOT_FOUND);
       }
@@ -75,7 +75,7 @@ export class SimService {
    */
   static async update(id: string, data: Partial<ISim>) {
     try {
-      const updated = await SimModel.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+      const updated = await Sim.findByIdAndUpdate(id, data, { new: true, runValidators: true });
       if (!updated) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SIM_NOT_FOUND);
       }
@@ -92,7 +92,7 @@ export class SimService {
    */
   static async delete(id: string) {
     try {
-      const deleted = await SimModel.findByIdAndDelete(id);
+      const deleted = await Sim.findByIdAndDelete(id);
       if (!deleted) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SIM_NOT_FOUND);
       }
@@ -108,9 +108,9 @@ export class SimService {
    */
   static async getStats() {
     try {
-      const total = await SimModel.countDocuments();
-      const active = await SimModel.countDocuments({ status: 'Active' });
-      const inactive = await SimModel.countDocuments({ status: { $ne: 'Active' } });
+      const total = await Sim.countDocuments();
+      const active = await Sim.countDocuments({ status: 'Active' });
+      const inactive = await Sim.countDocuments({ status: { $ne: 'Active' } });
 
       return { total, active, inactive };
     } catch (error) {

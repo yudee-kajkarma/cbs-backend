@@ -1,4 +1,4 @@
-import  NetworkEquipmentModel  from "../models/network-equipment.model";
+import { NetworkEquipment } from "../models";
 import { INetworkEquipment, NetworkEquipmentQuery, CreateNetworkEquipmentData, UpdateNetworkEquipmentData } from "../interfaces";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
@@ -17,7 +17,7 @@ export class NetworkEquipmentService {
    */
   static async create(data: CreateNetworkEquipmentData) {
     try {
-      return await NetworkEquipmentModel.create(data);
+      return await NetworkEquipment.create(data);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'create', data });
     }
@@ -34,7 +34,7 @@ export class NetworkEquipmentService {
       const allowedSortFields = ['equipmentName', 'equipmentType', 'serialNumber', 'macAddress', 'ipAddress', 'location', 'status', 'purchaseDate', 'warrantyExpiry', 'firmwareVersion', 'numberOfPorts', 'createdAt', 'updatedAt'];
       const filterFields = ['equipmentType', 'status', 'location', 'createdAt', 'updatedAt'];
 
-      const result = await PaginationService.paginate(NetworkEquipmentModel, query, {
+      const result = await PaginationService.paginate(NetworkEquipment, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -57,7 +57,7 @@ export class NetworkEquipmentService {
    */
   static async getById(id: string) {
     try {
-      const equipment = await NetworkEquipmentModel.findById(id);
+      const equipment = await NetworkEquipment.findById(id);
       if (!equipment) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.NETWORK_EQUIPMENT_NOT_FOUND);
       }
@@ -75,7 +75,7 @@ export class NetworkEquipmentService {
    */
   static async update(id: string, data: Partial<INetworkEquipment>) {
     try {
-      const updated = await NetworkEquipmentModel.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+      const updated = await NetworkEquipment.findByIdAndUpdate(id, data, { new: true, runValidators: true });
       if (!updated) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.NETWORK_EQUIPMENT_NOT_FOUND);
       }
@@ -92,7 +92,7 @@ export class NetworkEquipmentService {
    */
   static async delete(id: string) {
     try {
-      const deleted = await NetworkEquipmentModel.findByIdAndDelete(id);
+      const deleted = await NetworkEquipment.findByIdAndDelete(id);
       if (!deleted) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.NETWORK_EQUIPMENT_NOT_FOUND);
       }
@@ -109,7 +109,7 @@ export class NetworkEquipmentService {
    */
   static async findBySerial(serial: string) {
     try {
-      return await NetworkEquipmentModel.findOne({ serialNumber: serial });
+      return await NetworkEquipment.findOne({ serialNumber: serial });
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'findBySerial', serial });
     }
@@ -122,7 +122,7 @@ export class NetworkEquipmentService {
    */
   static async findByMac(mac: string) {
     try {
-      return await NetworkEquipmentModel.findOne({ macAddress: mac });
+      return await NetworkEquipment.findOne({ macAddress: mac });
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'findByMac', mac });
     }
@@ -136,7 +136,7 @@ export class NetworkEquipmentService {
    */
   static async findByMacExcludeId(mac: string, id: string) {
     try {
-      return await NetworkEquipmentModel.findOne({ macAddress: mac, _id: { $ne: id } });
+      return await NetworkEquipment.findOne({ macAddress: mac, _id: { $ne: id } });
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'findByMacExcludeId', mac, id });
     }
@@ -150,7 +150,7 @@ export class NetworkEquipmentService {
    */
   static async findBySerialExcludeId(serial: string, id: string) {
     try {
-      return await NetworkEquipmentModel.findOne({ serialNumber: serial, _id: { $ne: id } });
+      return await NetworkEquipment.findOne({ serialNumber: serial, _id: { $ne: id } });
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'NetworkEquipmentService', method: 'findBySerialExcludeId', serial, id });
     }
@@ -162,10 +162,10 @@ export class NetworkEquipmentService {
    */
   static async getStats() {
     try {
-      const total = await NetworkEquipmentModel.countDocuments();
-      const online = await NetworkEquipmentModel.countDocuments({ status: 'Online' });
-      const offline = await NetworkEquipmentModel.countDocuments({ status: 'Offline' });
-      const maintenance = await NetworkEquipmentModel.countDocuments({ status: 'Maintenance' });
+      const total = await NetworkEquipment.countDocuments();
+      const online = await NetworkEquipment.countDocuments({ status: 'Online' });
+      const offline = await NetworkEquipment.countDocuments({ status: 'Offline' });
+      const maintenance = await NetworkEquipment.countDocuments({ status: 'Maintenance' });
 
       return { total, online, offline, maintenance };
     } catch (error) {

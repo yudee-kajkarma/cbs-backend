@@ -3,7 +3,7 @@ import { ISoftware } from '../interfaces/model.interface';
 import { LicenseType, SoftwareStatus, allowedLicenseTypes, allowedSoftwareStatuses } from '../constants/software.constants';
 import { Department, allowedDepartments } from '../constants/common.constants';
 
-const softwareSchema = new Schema<ISoftware>(
+export const softwareSchema = new Schema<ISoftware>(
   {
     name: { 
       type: String, 
@@ -101,4 +101,5 @@ softwareSchema.index({ status: 1 }, { name: 'idx_software_status' });
 softwareSchema.index({ expiryDate: 1 }, { name: 'idx_software_expiry' });
 softwareSchema.index({ createdAt: -1 }, { name: 'idx_software_created_desc' });
 
-export default model<ISoftware>("Software", softwareSchema);
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

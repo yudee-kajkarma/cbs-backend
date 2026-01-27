@@ -1,11 +1,13 @@
-import TelexTransfer from "../models/telexTransfer.model";
-import Cheque from "../models/cheque.model";
-import User from "../models/user.model";
-import Employee from "../models/employee.model";
-import LeaveApplication from "../models/leaveApplication.model";
-import MonthlyPayroll from "../models/monthlyPayroll.model";
-import EmployeeBonus from "../models/employeeBonus.model";
-import EmployeeIncentive from "../models/employeeIncentive.model";
+import { 
+  TelexTransfer, 
+  Cheque, 
+  User, 
+  Employee, 
+  LeaveApplication, 
+  MonthlyPayroll, 
+  EmployeeBonus, 
+  EmployeeIncentive 
+} from "../models";
 import { UserRole, USER_ID_PREFIX } from "../constants/user.constants";
 import { MONTHLY_PAYROLL_ID_PREFIX } from "../constants/monthly-payroll.constants";
 import { BONUS_ID_PREFIX } from "../constants/bonus.constants";
@@ -290,5 +292,36 @@ export class ReferenceGenerator {
         }
 
         throw throwError(ERROR_MESSAGES.SERVER_ERRORS.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Generate userRefId manually (for first admin user during tenant provisioning)
+     * Format: USER-{timestamp}{random}
+     */
+    static generateUserRefIdManual(): string {
+        const timestamp = Date.now().toString();
+        const random = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+        return `USER-${timestamp}${random}`;
+    }
+
+    /**
+     * Generate userId manually (for first admin user during tenant provisioning)
+     * Format: UA{timestamp}{random} or UR{timestamp}{random}
+     */
+    static generateUserIdManual(role: string): string {
+        const prefix = role === 'admin' ? 'UA' : 'UR';
+        const timestamp = Date.now().toString().slice(-8);
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `${prefix}${timestamp}${random}`;
+    }
+
+    /**
+     * Generate employeeId manually (for first admin employee during tenant provisioning)
+     * Format: E{timestamp}{random}
+     */
+    static generateEmployeeIdManual(): string {
+        const timestamp = Date.now().toString().slice(-8);
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `E${timestamp}${random}`;
     }
 }

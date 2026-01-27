@@ -1,11 +1,11 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { LeaveBalanceDocument } from '../interfaces';
 
-const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
+export const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
   {
     employeeId: {
       type: Schema.Types.ObjectId,
-      ref: 'employee',
+      ref: 'Employee',
       required: [true, 'Employee ID is required'],
     },
     year: {
@@ -93,4 +93,5 @@ const leaveBalanceSchema = new Schema<LeaveBalanceDocument>(
 leaveBalanceSchema.index({ employeeId: 1, year: 1 }, { name: 'idx_leave_balance_employee_year', unique: true });
 leaveBalanceSchema.index({ createdAt: -1 }, { name: 'idx_leave_balance_created_desc' });
 
-export default mongoose.model<LeaveBalanceDocument>("LeaveBalance", leaveBalanceSchema, "leave_balance");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

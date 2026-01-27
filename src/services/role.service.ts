@@ -1,4 +1,5 @@
-import Role, { RoleDocument } from "../models/role.model";
+import { Role } from "../models";
+import { RoleDocument } from "../models/role.model";
 import { Types } from "mongoose";
 import {
   PermissionManager,
@@ -210,7 +211,7 @@ export class RoleService {
 
     // Get permissions for each role
     const rolesWithPermissions = await Promise.all(
-      roles.map(async (role) => {
+      roles.map(async (role: any) => {
         const permissions = await this.getRolePermissions(role._id);
 
         return {
@@ -325,7 +326,7 @@ export class RoleService {
 
     // Extract permissions from each role
     const rolePermissions = roles.map(
-      (role) =>
+      (role: any) =>
         (role.permissions ?? {}) as Record<string, Record<string, number>>
     );
 

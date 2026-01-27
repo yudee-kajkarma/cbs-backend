@@ -1,8 +1,4 @@
-import MonthlyPayroll from "../models/monthlyPayroll.model";
-import Attendance from "../models/attendance.model";
-import EmployeeBonus from "../models/employeeBonus.model";
-import EmployeeIncentive from "../models/employeeIncentive.model";
-import PayrollCompensation from "../models/payrollCompensation.model";
+import { MonthlyPayroll, Attendance, EmployeeBonus, EmployeeIncentive, PayrollCompensation, LeaveApplication } from "../models";
 import { AttendancePolicyService } from "./attendance-policy.service";
 import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";
@@ -16,7 +12,6 @@ import { MonthlyPayrollStatus } from "../constants/monthly-payroll.constants";
 import { AttendanceStatus } from "../constants/attendance.constants";
 import { LeaveApplicationStatus } from "../constants/leave-policy.constants";
 import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
-import LeaveApplication from "../models/leaveApplication.model";
 import {
   MonthlyPayrollDocument,
   MonthlyPayrollQuery,
@@ -99,7 +94,7 @@ export class MonthlyPayrollService {
       let unpaidLeaveDays = 0;
       let paidLeaveDays = 0;
       
-      allLeaveApps.forEach(leave => {
+      allLeaveApps.forEach((leave: any) => {
         const leaveStart = leave.startDate > startDate ? leave.startDate : startDate;
         const leaveEnd = leave.endDate < effectiveEndDate ? leave.endDate : effectiveEndDate;
         const days = Math.ceil((leaveEnd.getTime() - leaveStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -113,7 +108,7 @@ export class MonthlyPayrollService {
       });
 
       // Count present and absent days (only for elapsed days)
-      const presentDays = attendanceRecords.filter(a => 
+      const presentDays = attendanceRecords.filter((a: any) => 
         a.status === AttendanceStatus.PRESENT || a.status === AttendanceStatus.LATE
       ).length;
       
@@ -140,7 +135,7 @@ export class MonthlyPayrollService {
       // Calculate overtime pay
       let overtimePay = 0;
       if (totalWorkingDaysInMonth > 0) {
-        attendanceRecords.forEach(record => {
+        attendanceRecords.forEach((record: any) => {
           if (record.overtimeHours > 0) {
             const hourlyRate = totalSalary / (totalWorkingDaysInMonth * policy.standardHoursPerDay);
             overtimePay += record.overtimeHours * hourlyRate * policy.overtimeRateMultiplier;
@@ -150,11 +145,11 @@ export class MonthlyPayrollService {
 
       // Get bonuses for this month
       const bonuses = await EmployeeBonus.find({ employeeId, month, year }).lean();
-      const bonusAmount = bonuses.reduce((sum, b) => sum + b.amount, 0);
+      const bonusAmount = bonuses.reduce((sum: number, b: any) => sum + b.amount, 0);
 
       // Get incentives for this month
       const incentives = await EmployeeIncentive.find({ employeeId, month, year }).lean();
-      const incentiveAmount = incentives.reduce((sum, i) => sum + i.amount, 0);
+      const incentiveAmount = incentives.reduce((sum: number, i: any) => sum + i.amount, 0);
 
       // Calculate total deductions and net salary
       const totalDeductions = salaryDeduction + socialInsurance;
@@ -463,9 +458,9 @@ export class MonthlyPayrollService {
       const payrolls = await MonthlyPayroll.find({ month, year }).lean();
 
       const totalEmployees = payrolls.length;
-      const grossPayroll = payrolls.reduce((sum, p) => sum + p.totalSalary, 0);
-      const totalDeductions = payrolls.reduce((sum, p) => sum + p.totalDeductions, 0);
-      const netPayable = payrolls.reduce((sum, p) => sum + p.netSalary, 0);
+      const grossPayroll = payrolls.reduce((sum: number, p: any) => sum + p.totalSalary, 0);
+      const totalDeductions = payrolls.reduce((sum: number, p: any) => sum + p.totalDeductions, 0);
+      const netPayable = payrolls.reduce((sum: number, p: any) => sum + p.netSalary, 0);
 
       return {
         month,
@@ -542,7 +537,7 @@ export class MonthlyPayrollService {
         p.paidDate ? new Date(p.paidDate).toISOString().split('T')[0] : ''
       ]);
 
-      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const csv = [headers.join(','), ...rows.map((r: any) => r.join(','))].join('\n');
       return csv;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 

@@ -1,5 +1,4 @@
-import Attendance from "../models/attendance.model";
-import LeaveApplication from "../models/leaveApplication.model";
+import { Attendance, LeaveApplication } from "../models";
 import { Request, Response } from "express";
 import { AttendancePolicyService } from "./attendance-policy.service";
 import { MetadataService } from "./metadata.service";
@@ -354,7 +353,7 @@ export class AttendanceService {
                 .populate('employeeId')
                 .lean();
 
-            const employeesOnLeave = leaveApplications.map(l => l.employeeId._id.toString());
+            const employeesOnLeave = leaveApplications.map((l: any) => l.employeeId._id.toString());
 
             // Calculate working days per month
             const workingDaysPerMonth = AttendanceUtil.getWorkingDaysInMonth(
@@ -366,7 +365,7 @@ export class AttendanceService {
             // Build detailed records for each employee
             let detailedRecords = allEmployees.map((employee: PopulatedEmployee) => {
                 const empId = employee._id.toString();
-                const attendance = attendanceRecords.find(r =>
+                const attendance = attendanceRecords.find((r: any) =>
                     r.employeeId?._id?.toString() === empId
                 );
                 const isOnLeave = employeesOnLeave.includes(empId);
@@ -494,7 +493,7 @@ export class AttendanceService {
             let totalWorkingHours = 0;
             let totalOvertimeHours = 0;
 
-            records.forEach(record => {
+            records.forEach((record: any) => {
                 if (record.status === AttendanceStatus.PRESENT || record.status === AttendanceStatus.LATE) {
                     presentDays++;
                     totalWorkingHours += record.workingHours || 0;
@@ -510,7 +509,7 @@ export class AttendanceService {
 
             // Calculate leave days
             let leaveDays = 0;
-            leaveApplications.forEach(leave => {
+            leaveApplications.forEach((leave: any) => {
                 leaveDays += leave.numberOfDays || 0;
             });
 
