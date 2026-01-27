@@ -750,6 +750,7 @@ export interface Metadata {
   timeZone: string;
   allowTimeZone: boolean;
   isActive: boolean;
+  companyIpRanges: string[]; // Array of CIDR IP ranges
 }
 
 export interface MetadataDocument extends Metadata, Document {}

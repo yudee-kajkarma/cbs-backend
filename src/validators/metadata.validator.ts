@@ -18,7 +18,17 @@ export const createMetadataSchema = Joi.object({
     'string.empty': 'Timezone is required'
   }),
   allowTimeZone: Joi.boolean().optional(),
-  isActive: Joi.boolean().optional()
+  isActive: Joi.boolean().optional(),
+  companyIpRanges: Joi.array()
+    .items(
+      Joi.string()
+        .pattern(/^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$|^([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{0,4}\/\d{1,3}$/)
+        .messages({
+          'string.pattern.base': 'IP range must be in CIDR format (e.g., 192.168.1.0/24 or 2001:db8::/32)'
+        })
+    )
+    .optional()
+    .default([])
 });
 
 export const updateMetadataSchema = Joi.object({
@@ -35,5 +45,14 @@ export const updateMetadataSchema = Joi.object({
     'string.empty': 'Timezone cannot be empty'
   }),
   allowTimeZone: Joi.boolean().optional(),
-  isActive: Joi.boolean().optional()
+  isActive: Joi.boolean().optional(),
+  companyIpRanges: Joi.array()
+    .items(
+      Joi.string()
+        .pattern(/^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$|^([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{0,4}\/\d{1,3}$/)
+        .messages({
+          'string.pattern.base': 'IP range must be in CIDR format (e.g., 192.168.1.0/24 or 2001:db8::/32)'
+        })
+    )
+    .optional()
 }).min(1);

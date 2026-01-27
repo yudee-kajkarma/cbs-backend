@@ -67,7 +67,7 @@ export class AttendanceController {
   static async checkNetworkStatus(req: Request, res: Response): Promise<void> {
     try {
       const clientIP = NetworkValidator.getClientIP(req);
-      const isOnCompanyNetwork = NetworkValidator.isCompanyNetwork(clientIP);
+      const isOnCompanyNetwork = await NetworkValidator.isCompanyNetwork(clientIP, req);
       
       const response = ResponseUtil.success(
         isOnCompanyNetwork ? INFO_MESSAGES.ATTENDANCE.NETWORK_STATUS_CONNECTED : INFO_MESSAGES.ATTENDANCE.NETWORK_STATUS_DISCONNECTED,
