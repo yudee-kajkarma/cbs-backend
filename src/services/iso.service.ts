@@ -1,4 +1,4 @@
-import  ISOModel from "../models/iso.model";
+import { Iso } from "../models";
 import { allowedISOStandards, ISOStandard } from "../constants/iso.constants";
 import { FileUploadService } from "./file-upload.service";
 import { validateS3Keys } from "../utils/aws.util";
@@ -45,7 +45,7 @@ export class ISOService {
         await validateS3Keys([data.fileKey]);
       }
 
-      const iso = await ISOModel.create(data);
+      const iso = await Iso.create(data);
       return iso.toObject();
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ISOService', method: 'create', data });
@@ -61,7 +61,7 @@ export class ISOService {
       const allowedSortFields = ['certificateName', 'isoStandard', 'certifyingBody', 'issueDate', 'expiryDate', 'createdAt', 'updatedAt'];
       const filterFields = ['isoStandard', 'status'];
 
-      const result = await PaginationService.paginate(ISOModel, query, {
+      const result = await PaginationService.paginate(Iso, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -85,7 +85,7 @@ export class ISOService {
    */
   static async getOne(id: string): Promise<any> {
     try {
-      const iso = await ISOModel.findById(id).lean();
+      const iso = await Iso.findById(id).lean();
       
       if (!iso) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
@@ -102,7 +102,7 @@ export class ISOService {
    */
   static async update(id: string, data: UpdateISOData): Promise<any> {
     try {
-      const existing = await ISOModel.findById(id);
+      const existing = await Iso.findById(id);
       
       if (!existing) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
@@ -123,7 +123,7 @@ export class ISOService {
         }
       }
 
-      const updated = await ISOModel.findByIdAndUpdate(
+      const updated = await Iso.findByIdAndUpdate(
         id,
         data,
         { new: true, lean: true }
@@ -144,7 +144,7 @@ export class ISOService {
    */
   static async remove(id: string): Promise<void> {
     try {
-      const existing = await ISOModel.findById(id);
+      const existing = await Iso.findById(id);
       
       if (!existing) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ISO_NOT_FOUND);
@@ -152,7 +152,7 @@ export class ISOService {
 
       const fileKey = existing.fileKey;
       
-      await ISOModel.findByIdAndDelete(id);
+      await Iso.findByIdAndDelete(id);
       
       if (fileKey) {
         try {
@@ -172,7 +172,7 @@ export class ISOService {
    */
   static async getStats() {
     try {
-      const total = await ISOModel.countDocuments();
+      const total = await Iso.countDocuments();
 
       return { total };
     } catch (error) {

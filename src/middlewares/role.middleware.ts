@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { SYSTEM_ROLES } from '../constants/enums.constants';
 import { throwError } from '../utils/errors.util';
 import { ERROR_MESSAGES } from '../constants/error-messages.constants';
+import { isSystemAdmin } from '../utils/tenant.util';
 
 /**
  * Get user role from request (set by auth middleware)
@@ -10,6 +11,17 @@ import { ERROR_MESSAGES } from '../constants/error-messages.constants';
  */
 const getUserRole = (req: Request): string | undefined => {
   return (req as any).user?.role;
+};
+
+/**
+ * Middleware: Only SUPER_ADMIN can access
+ * Used for: Tenant Management, Platform Administration routes
+ */
+export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction): void => {
+  if (!isSystemAdmin(req)) {
+    return next(throwError(ERROR_MESSAGES.CLIENT_ERRORS.PERMISSION_DENIED));
+  }
+  next();
 };
 
 /**

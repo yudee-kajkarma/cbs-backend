@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { PropertyType, PropertyUsage, Unit, OwnershipType, PropertyStatus } from "../constants/property.constants";
 import { Currency } from "../constants/common.constants";
 import { PropertyDocument } from '../interfaces';
 
-const PropertySchema = new Schema<PropertyDocument>(
+export const PropertySchema = new Schema<PropertyDocument>(
   {
     propertyName: {
       type: String,
@@ -119,4 +119,4 @@ PropertySchema.index({ location: 1 });
 PropertySchema.index({ status: 1 });
 PropertySchema.index({ ownershipType: 1 });
 
-export const PropertyModel = mongoose.model<PropertyDocument>("Property", PropertySchema);
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

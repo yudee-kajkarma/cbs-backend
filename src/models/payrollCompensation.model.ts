@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { PayrollCompensationDocument } from '../interfaces';
 import { Currency } from '../constants';
 import { PaymentMethod } from "../constants/payroll-compensation.constants";
 
-const payrollCompensationSchema = new Schema<PayrollCompensationDocument>(
+export const payrollCompensationSchema = new Schema<PayrollCompensationDocument>(
   {
     socialInsuranceRate: {
       type: Number,
@@ -47,4 +47,5 @@ const payrollCompensationSchema = new Schema<PayrollCompensationDocument>(
 );
 
 
-export default mongoose.model<PayrollCompensationDocument>("PayrollCompensation", payrollCompensationSchema, "payroll_compensation");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

@@ -1,5 +1,4 @@
-import LeaveApplication from "../models/leaveApplication.model";
-import User from "../models/user.model";
+import { LeaveApplication, User } from "../models";
 import { LeaveBalanceService } from "./leave-balance.service";
 import { EmployeeService } from "./employee.service";
 import { PaginationService } from "./pagination.service";

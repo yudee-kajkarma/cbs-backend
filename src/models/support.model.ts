@@ -9,7 +9,7 @@ import {
 } from '../constants/support.constants';
 import { allowedDepartments, allowedPriorities } from '../constants/common.constants';
 
-const supportSchema = new Schema<ISupport>(
+export const supportSchema = new Schema<ISupport>(
   {
     ticketTitle: { 
       type: String, 
@@ -83,7 +83,6 @@ supportSchema.index({ ticketTitle: 1 }, { name: 'idx_support_title' });
 supportSchema.index({ submittedBy: 1 }, { name: 'idx_support_submitted_by' });
 supportSchema.index({ createdAt: -1 }, { name: 'idx_support_created_desc' });
 
-export default model<ISupport>("Support", supportSchema);
 
 
 
@@ -96,3 +95,5 @@ export default model<ISupport>("Support", supportSchema);
 
 
 
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

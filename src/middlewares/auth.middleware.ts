@@ -35,6 +35,11 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     const token = extractBearerToken(req.headers.authorization);
 
     if (!token) {
+      console.log('Authentication failed: No token provided', {
+        url: req.url,
+        method: req.method,
+        authHeader: req.headers.authorization ? 'present but invalid format' : 'missing'
+      });
       return next(throwError(ERROR_MESSAGES.CLIENT_ERRORS.TOKEN_REQUIRED));
     }
 
@@ -46,6 +51,12 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
 
     next();
   } catch (error) {
+    console.error('Authentication middleware error:', {
+      url: req.url,
+      method: req.method,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
     if (isCustomError(error)) {
       return next(error);
     }

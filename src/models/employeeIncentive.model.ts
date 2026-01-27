@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { EmployeeIncentiveDocument } from '../interfaces';
 
-const employeeIncentiveSchema = new Schema<EmployeeIncentiveDocument>(
+export const employeeIncentiveSchema = new Schema<EmployeeIncentiveDocument>(
   {
     incentiveId: {
       type: String,
@@ -9,7 +9,7 @@ const employeeIncentiveSchema = new Schema<EmployeeIncentiveDocument>(
     },
     employeeId: {
       type: Schema.Types.ObjectId,
-      ref: 'employee',
+      ref: 'Employee',
       required: [true, 'Employee ID is required'],
     },
     amount: {
@@ -38,4 +38,5 @@ employeeIncentiveSchema.index({ employeeId: 1, month: 1, year: 1 }, { name: 'idx
 employeeIncentiveSchema.index({ month: 1, year: 1 }, { name: 'idx_employee_incentive_period' });
 employeeIncentiveSchema.index({ createdAt: -1 }, { name: 'idx_employee_incentive_created_desc' });
 
-export default mongoose.model<EmployeeIncentiveDocument>("EmployeeIncentive", employeeIncentiveSchema, "employee_incentive");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

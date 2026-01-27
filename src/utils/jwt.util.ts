@@ -9,6 +9,8 @@ import { ERROR_MESSAGES } from '../constants/error-messages.constants';
 export interface UserJwtPayload {
   userId: string;
   username: string;
+  userRefId: string;
+  tenantRefId: string;
   fullName: string;
   role: string;
   employee?: {
@@ -45,9 +47,23 @@ export class JwtUtil {
       const decoded = jwt.verify(token, config.jwt.secret) as UserJwtPayload;
       return decoded;
     } catch (error: any) {
+      console.error('JWT Verification Error:', {
+        errorName: error.name,
+        errorMessage: error.message,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'no token',
+        secretConfigured: !!config.jwt.secret,
+        secretLength: config.jwt.secret?.length
+      });
+      
       if (error.name === 'TokenExpiredError') {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.TOKEN_EXPIRED);
       }
+      
+      // Provide more helpful message for signature mismatch
+      if (error.message === 'invalid signature') {
+        console.warn('⚠️  Token signature mismatch - User needs to log in again with current JWT secret');
+      }
+      
       throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.INVALID_TOKEN);
     }
   }

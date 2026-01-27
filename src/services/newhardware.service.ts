@@ -1,4 +1,4 @@
-import { NewHardwareModel } from "../models/newhardware.model";
+import { NewHardware as NewHardwareModel } from "../models";
 import { NewHardware, NewHardwareQuery, CreateNewHardwareData, UpdateNewHardwareData } from "../interfaces";
 import { PaginationService } from './pagination.service';
 import { throwError } from '../utils/errors.util';

@@ -1,5 +1,5 @@
-import { EquipmentModel } from "../models/equipment.model";
-import { Equipment, EquipmentDocument, EquipmentQuery, CreateEquipmentData, UpdateEquipmentData } from "../interfaces/model.interface";
+import { Equipment as EquipmentModel } from "../models";
+import { EquipmentDocument, EquipmentQuery, CreateEquipmentData, UpdateEquipmentData } from "../interfaces/model.interface";
 import { PaginationService } from './pagination.service';
 import { ERROR_MESSAGES } from "../constants";
 import { ErrorHandler } from '../utils/error-handler.util';
@@ -9,7 +9,7 @@ export class EquipmentService {
   /**
    * Create a new equipment record
    */
-  static async create(data: Partial<Equipment>) {
+  static async create(data: Partial<EquipmentDocument>) {
     try {
       const equipment = await EquipmentModel.create(data);
       return equipment.toObject();
@@ -85,7 +85,7 @@ export class EquipmentService {
   /**
    * Update equipment by ID
    */
-  static async update(id: string, data: Partial<Equipment>) {
+  static async update(id: string, data: Partial<EquipmentDocument>) {
     try {
       const equipment = await EquipmentModel.findByIdAndUpdate(
         id,

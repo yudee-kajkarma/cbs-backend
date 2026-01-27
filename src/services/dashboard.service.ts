@@ -1,11 +1,6 @@
-import Attendance from "../models/attendance.model";
-import LeaveApplication from "../models/leaveApplication.model";
-import LeaveBalance from "../models/leaveBalance.model";
-import MonthlyPayroll from "../models/monthlyPayroll.model";
-import ActivityLog from "../models/activity-log.model";
+import { Attendance, LeaveApplication, LeaveBalance, MonthlyPayroll, ActivityLog } from "../models";
 import { AttendanceService } from "./attendance.service";
 import { AttendancePolicyService } from "./attendance-policy.service";
-import { ActivityLogService } from "./activity-log.service";
 import { EmployeeService } from "./employee.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -387,7 +382,7 @@ export class DashboardService {
         year: currentYear
       }).lean();
 
-      const monthlyPayrollTotal = payrollRecords.reduce((sum, record: any) => {
+      const monthlyPayrollTotal = payrollRecords.reduce((sum: number, record: any) => {
         return sum + (record.netSalary || 0);
       }, 0);
 

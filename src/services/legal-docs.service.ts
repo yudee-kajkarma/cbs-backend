@@ -1,4 +1,4 @@
-import DocumentModel from "../models/legal-docs.model";
+import { LegalDocs } from "../models";
 import { FileUploadService } from "./file-upload.service";
 import { validateS3Keys } from "../utils/aws.util";
 import { PaginationService } from './pagination.service';
@@ -49,7 +49,7 @@ export class DocumentService {
         await validateS3Keys([data.fileKey]);
       }
 
-      const doc = await DocumentModel.create(data);
+      const doc = await LegalDocs.create(data);
       return doc.toObject();
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'DocumentService', method: 'create', data });
@@ -65,7 +65,7 @@ export class DocumentService {
       const allowedSortFields = ['name', 'category', 'documentDate', 'createdAt', 'updatedAt'];
       const filterFields = ['category', 'status'];
 
-      const result = await PaginationService.paginate(DocumentModel, query, {
+      const result = await PaginationService.paginate(LegalDocs, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -89,7 +89,7 @@ export class DocumentService {
    */
   static async getOne(id: string): Promise<any> {
     try {
-      const doc = await DocumentModel.findById(id).lean();
+      const doc = await LegalDocs.findById(id).lean();
       
       if (!doc) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.DOCUMENT_NOT_FOUND);
@@ -106,7 +106,7 @@ export class DocumentService {
    */
   static async update(id: string, data: UpdateDocumentData): Promise<any> {
     try {
-      const existing = await DocumentModel.findById(id);
+      const existing = await LegalDocs.findById(id);
       
       if (!existing) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.DOCUMENT_NOT_FOUND);
@@ -123,7 +123,7 @@ export class DocumentService {
         }
       }
 
-      const updated = await DocumentModel.findByIdAndUpdate(
+      const updated = await LegalDocs.findByIdAndUpdate(
         id,
         data,
         { new: true, lean: true }
@@ -144,7 +144,7 @@ export class DocumentService {
    */
   static async remove(id: string): Promise<void> {
     try {
-      const existing = await DocumentModel.findById(id);
+      const existing = await LegalDocs.findById(id);
       
       if (!existing) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.DOCUMENT_NOT_FOUND);
@@ -152,7 +152,7 @@ export class DocumentService {
 
       const fileKey = existing.fileKey;
       
-      await DocumentModel.findByIdAndDelete(id);
+      await LegalDocs.findByIdAndDelete(id);
       
       if (fileKey) {
         try {
@@ -171,7 +171,7 @@ export class DocumentService {
    */
   static async getDownloadUrl(id: string): Promise<string> {
     try {
-      const doc = await DocumentModel.findById(id).lean().select('fileKey');
+      const doc = await LegalDocs.findById(id).lean().select('fileKey');
       
       if (!doc || !doc.fileKey) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.DOCUMENT_NOT_FOUND);
@@ -189,7 +189,7 @@ export class DocumentService {
    */
   static async getStats() {
     try {
-      const total = await DocumentModel.countDocuments();
+      const total = await LegalDocs.countDocuments();
 
       return { total };
     } catch (error) {

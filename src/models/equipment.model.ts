@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { EquipmentCategory, EquipmentCondition, GeneralEquipmentStatus } from "../constants/equipment.constants";
 import { Currency } from "../constants/common.constants";
 import { Equipment, EquipmentDocument } from '../interfaces';
 
-const EquipmentSchema = new Schema<EquipmentDocument>(
+export const EquipmentSchema = new Schema<EquipmentDocument>(
   {
     equipmentName: {
       type: String,
@@ -127,4 +127,4 @@ EquipmentSchema.index({ category: 1 });
 EquipmentSchema.index({ status: 1 });
 EquipmentSchema.index({ location: 1 });
 
-export const EquipmentModel = mongoose.model<EquipmentDocument>("Equipment", EquipmentSchema);
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

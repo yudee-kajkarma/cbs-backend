@@ -1,4 +1,4 @@
-import Payee from "../models/payee.model";
+import { Payee } from "../models";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
