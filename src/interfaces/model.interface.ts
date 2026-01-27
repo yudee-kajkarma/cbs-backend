@@ -748,6 +748,7 @@ export interface Metadata {
   halfDayHoursThreshold: number;
   autoCheckoutTime: string;
   isActive: boolean;
+  companyIpRanges: string[]; // Array of CIDR IP ranges
 }
 
 export interface MetadataDocument extends Metadata, Document {}
