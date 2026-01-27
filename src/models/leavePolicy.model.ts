@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { LeavePolicyDocument } from '../interfaces';
 
-const leavePolicySchema = new Schema<LeavePolicyDocument>(
+export const leavePolicySchema = new Schema<LeavePolicyDocument>(
   {
     annualLeavePaid: {
       type: Number,
@@ -80,4 +80,5 @@ const leavePolicySchema = new Schema<LeavePolicyDocument>(
 leavePolicySchema.index({ isActive: 1 }, { name: 'idx_leave_policy_active' });
 leavePolicySchema.index({ createdAt: -1 }, { name: 'idx_leave_policy_created_desc' });
 
-export default mongoose.model<LeavePolicyDocument>("LeavePolicy", leavePolicySchema, "leave_policy");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

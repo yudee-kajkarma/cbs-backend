@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { 
   ChequePrintStatus, 
   ChequeTransactionStatus, 
@@ -6,10 +6,10 @@ import {
 } from "../constants/cheque.constants";
 import { ChequeDocument } from "../interfaces/model.interface";
 
-const chequeSchema = new Schema<ChequeDocument>(
+export const chequeSchema = new Schema<ChequeDocument>(
   {
     bankAccount: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'BankAccount',
       required: [true, 'Bank account is required'],
     },
@@ -59,4 +59,5 @@ const chequeSchema = new Schema<ChequeDocument>(
 chequeSchema.index({  chequeNumber: 1 }, { unique: true });
 chequeSchema.index({ chequeDate: -1 });
 
-export default mongoose.model<ChequeDocument>("Cheque", chequeSchema, "cheque");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

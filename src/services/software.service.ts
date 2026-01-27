@@ -1,4 +1,4 @@
-import  SoftwareModel from "../models/software.model";
+import { Software } from "../models";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -17,7 +17,7 @@ export class SoftwareService {
    */
   static async create(data: CreateSoftwareData) {
     try {
-      return await SoftwareModel.create(data);
+      return await Software.create(data);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'SoftwareService', method: 'create', data });
     }
@@ -34,7 +34,7 @@ export class SoftwareService {
       const allowedSortFields = ['softwareName', 'version', 'vendor', 'licenseType', 'status', 'createdAt', 'updatedAt'];
       const filterFields = ['licenseType', 'status'];
 
-      const result = await PaginationService.paginate(SoftwareModel, query, {
+      const result = await PaginationService.paginate(Software, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -57,7 +57,7 @@ export class SoftwareService {
    */
   static async getById(id: string) {
     try {
-      const software = await SoftwareModel.findById(id);
+      const software = await Software.findById(id);
       if (!software) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SOFTWARE_NOT_FOUND);
       }
@@ -75,7 +75,7 @@ export class SoftwareService {
    */
   static async update(id: string, data: Partial<ISoftware>) {
     try {
-      const updated = await SoftwareModel.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+      const updated = await Software.findByIdAndUpdate(id, data, { new: true, runValidators: true });
       if (!updated) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SOFTWARE_NOT_FOUND);
       }
@@ -92,7 +92,7 @@ export class SoftwareService {
    */
   static async delete(id: string) {
     try {
-      const deleted = await SoftwareModel.findByIdAndDelete(id);
+      const deleted = await Software.findByIdAndDelete(id);
       if (!deleted) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SOFTWARE_NOT_FOUND);
       }
@@ -108,12 +108,12 @@ export class SoftwareService {
    */
   static async getStats() {
     try {
-      const total = await SoftwareModel.countDocuments();
-      const active = await SoftwareModel.countDocuments({ status: 'Active' });
+      const total = await Software.countDocuments();
+      const active = await Software.countDocuments({ status: 'Active' });
       
       // Count expired software (expiry date passed)
       const now = new Date();
-      const expired = await SoftwareModel.countDocuments({ 
+      const expired = await Software.countDocuments({ 
         expiryDate: { $lt: now }
       });
 

@@ -1,4 +1,9 @@
-import Employee from "../models/employee.model";
+import { Employee, LeavePolicy, AttendancePolicy, PayrollCompensation } from '../models';
+import { employeeSchema } from '../models/employee.model';
+import { getConnectionByTenantDbName, addActiveConnection } from '../utils/tenant-context';
+import { registerAllModelsOnConnection } from '../utils/register-models';
+import mongoose from 'mongoose';
+import { config } from '../config/config';
 import { FileUploadService } from "./file-upload.service";
 import { validateS3Keys } from "../utils/aws.util";
 import { PaginationService } from "./pagination.service";
@@ -10,9 +15,6 @@ import {
   EmployeeQuery,
   UpdateEmployeeData,
 } from "../interfaces/model.interface";
-import leavePolicyModel from "../models/leavePolicy.model";
-import AttendancePolicy from "../models/attendancePolicy.model";
-import PayrollCompensation from "../models/payrollCompensation.model";
 
 export class EmployeeService {
 
@@ -32,6 +34,42 @@ export class EmployeeService {
       return employee;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'EmployeeService', method: 'getById', id });
+    }
+  }
+
+  /**
+   * Get employee by user ID (for login - doesn't require tenant context)
+   * @param userId - User's MongoDB ObjectId
+   * @param tenantRefId - Tenant reference ID
+   */
+  static async getByUserIdForLogin(userId: string, tenantRefId: string): Promise<any> {
+    try {
+      // Use connection pooling - reuse existing connection or create new one
+      const tenantDbName = `CBS_${tenantRefId}`;
+      let tenantConnection = getConnectionByTenantDbName(tenantDbName);
+      
+      // If no connection exists, create and cache it
+      if (!tenantConnection) {
+        const baseUri = config.mongodb.uri.replace(/\/[^\/]*$/, '');
+        const tenantUri = `${baseUri}/${tenantDbName}`;
+        tenantConnection = await mongoose.createConnection(tenantUri);
+        addActiveConnection(tenantDbName, tenantConnection);
+        await registerAllModelsOnConnection(tenantConnection);
+      }
+
+      const EmployeeModel = tenantConnection.model('Employee', employeeSchema, 'employees');
+      const employee = await EmployeeModel.findOne({ userId })
+        .select('employeeId position department phoneNumber joinDate status')
+        .lean();
+
+      return employee;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { 
+        serviceName: 'EmployeeService', 
+        method: 'getByUserIdForLogin', 
+        userId,
+        tenantRefId 
+      });
     }
   }
 
@@ -102,7 +140,7 @@ export class EmployeeService {
       const isAddingJoinDate = data.joinDate && !employee.joinDate;
 
       if(isAddingJoinDate) {
-        const activePolicy = await leavePolicyModel.findOne().lean();
+        const activePolicy = await LeavePolicy.findOne().lean();
         if (!activePolicy) {
           throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
         }
@@ -158,7 +196,7 @@ export class EmployeeService {
       }
 
       if (employee.documents && employee.documents.length > 0) {
-        const fileKeys = employee.documents.map(doc => doc.fileKey).filter(Boolean);
+        const fileKeys = employee.documents.map((doc: any) => doc.fileKey).filter(Boolean);
         if (fileKeys.length > 0) {
           await FileUploadService.deleteFiles(fileKeys);
         }

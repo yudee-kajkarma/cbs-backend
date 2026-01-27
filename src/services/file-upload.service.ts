@@ -1,6 +1,7 @@
 import { S3Client, HeadObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { config } from '../config/config';
+import { getTenantContext } from '../utils/tenant-context';
 import { throwError } from '../utils/errors.util';
 import { ERROR_MESSAGES } from '../constants/error-messages.constants';
 import { withRetry } from '../utils/retry.util';
@@ -26,6 +27,17 @@ const s3Client = new S3Client({
 });
 
 export class FileUploadService {
+  /**
+   * Get tenant-specific S3 bucket name
+   * Each tenant gets their own isolated bucket: cbs-{env}-{tenantRefId}
+   */
+  private static getTenantBucket(): string {
+    const tenantContext = getTenantContext();
+    const tenantRefId = tenantContext.tenantId;
+    const env = config.env;
+    return `cbs-${env}-${tenantRefId.toLowerCase()}`;
+  }
+
   // File validation rules - SECURITY CHECKPOINT
   private static readonly VALIDATION_RULES: Record<string, FileValidationRules> = {
     video: {
@@ -126,7 +138,8 @@ export class FileUploadService {
       // SECURITY CHECKPOINT: Validate all file metadata
       this.validateFileMetadata(request.files);
 
-      const tenantBucket = config.aws.s3BucketName;
+      // Get tenant-specific bucket
+      const tenantBucket = this.getTenantBucket();
 
       const uploadUrls = await Promise.all(
         request.files.map(async file => {
@@ -204,7 +217,8 @@ export class FileUploadService {
    */
   static async verifyUploadedFiles(keys: string[]): Promise<S3FileInfo[]> {
     try {
-      const tenantBucket = config.aws.s3BucketName;
+      // Get tenant-specific bucket
+      const tenantBucket = this.getTenantBucket();
 
       const fileInfos = await Promise.all(
         keys.map(async key => {
@@ -275,7 +289,8 @@ export class FileUploadService {
     try {
       if (keys.length === 0) return;
 
-      const tenantBucket = config.aws.s3BucketName;
+      // Get tenant-specific bucket
+      const tenantBucket = this.getTenantBucket();
 
       await withRetry(
         async () => {
@@ -307,7 +322,8 @@ export class FileUploadService {
    */
   static async generateDownloadUrl(key: string, expiresIn: number = 3600): Promise<string> {
     try {
-      const tenantBucket = config.aws.s3BucketName;
+      // Get tenant-specific bucket
+      const tenantBucket = this.getTenantBucket();
 
       return await withRetry(
         async () => {

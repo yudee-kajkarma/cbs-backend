@@ -1,5 +1,4 @@
-import EmployeeIncentive from "../models/employeeIncentive.model";
-import Employee from "../models/employee.model";
+import { EmployeeIncentive, Employee } from "../models";
 import { PaginationService } from "./pagination.service";
 import { ReferenceGenerator } from "../utils/reference-generator.util";
 import { ActivityLogger } from "../utils/activity-logger.util";
@@ -119,7 +118,7 @@ export class IncentiveService {
         }
       });
 
-      const totalAmount = populatedData.reduce((sum, incentive) => sum + incentive.amount, 0);
+      const totalAmount = populatedData.reduce((sum: number, incentive: any) => sum + incentive.amount, 0);
 
       return {
         incentives: populatedData,
@@ -189,7 +188,7 @@ export class IncentiveService {
   static async getTotalByPeriod(month: number, year: number): Promise<number> {
     try {
       const incentives = await EmployeeIncentive.find({ month, year }).lean();
-      return incentives.reduce((sum, i) => sum + i.amount, 0);
+      return incentives.reduce((sum: number, i: any) => sum + i.amount, 0);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { 
         serviceName: 'IncentiveService', 

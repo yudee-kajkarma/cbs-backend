@@ -1,8 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { EmployeeMongoDocument } from '../interfaces';
 import { allowedEmployeeStatuses, EmployeeStatus } from '../constants';
 
-const employeeSchema = new Schema<EmployeeMongoDocument>(
+export const employeeSchema = new Schema<EmployeeMongoDocument>(
   {
     employeeId: {
       type: String,
@@ -69,4 +69,4 @@ employeeSchema.index({ department: 1 }, { name: 'idx_employee_department' });
 employeeSchema.index({ status: 1 }, { name: 'idx_employee_status' });
 employeeSchema.index({ createdAt: -1 }, { name: 'idx_employee_created_desc' });
 
-export default mongoose.model<EmployeeMongoDocument>("employee", employeeSchema, "employee");
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

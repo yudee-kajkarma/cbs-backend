@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { ILicense } from '../interfaces/model.interface';
 
-const licenseSchema = new Schema<ILicense>(
+export const licenseSchema = new Schema<ILicense>(
   {
     name: { 
       type: String, 
@@ -55,4 +55,4 @@ licenseSchema.index({ name: 1 }, { name: 'idx_license_name' });
 licenseSchema.index({ issuingAuthority: 1 }, { name: 'idx_license_authority' });
 licenseSchema.index({ createdAt: -1 }, { name: 'idx_license_created_desc' });
 
-export default mongoose.model<ILicense>("License", licenseSchema);
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

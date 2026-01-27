@@ -1,4 +1,4 @@
-import PayrollCompensation from "../models/payrollCompensation.model";
+import { PayrollCompensation } from "../models";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";

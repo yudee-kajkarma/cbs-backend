@@ -1,4 +1,4 @@
-import Forecast from "../models/forecast.model";
+import { Forecast } from "../models";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -229,7 +229,7 @@ export class  ForecastService {
         f.status
       ]);
 
-      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const csv = [headers.join(','), ...rows.map((r: any) => r.join(','))].join('\n');
       return csv;
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'exportToCSV', query });
@@ -273,7 +273,7 @@ export class  ForecastService {
       
       return {
         created: forecasts.length,
-        forecasts: forecasts.map(f => f.toObject()),
+        forecasts: forecasts.map((f: any) => f.toObject()),
       };
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'ForecastService', method: 'bulkCreateFromCsv' });

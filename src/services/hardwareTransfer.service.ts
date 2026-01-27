@@ -1,4 +1,4 @@
-import  HardwareTransferModel  from "../models/hardwareTransfer.model";
+import { HardwareTransfer } from "../models";
 import { IHardwareTransfer } from "../interfaces";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
@@ -17,7 +17,7 @@ export class HardwareTransferService {
    */
   static async create(data: Partial<IHardwareTransfer>) {
     try {
-      return await HardwareTransferModel.create(data);
+      return await HardwareTransfer.create(data);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'HardwareTransferService', method: 'create', data });
     }
@@ -34,7 +34,7 @@ export class HardwareTransferService {
       const allowedSortFields = ['hardwareName', 'fromUser', 'toUser', 'transferType', 'transferDate', 'status', 'createdAt', 'updatedAt'];
       const filterFields = ['hardwareName', 'fromUser', 'toUser', 'transferType', 'hardwareCondition', 'status'];
 
-      const result = await PaginationService.paginate(HardwareTransferModel, query, {
+      const result = await PaginationService.paginate(HardwareTransfer, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -57,7 +57,7 @@ export class HardwareTransferService {
    */
   static async getById(id: string) {
     try {
-      const hardwareTransfer = await HardwareTransferModel.findById(id);
+      const hardwareTransfer = await HardwareTransfer.findById(id);
       if (!hardwareTransfer) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.HARDWARE_TRANSFER_NOT_FOUND);
       }
@@ -75,7 +75,7 @@ export class HardwareTransferService {
    */
   static async update(id: string, data: Partial<IHardwareTransfer>) {
     try {
-      const updated = await HardwareTransferModel.findByIdAndUpdate(
+      const updated = await HardwareTransfer.findByIdAndUpdate(
         id,
         data,
         { new: true, runValidators: true }
@@ -96,7 +96,7 @@ export class HardwareTransferService {
    */
   static async delete(id: string) {
     try {
-      const deleted = await HardwareTransferModel.findByIdAndDelete(id);
+      const deleted = await HardwareTransfer.findByIdAndDelete(id);
       if (!deleted) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.HARDWARE_TRANSFER_NOT_FOUND);
       }
@@ -112,9 +112,9 @@ export class HardwareTransferService {
    */
   static async getStats() {
     try {
-      const total = await HardwareTransferModel.countDocuments();
-      const active = await HardwareTransferModel.countDocuments({ status: 'Active' });
-      const completed = await HardwareTransferModel.countDocuments({ status: 'Completed' });
+      const total = await HardwareTransfer.countDocuments();
+      const active = await HardwareTransfer.countDocuments({ status: 'Active' });
+      const completed = await HardwareTransfer.countDocuments({ status: 'Completed' });
 
       return { total, active, completed };
     } catch (error) {

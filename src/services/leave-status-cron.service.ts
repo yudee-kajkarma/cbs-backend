@@ -1,6 +1,5 @@
 import cron from 'node-cron';
-import LeaveApplication from "../models/leaveApplication.model";
-import Employee from "../models/employee.model";
+import { LeaveApplication, Employee } from "../models";
 import { LeaveApplicationStatus } from "../constants/leave-policy.constants";
 import { EmployeeStatus } from "../constants/common.constants";
 import { LeaveBalanceService } from "./leave-balance.service";

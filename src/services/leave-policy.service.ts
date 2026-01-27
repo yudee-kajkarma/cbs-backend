@@ -1,4 +1,4 @@
-import LeavePolicy from "../models/leavePolicy.model";
+import { LeavePolicy } from "../models";
 import { throwError } from "../utils/errors.util";
 import { ErrorHandler } from "../utils/error-handler.util";
 import { ERROR_MESSAGES } from "../constants/error-messages.constants";
@@ -48,20 +48,20 @@ export class LeavePolicyService {
   }
 
   /**
-   * Update the single leave policy
+   * Update the single leave policy (upsert: creates if doesn't exist, updates if exists)
    */
   static async update(data: UpdateLeavePolicyData): Promise<LeavePolicyDocument> {
     try {
-      const existing = await LeavePolicy.findOne();
-      
-      if (!existing) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.LEAVE_POLICY_NOT_FOUND);
-      }
-
-      const updated = await LeavePolicy.findByIdAndUpdate(
-        existing._id,
+      // Use findOneAndUpdate with upsert to create if not exists, update if exists
+      const updated = await LeavePolicy.findOneAndUpdate(
+        {}, // Empty filter - find any document (singleton pattern)
         { $set: data },
-        { new: true, lean: true }
+        { 
+          new: true, 
+          lean: true,
+          upsert: true, // Create if doesn't exist
+          setDefaultsOnInsert: true // Apply schema defaults when creating
+        }
       );
 
       return updated as LeavePolicyDocument;

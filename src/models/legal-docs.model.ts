@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import { allowedDocumentCategories } from "../constants/legal-docs.constants";
 import { IDocument } from "../interfaces/model.interface";
 
-const legalDocSchema = new Schema<IDocument>(
+export const legalDocSchema = new Schema<IDocument>(
   {
     name: { 
       type: String, 
@@ -44,4 +44,4 @@ legalDocSchema.index({ name: 1 });
 legalDocSchema.index({ category: 1 });
 legalDocSchema.index({ documentDate: -1 });
 legalDocSchema.index({ createdAt: -1 });
-export default model<IDocument>("LegalDoc", legalDocSchema, "legal_docs");
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

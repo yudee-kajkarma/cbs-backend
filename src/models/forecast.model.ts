@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { 
   ForecastType, 
   ForecastStatus, 
@@ -6,7 +6,7 @@ import {
 } from "../constants/forecast.constants";
 import { ForecastDocument } from "../interfaces/model.interface";
 
-const forecastSchema = new Schema<ForecastDocument>(
+export const forecastSchema = new Schema<ForecastDocument>(
   {
     date: {
       type: Date,
@@ -58,4 +58,5 @@ const forecastSchema = new Schema<ForecastDocument>(
 );
 
 
-export default mongoose.model<ForecastDocument>("Forecast", forecastSchema, "forecast");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

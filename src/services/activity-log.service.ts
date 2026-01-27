@@ -1,9 +1,5 @@
-import ActivityLog from "../models/activity-log.model";
-import { throwError } from "../utils/errors.util";
+import { ActivityLog } from "../models";
 import { ErrorHandler } from "../utils/error-handler.util";
-import { ERROR_MESSAGES } from "../constants/error-messages.constants";
-import { ActivityType, ActivityModule } from "../constants/activity-log.constants";
-import { Types } from "mongoose";
 import {
   ActivityLogDocument,
   CreateActivityLogData,

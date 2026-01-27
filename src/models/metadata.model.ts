@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { MetadataDocument } from '../interfaces';
 
-const metadataSchema = new Schema<MetadataDocument>(
+export const metadataSchema = new Schema<MetadataDocument>(
   {
     standardWorkStartTime: {
       type: String,
@@ -55,4 +55,5 @@ const metadataSchema = new Schema<MetadataDocument>(
   }
 );
 
-export default mongoose.model<MetadataDocument>("Metadata", metadataSchema, "metadata");
+
+// Schema only - Model is created by tenant-aware proxy in src/models/index.ts

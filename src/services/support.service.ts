@@ -1,4 +1,4 @@
-import  SupportModel from "../models/support.model";
+import { Support } from "../models";
 import { SupportQuery, CreateSupportData, ISupport } from "../interfaces/model.interface";
 import { PaginationService } from "./pagination.service";
 import { throwError } from "../utils/errors.util";
@@ -17,7 +17,7 @@ export class SupportService {
    */
   static async create(data: CreateSupportData) {
     try {
-      return await SupportModel.create(data);
+      return await Support.create(data);
     } catch (error) {
       ErrorHandler.handleServiceError(error, { serviceName: 'SupportService', method: 'create', data });
     }
@@ -34,7 +34,7 @@ export class SupportService {
       const allowedSortFields = ['ticketTitle', 'category', 'priority', 'department', 'status', 'createdAt', 'updatedAt'];
       const filterFields = ['category', 'priority', 'department', 'status'];
 
-      const result = await PaginationService.paginate(SupportModel, query, {
+      const result = await PaginationService.paginate(Support, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
@@ -57,7 +57,7 @@ export class SupportService {
    */
   static async getById(id: string) {
     try {
-      const support = await SupportModel.findById(id);
+      const support = await Support.findById(id);
       if (!support) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SUPPORT_NOT_FOUND);
       }
@@ -75,7 +75,7 @@ export class SupportService {
    */
   static async update(id: string, data: Partial<ISupport>) {
     try {
-      const updated = await SupportModel.findByIdAndUpdate(id, data, { new: true });
+      const updated = await Support.findByIdAndUpdate(id, data, { new: true });
       if (!updated) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SUPPORT_NOT_FOUND);
       }
@@ -92,7 +92,7 @@ export class SupportService {
    */
   static async delete(id: string) {
     try {
-      const deleted = await SupportModel.findByIdAndDelete(id);
+      const deleted = await Support.findByIdAndDelete(id);
       if (!deleted) {
         throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.SUPPORT_NOT_FOUND);
       }
@@ -108,10 +108,10 @@ export class SupportService {
    */
   static async getStats() {
     try {
-      const total = await SupportModel.countDocuments();
-      const open = await SupportModel.countDocuments({ status: 'Open' });
-      const inProgress = await SupportModel.countDocuments({ status: 'In Progress' });
-      const resolved = await SupportModel.countDocuments({ status: { $in: ['Resolved', 'Closed'] } });
+      const total = await Support.countDocuments();
+      const open = await Support.countDocuments({ status: 'Open' });
+      const inProgress = await Support.countDocuments({ status: 'In Progress' });
+      const resolved = await Support.countDocuments({ status: { $in: ['Resolved', 'Closed'] } });
 
       return { total, open, inProgress, resolved };
     } catch (error) {
