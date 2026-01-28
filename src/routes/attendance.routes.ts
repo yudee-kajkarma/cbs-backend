@@ -45,6 +45,7 @@ router.get(
  */
 router.get(
   '/network-status',
+  authenticate,
   AttendanceController.checkNetworkStatus
 );
 
