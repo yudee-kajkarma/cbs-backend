@@ -43,6 +43,33 @@ export class AttendanceService {
     }
 
     /**
+     * Get today's attendance status for an employee
+     */
+    static async getTodayStatus(employeeId: string): Promise<AttendanceDocument | null> {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const attendance = await Attendance.findOne({
+                employeeId,
+                date: today
+            }).lean();
+
+            if (!attendance) {
+                return null;
+            }
+
+            return await this.formatAttendanceRecord(attendance._id);
+        } catch (error) {
+            ErrorHandler.handleServiceError(error, {
+                serviceName: 'AttendanceService',
+                method: 'getTodayStatus',
+                employeeId
+            });
+        }
+    }
+
+    /**
      * Check-in for the day
      */
     static async checkIn(

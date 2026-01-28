@@ -240,6 +240,7 @@ export const INFO_MESSAGES = {
     NETWORK_MESSAGE_AUTHORIZED: 'You are authorized to mark attendance.',
     NETWORK_MESSAGE_UNAUTHORIZED: 'Please connect to company WiFi network to mark attendance.',
     SSE_CONNECTED: 'Connected to live attendance stream',
+    TODAY_STATUS_FETCHED: 'Today\'s attendance status retrieved successfully',
   },
   MONTHLY_PAYROLL: {
     CREATED_SUCCESSFULLY: 'Monthly payroll created successfully',
