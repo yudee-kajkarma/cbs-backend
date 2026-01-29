@@ -44,22 +44,81 @@ export class AttendanceService {
 
     /**
      * Get today's attendance status for an employee
+     * Always returns an object with hasCheckedIn, hasCheckedOut, date, and message (never null)
      */
-    static async getTodayStatus(employeeId: string): Promise<AttendanceDocument | null> {
+    static async getTodayStatus(employeeId: string): Promise<{
+        hasCheckedIn: boolean;
+        hasCheckedOut: boolean;
+        date: string;
+        message: string;
+        checkInTime?: string;
+        status?: string;
+        employee?: {
+            _id: string;
+            employeeId: string;
+            userId: { _id: string; fullName: string; email: string };
+            department: string;
+            position: string;
+        };
+    }> {
         try {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const now = new Date();
+            // Use UTC date range so we match records stored as UTC midnight (e.g. 2026-01-29T00:00:00.000Z)
+            const startOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+            const endOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
 
             const attendance = await Attendance.findOne({
                 employeeId,
-                date: today
+                date: { $gte: startOfDayUTC, $lte: endOfDayUTC }
             }).lean();
 
             if (!attendance) {
-                return null;
+                return {
+                    hasCheckedIn: false,
+                    hasCheckedOut: false,
+                    date: startOfDayUTC.toISOString(),
+                    message: 'No attendance record for today'
+                };
             }
 
-            return await this.formatAttendanceRecord(attendance._id);
+            // Fetch full record with populated employee for response
+            const populated = await this.formatAttendanceRecord(attendance._id);
+            const hasCheckedOut = !!(populated as any).checkOutTime;
+            const dateStr = (populated as any).date instanceof Date
+                ? (populated as any).date.toISOString()
+                : new Date((populated as any).date).toISOString();
+            const checkInTime = (populated as any).checkInTime instanceof Date
+                ? (populated as any).checkInTime.toISOString()
+                : (populated as any).checkInTime
+                    ? new Date((populated as any).checkInTime).toISOString()
+                    : undefined;
+
+            const emp = (populated as any).employeeId;
+            const employee = emp
+                ? {
+                    _id: emp._id?.toString?.() ?? String(emp._id),
+                    employeeId: emp.employeeId ?? '',
+                    userId: emp.userId
+                        ? {
+                            _id: emp.userId._id?.toString?.() ?? String(emp.userId._id),
+                            fullName: emp.userId.fullName ?? '',
+                            email: emp.userId.email ?? ''
+                        }
+                        : { _id: '', fullName: '', email: '' },
+                    department: emp.department ?? '',
+                    position: emp.position ?? ''
+                }
+                : undefined;
+
+            return {
+                hasCheckedIn: true,
+                hasCheckedOut,
+                date: dateStr,
+                message: hasCheckedOut ? 'Checked out' : 'Checked in',
+                checkInTime,
+                status: (populated as any).status ?? 'Present',
+                employee
+            };
         } catch (error) {
             ErrorHandler.handleServiceError(error, {
                 serviceName: 'AttendanceService',

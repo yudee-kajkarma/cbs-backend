@@ -126,10 +126,9 @@ export class AttendanceController {
     try {
       const { employeeId } = req.params;
       const todayStatus = await AttendanceService.getTodayStatus(employeeId);
-      
       const response = ResponseUtil.success(
         INFO_MESSAGES.ATTENDANCE.TODAY_STATUS_FETCHED,
-        todayStatus ? toDto(AttendanceResponseDto, todayStatus) : null
+        todayStatus
       );
       res.status(200).json(response);
     } catch (error) {
