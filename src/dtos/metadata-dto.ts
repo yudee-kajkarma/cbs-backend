@@ -23,6 +23,9 @@ export class MetadataResponseDto {
     isActive!: boolean;
 
     @Expose()
+    companyIpRanges!: string[];
+
+    @Expose()
     createdAt!: Date;
 
     @Expose()

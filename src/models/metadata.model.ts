@@ -31,6 +31,23 @@ export const metadataSchema = new Schema<MetadataDocument>(
       type: Boolean,
       default: true,
     },
+    companyIpRanges: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function(ranges: string[]) {
+          if (!Array.isArray(ranges)) return false;
+          return ranges.every(range => {
+            if (typeof range !== 'string') return false;
+            const [subnet, mask] = range.trim().split('/');
+            if (!subnet || !mask) return false;
+            const maskInt = parseInt(mask, 10);
+            return !isNaN(maskInt) && maskInt >= 0 && maskInt <= 128;
+          });
+        },
+        message: 'Each IP range must be in CIDR format (e.g., 192.168.1.0/24 or 2001:db8::/32)'
+      }
+    },
   },
   {
     timestamps: true,
