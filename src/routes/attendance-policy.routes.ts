@@ -7,19 +7,10 @@ import { createAttendancePolicySchema, updateAttendancePolicySchema } from "../v
 
 const router = Router();
 
-// CREATE - HR or Admin only
-router.post(
-  "/",
-  authenticate,
-  requireAdmin,
-  validateRequest(createAttendancePolicySchema),
-  AttendancePolicyController.create
-);
-
 // GET - HR or Admin only
 router.get("/", authenticate, requireHROrAdmin, AttendancePolicyController.get);
 
-// UPDATE - HR or Admin only
+// UPDATE (or CREATE if not exists) - Admin only
 router.put(
   "/",
   authenticate,

@@ -15,11 +15,10 @@ export const updateEmployeeSchema = Joi.object({
   documents: Joi.array()
     .items(
       Joi.object({
-        fileKey: Joi.string().max(500).required(),
-        expiryDate: Joi.date().required()
+        fileKey: Joi.string().max(500).optional(),
+        expiryDate: Joi.date().optional()
       })
     )
-    .min(1)
-    .required()
+    .optional()
 }).min(1);
 

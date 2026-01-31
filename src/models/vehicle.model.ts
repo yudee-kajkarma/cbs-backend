@@ -52,7 +52,6 @@ export const vehicleSchema = new Schema<VehicleDocument>(
     chassisNumber: {
       type: String,
       required: [true, 'Chassis number (VIN) is required'],
-      unique: true,
       trim: true,
       maxlength: [50, 'Chassis number cannot exceed 50 characters'],
     },
@@ -102,6 +101,14 @@ export const vehicleSchema = new Schema<VehicleDocument>(
         values: Object.values(Currency),
         message: '{VALUE} is not a valid currency',
       },
+    },
+    depreciationCost: {
+      type: Number,
+      min: [0, 'Depreciation cost cannot be negative'],
+    },
+    maintenanceValue: {
+      type: Number,
+      min: [0, 'Maintenance value cannot be negative'],
     },
     assignedTo: {
       type: String,

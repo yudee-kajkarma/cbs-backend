@@ -20,9 +20,6 @@ export class ChequeBankAccountDto {
     accountNumber!: string;
 
     @Expose()
-    currentChequeNumber?: string;
-
-    @Expose()
     currency?: string;
 }
 

@@ -27,6 +27,13 @@ export class MetadataController {
   static async get(req: Request, res: Response): Promise<void> {
     try {
       const result = await MetadataService.get();
+      
+      if (!result) {
+        const response = ResponseUtil.success(INFO_MESSAGES.METADATA.NOT_FOUND, null);
+        res.status(200).json(response);
+        return;
+      }
+      
       const metadataDto = toDto(MetadataResponseDto, result);
       const response = ResponseUtil.success(INFO_MESSAGES.METADATA.RETRIEVED_SUCCESSFULLY, metadataDto);
       res.status(200).json(response);

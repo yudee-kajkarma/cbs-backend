@@ -63,6 +63,12 @@ export class VehicleResponseDto extends BaseDto {
   currentCurrency?: Currency;
 
   @Expose()
+  depreciationCost?: number;
+
+  @Expose()
+  maintenanceValue?: number;
+
+  @Expose()
   assignedTo?: string;
 
   @Expose()

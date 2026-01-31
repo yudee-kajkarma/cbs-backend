@@ -8,25 +8,18 @@ import { INFO_MESSAGES } from "../constants/info-messages.constants";
 
 export class PayrollCompensationController {
   /**
-   * Create payroll compensation settings
-   */
-  static async create(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await PayrollCompensationService.create(req.body);
-      const payrollCompensationDto = toDto(PayrollCompensationResponseDto, result);
-      const response = ResponseUtil.success(INFO_MESSAGES.PAYROLL_COMPENSATION.CREATED_SUCCESSFULLY, payrollCompensationDto);
-      res.status(201).json(response);
-    } catch (error) {
-      ErrorHandler.handleControllerError(error, res, { method: 'create', data: req.body });
-    }
-  }
-
-  /**
    * Get payroll compensation settings 
    */
   static async get(req: Request, res: Response): Promise<void> {
     try {
       const result = await PayrollCompensationService.get();
+      
+      if (!result) {
+        const response = ResponseUtil.success(INFO_MESSAGES.PAYROLL_COMPENSATION.NOT_FOUND, null);
+        res.status(200).json(response);
+        return;
+      }
+      
       const payrollCompensationDto = toDto(PayrollCompensationResponseDto, result);
       const response = ResponseUtil.success(INFO_MESSAGES.PAYROLL_COMPENSATION.RETRIEVED_SUCCESSFULLY, payrollCompensationDto);
       res.status(200).json(response);

@@ -93,12 +93,8 @@ export const telexTransferSchema = new Schema<TelexTransferDocument>(
     },
     authorizedBy: {
       type: String,
-      required: [true, 'Authorized by is required'],
-      enum: {
-        values: allowedAuthorizedPersons,
-        message: '{VALUE} is not a valid authorized person',
-      },
       trim: true,
+      maxlength: [200, 'Authorized by cannot exceed 200 characters'],
     },
     status: {
       type: String,
@@ -107,7 +103,7 @@ export const telexTransferSchema = new Schema<TelexTransferDocument>(
         values: allowedTelexTransferStatuses,
         message: '{VALUE} is not a valid status',
       },
-      default: TelexTransferStatus.DRAFT,
+      default: TelexTransferStatus.PENDING,
     },
   },
   {

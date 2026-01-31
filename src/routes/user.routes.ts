@@ -7,7 +7,7 @@ import {
   validateParams,
 } from "../middlewares/validate.middleware";
 
-import { requireAdmin } from "../middlewares/role.middleware";
+import { requireAdmin, requireAnyRole } from "../middlewares/role.middleware";
 import { authenticate } from "../middlewares/auth.middleware";
 
 import {
@@ -30,6 +30,9 @@ router.post(
 
 // LIST - Admin only
 router.get("/", authenticate, requireAdmin, UserController.getAll);
+
+// LIST ADMINS - Admin only
+router.get("/admins/list", authenticate, requireAnyRole, UserController.getAllAdmins);
 
 // GET BY ID - Admin only
 router.get(

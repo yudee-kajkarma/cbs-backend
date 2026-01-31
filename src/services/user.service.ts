@@ -160,6 +160,7 @@ export class UserService {
         userRefId,
         tenantRefId,
         fullName: data.fullName,
+        email: data.email,
         role: data.role,
         roles: data.roles || [],
       });
@@ -290,6 +291,40 @@ export class UserService {
         pagination: result.pagination,
         filters: result.filters,
       };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "getAll",
+        query,
+      });
+    }
+  }
+
+  /**   * Get all admin users with pagination and filtering
+   */
+
+  static async getAllAdmins(query: UserQuery): Promise<any> {
+    try {
+      const searchableFields = ["fullName", "email"];
+      const allowedSortFields = [
+        "fullName",
+        "email",
+        "createdAt",
+        "updatedAt",
+      ];
+      const filterFields = ["role"];
+
+      // Force filter to only return Admin role users
+      const adminQuery = { ...query, role: SYSTEM_ROLES.ADMIN };
+
+      const result = await PaginationService.paginate(User, adminQuery, {
+        searchFields: searchableFields,
+        allowedSortFields: allowedSortFields,
+        filterFields: filterFields,
+        populateOptions: [{ path: "roles" }],
+      });
+
+      return result.data;
     } catch (error) {
       ErrorHandler.handleServiceError(error, {
         serviceName: "UserService",
@@ -464,37 +499,39 @@ export class UserService {
   }
 
   /**
-   * DEPRECATED: This method is no longer needed with identity_db architecture
-   * Login now queries identity_db directly (see auth.service.ts)
-   * Kept for reference during migration period
+   * Check if username exists in identity database
+   * @param username - Username to check
+   * @returns True if username exists, false otherwise
    */
-  // static async findByUsernameOrEmailForLogin(identifier: string): Promise<UserDocument> {
-  //   // See AuthService.login() - now uses getIdentityUserModel()
-  // }
-
-  /**
-   * Find user by username or email (for authentication)
-   * @param identifier - Username or email
-   * @returns User document with password (for authentication)
-   */
-  static async findByUsernameOrEmail(
-    identifier: string
-  ): Promise<UserDocument> {
+  static async checkUsernameExistsInIdentity(username: string): Promise<boolean> {
     try {
-      const user = await User.findOne({
-        $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
-      });
-
-      if (!user) {
-        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_NOT_FOUND);
-      }
-
-      return user;
+      const IdentityUserModel = await getIdentityUserModel();
+      const existingUser = await IdentityUserModel.findOne({ username });
+      return !!existingUser;
     } catch (error) {
       ErrorHandler.handleServiceError(error, {
         serviceName: "UserService",
-        method: "findByUsernameOrEmail",
-        identifier,
+        method: "checkUsernameExistsInIdentity",
+        username,
+      });
+    }
+  }
+
+  /**
+   * Check if email exists in identity database
+   * @param email - Email to check
+   * @returns True if email exists, false otherwise
+   */
+  static async checkEmailExistsInIdentity(email: string): Promise<boolean> {
+    try {
+      const IdentityUserModel = await getIdentityUserModel();
+      const existingUser = await IdentityUserModel.findOne({ email });
+      return !!existingUser;
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, {
+        serviceName: "UserService",
+        method: "checkEmailExistsInIdentity",
+        email,
       });
     }
   }

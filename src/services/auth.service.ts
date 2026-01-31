@@ -7,6 +7,7 @@ import { ErrorHandler } from '../utils/error-handler.util';
 import { ERROR_MESSAGES } from '../constants/error-messages.constants';
 import { PermissionManager } from '../constants/permission.constants';
 import { SYSTEM_ROLES } from '../constants/enums.constants';
+import { UserRole } from '../constants/user.constants';
 import { UserDocument, IdentityUserDocument } from '../interfaces/model.interface';
 import { getIdentityUserModel } from '../utils/admin-connection';
 import { setTenantContext, getConnectionByTenantDbName, addActiveConnection } from '../utils/tenant-context';
@@ -114,6 +115,11 @@ export class AuthService {
         tenantUser._id.toString(),
         identityUser.tenantRefId
       );
+
+      // Step 6.1: Check if USER role has join date
+      if (tenantUser.role === UserRole.USER && employee && !employee.joinDate) {
+        throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.USER_MISSING_JOIN_DATE);
+      }
 
       // Step 7: Update last login time in CBS_Admin.users
       identityUser.lastLoginAt = new Date();

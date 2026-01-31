@@ -23,9 +23,6 @@ export class BankAccountResponseDto extends BaseDto {
     currency!: Currency;
 
     @Expose()
-    currentChequeNumber?: string;
-
-    @Expose()
     address?: string;
     
     @Expose()
@@ -39,6 +36,9 @@ export class BankAccountResponseDto extends BaseDto {
 
     @Expose()
     currentBalance?: number;
+
+    @Expose()
+    finalBalance?: number;
 
     @Expose()
     displayCurrency?: string;

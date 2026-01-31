@@ -407,6 +407,8 @@ export interface Vehicle {
   purchaseCurrency?: string;
   currentValue?: number;
   currentCurrency?: string;
+  depreciationCost?: number;
+  maintenanceValue?: number;
   assignedTo?: string;
   department?: string;
   mileage?: number;
@@ -481,11 +483,11 @@ export interface BankAccount {
   accountHolder: string;
   accountNumber: string;
   currency?: Currency;
-  currentChequeNumber?: string;
   address?: string;
   fileKey?: string;
   type?: string;
   currentBalance?: number;
+  finalBalance?: number;
   displayCurrency?: string;
   status?: string;
 }
@@ -652,6 +654,7 @@ export interface User {
   userRefId: string; // Links to IdentityUser in identity_db
   tenantRefId: string; // Reference to tenant this user belongs to
   fullName: string;
+  email: string;
   role: UserRole;
   roles: Types.ObjectId[]; // Array of Role IDs for granular permissions (USER role)
 }
@@ -681,7 +684,7 @@ export interface UpdateUserData extends Partial<User> {
 
 // Employee Interfaces
 export interface EmployeeDocument {
-  fileKey: string;
+  fileKey?: string;
   expiryDate?: Date;
 }
 
@@ -773,6 +776,7 @@ export interface Metadata {
   autoCheckoutTime: string;
   timeZone: string;
   allowTimeZone: boolean;
+  companyNetworkIpRanges: string[];
   isActive: boolean;
   companyIpRanges: string[]; // Array of CIDR IP ranges
 }

@@ -6,6 +6,11 @@ export const telexTransferIdSchema = Joi.object({
   id: Joi.string().length(24).hex().required()
 });
 
+export const telexTransferActionSchema = Joi.object({
+  id: Joi.string().length(24).hex().required(),
+  action: Joi.string().valid('approve', 'reject').required()
+});
+
 export const createTelexTransferSchema = Joi.object({
   referenceNo: Joi.string().optional().max(50),
   transferDate: Joi.date().required(),
@@ -19,7 +24,6 @@ export const createTelexTransferSchema = Joi.object({
   currency: Joi.string().valid(...allowedCurrencies).required(),
   purpose: Joi.string().optional().max(500),
   remarks: Joi.string().optional().max(1000).allow(''),
-  authorizedBy: Joi.string().valid(...allowedAuthorizedPersons).required(),
   status: Joi.string().valid(...allowedTelexTransferStatuses).optional()
 });
 
@@ -36,6 +40,10 @@ export const updateTelexTransferSchema = Joi.object({
   currency: Joi.string().valid(...allowedCurrencies).optional(),
   purpose: Joi.string().optional().max(500),
   remarks: Joi.string().optional().max(1000).allow(''),
-  authorizedBy: Joi.string().valid(...allowedAuthorizedPersons).optional(),
   status: Joi.string().valid(...allowedTelexTransferStatuses).optional()
 }).min(1);
+
+export const approveTelexTransferSchema = Joi.object({
+  authorizedBy: Joi.string().required().max(200),
+  status: Joi.string().valid(...allowedTelexTransferStatuses).required(),
+});

@@ -1,6 +1,7 @@
 import { Priority } from './common.constants';
 
 export enum SupportCategory {
+  NONE = "None",
   HARDWARE = "Hardware",
   SOFTWARE = "Software",
   NETWORK = "Network",

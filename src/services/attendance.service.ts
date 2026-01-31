@@ -21,6 +21,7 @@ import {
     DailyAttendanceSummaryResponse,
     PopulatedEmployee,
 } from "../interfaces/model.interface";
+import { INFO_MESSAGES } from "../constants/info-messages.constants";
 
 export class AttendanceService {
 
@@ -40,92 +41,6 @@ export class AttendanceService {
             .lean();
 
         return populated as AttendanceDocument;
-    }
-
-    /**
-     * Get today's attendance status for an employee
-     * Always returns an object with hasCheckedIn, hasCheckedOut, date, and message (never null)
-     */
-    static async getTodayStatus(employeeId: string): Promise<{
-        hasCheckedIn: boolean;
-        hasCheckedOut: boolean;
-        date: string;
-        message: string;
-        checkInTime?: string;
-        status?: string;
-        employee?: {
-            _id: string;
-            employeeId: string;
-            userId: { _id: string; fullName: string; email: string };
-            department: string;
-            position: string;
-        };
-    }> {
-        try {
-            const now = new Date();
-            // Use UTC date range so we match records stored as UTC midnight (e.g. 2026-01-29T00:00:00.000Z)
-            const startOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
-            const endOfDayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
-
-            const attendance = await Attendance.findOne({
-                employeeId,
-                date: { $gte: startOfDayUTC, $lte: endOfDayUTC }
-            }).lean();
-
-            if (!attendance) {
-                return {
-                    hasCheckedIn: false,
-                    hasCheckedOut: false,
-                    date: startOfDayUTC.toISOString(),
-                    message: 'No attendance record for today'
-                };
-            }
-
-            // Fetch full record with populated employee for response
-            const populated = await this.formatAttendanceRecord(attendance._id);
-            const hasCheckedOut = !!(populated as any).checkOutTime;
-            const dateStr = (populated as any).date instanceof Date
-                ? (populated as any).date.toISOString()
-                : new Date((populated as any).date).toISOString();
-            const checkInTime = (populated as any).checkInTime instanceof Date
-                ? (populated as any).checkInTime.toISOString()
-                : (populated as any).checkInTime
-                    ? new Date((populated as any).checkInTime).toISOString()
-                    : undefined;
-
-            const emp = (populated as any).employeeId;
-            const employee = emp
-                ? {
-                    _id: emp._id?.toString?.() ?? String(emp._id),
-                    employeeId: emp.employeeId ?? '',
-                    userId: emp.userId
-                        ? {
-                            _id: emp.userId._id?.toString?.() ?? String(emp.userId._id),
-                            fullName: emp.userId.fullName ?? '',
-                            email: emp.userId.email ?? ''
-                        }
-                        : { _id: '', fullName: '', email: '' },
-                    department: emp.department ?? '',
-                    position: emp.position ?? ''
-                }
-                : undefined;
-
-            return {
-                hasCheckedIn: true,
-                hasCheckedOut,
-                date: dateStr,
-                message: hasCheckedOut ? 'Checked out' : 'Checked in',
-                checkInTime,
-                status: (populated as any).status ?? 'Present',
-                employee
-            };
-        } catch (error) {
-            ErrorHandler.handleServiceError(error, {
-                serviceName: 'AttendanceService',
-                method: 'getTodayStatus',
-                employeeId
-            });
-        }
     }
 
     /**
@@ -157,6 +72,14 @@ export class AttendanceService {
             // Get attendance policy and metadata
             const policy = await AttendancePolicyService.get();
             const metadata = await MetadataService.get();
+
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
+
+            if (!metadata) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+            }
 
             const checkInTime = new Date();
             const { isLate, minutesLate } = AttendanceUtil.isLateArrival(
@@ -274,6 +197,10 @@ export class AttendanceService {
 
             const policy = await AttendancePolicyService.get();
 
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
+
             // Calculate working hours
             const checkOutTime = new Date();
             const workingHours = AttendanceUtil.calculateWorkingHours(
@@ -300,6 +227,10 @@ export class AttendanceService {
 
             // Get metadata for timezone validation
             const metadata = await MetadataService.get();
+            
+            if (!metadata) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+            }
             
             // Validate timezone based on metadata settings
             if (!metadata.allowTimeZone) {
@@ -413,6 +344,14 @@ export class AttendanceService {
 
             const policy = await AttendancePolicyService.get();
             const metadata = await MetadataService.get();
+
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
+
+            if (!metadata) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.METADATA_NOT_FOUND);
+            }
 
             const result = await EmployeeService.getAll({
                 ...employeeFilter,
@@ -551,6 +490,10 @@ export class AttendanceService {
 
             const policy = await AttendancePolicyService.get();
 
+            if (!policy) {
+                throw throwError(ERROR_MESSAGES.CLIENT_ERRORS.ATTENDANCE_POLICY_NOT_FOUND);
+            }
+
             // Get all attendance records for the month
             const records = await Attendance.find({
                 employeeId,
@@ -640,11 +583,11 @@ export class AttendanceService {
             const onLeave = summaryData.records.filter(r => r.status === 'On Leave').length;
 
             // Find the updated employee record if employeeId is provided
-            let updatedRecord = undefined;
+            let record = undefined;
             if (updatedEmployeeId) {
                 const employee = await EmployeeService.getById(updatedEmployeeId);
                 if (employee) {
-                    updatedRecord = summaryData.records.find(r => r.empId === employee.employeeId);
+                    record = summaryData.records.find(r => r.empId === employee.employeeId);
                 }
             }
 
@@ -658,7 +601,7 @@ export class AttendanceService {
                     present: summaryData.summary.present,
                     attendancePercent: summaryData.summary.attendancePercent
                 },
-                updatedRecord,
+                records: record,
                 timestamp: new Date().toISOString()
             });
         } catch (error) {
@@ -750,4 +693,52 @@ export class AttendanceService {
             ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'streamLiveAttendance' });
         }
     }
+
+  /**
+   * Get today's attendance status for an employee
+   */
+  static async getTodayStatus(employeeId: string): Promise<any> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const attendance = await Attendance.findOne({
+        employeeId,
+        date: today,
+      })
+        .populate({
+          path: 'employeeId',
+          select: 'employeeId position department',
+          populate: {
+            path: 'userId',
+            select: 'fullName email'
+          }
+        })
+        .lean();
+
+      if (!attendance) {
+        return {
+          hasCheckedIn: false,
+          hasCheckedOut: false,
+          date: today,
+          message: INFO_MESSAGES.ATTENDANCE.NO_ATTENDANCE_TODAY,
+        };
+      }
+
+      return {
+        hasCheckedIn: !!attendance.checkInTime,
+        hasCheckedOut: !!attendance.checkOutTime,
+        checkInTime: attendance.checkInTime,
+        checkOutTime: attendance.checkOutTime,
+        workDuration: attendance.workDuration,
+        status: attendance.status,
+        isLate: attendance.isLate,
+        isEarlyCheckout: attendance.isEarlyCheckout,
+        date: attendance.date,
+        employee: attendance.employeeId,
+      };
+    } catch (error) {
+      ErrorHandler.handleServiceError(error, { serviceName: 'AttendanceService', method: 'getTodayStatus', employeeId });
+    }
+  }
 }

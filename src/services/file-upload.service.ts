@@ -35,7 +35,7 @@ export class FileUploadService {
     const tenantContext = getTenantContext();
     const tenantRefId = tenantContext.tenantId;
     const env = config.env;
-    return `cbs-${env}-${tenantRefId.toLowerCase()}`;
+    return `cbs-${tenantRefId.toLowerCase()}`;
   }
 
   // File validation rules - SECURITY CHECKPOINT

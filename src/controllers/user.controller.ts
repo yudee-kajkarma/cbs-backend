@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
-import { UserResponseDto, GetAllUsersResponseDto } from "../dtos/user-dto";
+import { UserResponseDto, GetAllUsersResponseDto, AdminListResponseDto } from "../dtos/user-dto";
 import { toDto, toDtoList } from "../utils/dto-mapper.util";
 import { ResponseUtil } from "../utils/response-formatter.util";
 import { ErrorHandler } from "../utils/error-handler.util";
@@ -56,6 +56,24 @@ export class UserController {
       res.status(200).json(response);
     } catch (error) {
       ErrorHandler.handleControllerError(error, res, { method: 'getAll', query: req.query });
+    }
+  }
+
+
+  /**   * Get all admin users with pagination and filtering
+   */
+
+  static async getAllAdmins(req: Request, res: Response): Promise<void> {
+    try {
+      const query = res.locals.validatedQuery || req.query;
+      const result = await UserService.getAllAdmins(query);
+
+      const adminsDto = toDtoList(AdminListResponseDto, result);
+
+      const response = ResponseUtil.success(INFO_MESSAGES.USER.LIST_RETRIEVED_SUCCESSFULLY, adminsDto);
+      res.status(200).json(response);
+    } catch (error) {
+      ErrorHandler.handleControllerError(error, res, { method: 'getAllAdmins', query: req.query });
     }
   }
 

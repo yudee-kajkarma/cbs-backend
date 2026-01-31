@@ -153,7 +153,7 @@ export class SSEService {
       present: number;
       attendancePercent: number;
     };
-    updatedRecord?: {
+    records?: {
       empId: string;
       name: string;
       department?: string;

@@ -1,4 +1,4 @@
-import { Employee, LeavePolicy, AttendancePolicy, PayrollCompensation } from '../models';
+import { Employee, User, LeavePolicy, AttendancePolicy, PayrollCompensation } from '../models';
 import { employeeSchema } from '../models/employee.model';
 import { getConnectionByTenantDbName, addActiveConnection } from '../utils/tenant-context';
 import { registerAllModelsOnConnection } from '../utils/register-models';
@@ -90,6 +90,7 @@ export class EmployeeService {
 
   /**
    * Get all employees with pagination and filtering
+   * Only returns employees with role='USER' (excludes ADMIN and HR system roles)
    */
   static async getAll(query: EmployeeQuery): Promise<any> {
     try {
@@ -97,13 +98,23 @@ export class EmployeeService {
       const allowedSortFields = ['employeeId', 'position', 'department', 'joinDate', 'salary', 'status', 'createdAt', 'updatedAt'];
       const filterFields = ['department', 'status', 'position'];
 
+      // Get all user IDs with role='USER' first
+      const userDocs = await User.find({ role: 'USER' }).select('_id').lean();
+      const userIds = userDocs.map((u: any) => u._id);
+
+      // Add userId filter to only fetch employees linked to role='USER' users
+      const additionalFilters = {
+        userId: { $in: userIds }
+      };
+
       const result = await PaginationService.paginate(Employee, query, {
         searchFields: searchableFields,
         allowedSortFields: allowedSortFields,
         filterFields: filterFields,
+        additionalFilters: additionalFilters,
       });
 
-      // Manually populate user data for all employees
+      // Populate user data for all employees
       const populatedData = await Employee.populate(result.data, {
         path: 'userId',
         select: 'userId fullName email role'
@@ -132,8 +143,12 @@ export class EmployeeService {
 
       // Validate file keys if documents are being updated
       if (data.documents && data.documents.length > 0) {
-        const fileKeys = data.documents.map(doc => doc.fileKey);
-        await validateS3Keys(fileKeys);
+        const fileKeys = data.documents
+          .map(doc => doc.fileKey)
+          .filter((key): key is string => key !== undefined && key !== null);
+        if (fileKeys.length > 0) {
+          await validateS3Keys(fileKeys);
+        }
       }
 
       // Check if joinDate is being added/updated and employee didn't have one before

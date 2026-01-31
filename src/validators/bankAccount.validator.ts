@@ -12,7 +12,6 @@ export const createBankAccountSchema = Joi.object({
     accountHolder: Joi.string().max(100).required(),
     accountNumber: Joi.string().max(50).required(),
     currency: Joi.string().valid(...Object.values(Currency)).default(Currency.KWD),
-    currentChequeNumber: Joi.string().max(50).optional(),
     address: Joi.string().max(200).optional(),
     fileKey: Joi.string().max(500).optional(),
     type: Joi.string().valid(...Object.values(AccountType)).optional(),
@@ -27,11 +26,11 @@ export const updateBankAccountSchema = Joi.object({
     accountHolder: Joi.string().max(100).optional(),
     accountNumber: Joi.string().max(50).optional(),
     currency: Joi.string().valid(...Object.values(Currency)).optional(),
-    currentChequeNumber: Joi.string().max(50).optional(),
     address: Joi.string().max(200).optional(),
     fileKey: Joi.string().max(500).optional(),
     type: Joi.string().valid(...Object.values(AccountType)).optional(),
     currentBalance: Joi.number().optional(),
+    finalBalance: Joi.number().optional(),
     displayCurrency: Joi.string().trim().optional(),
     status: Joi.string().valid(...Object.values(BankBalanceStatus)).optional(),
 }).min(1);
@@ -60,6 +59,7 @@ export const getBankAccountListSchema = Joi.object({
             "accountNumber",
             "type",
             "currentBalance",
+            "finalBalance",
             "status",
             "createdAt",
             "updatedAt"

@@ -14,7 +14,9 @@ import { PERMISSIONS } from "../constants/permission.constants";
 import {
   createTelexTransferSchema,
   updateTelexTransferSchema,
-  telexTransferIdSchema
+  telexTransferIdSchema,
+  telexTransferActionSchema,
+  approveTelexTransferSchema
 } from "../validators/telex-transfer.validator";
 
 const router = Router();
@@ -53,6 +55,15 @@ router.put(
   validateParams(telexTransferIdSchema),
   validateRequest(updateTelexTransferSchema),
   TelexTransferController.update
+);
+
+// APPROVE/REJECT - Requires WRITE permission (Admin only)
+router.patch(
+  "/:id/:action",
+  authenticate,
+  checkPermission("banking", "telex_transfer", PERMISSIONS.WRITE),
+  validateParams(telexTransferActionSchema),
+  TelexTransferController.updateStatus
 );
 
 // DELETE - Requires WRITE permission
