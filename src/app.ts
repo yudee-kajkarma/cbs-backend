@@ -39,6 +39,7 @@ import dashboardRoutes from './routes/dashboard.routes';
 import activityLogRoutes from './routes/activity-log.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import tenantRoutes from './routes/tenant.routes';
+import cronRoutes from './routes/cron.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 import { tenantMiddleware } from './middlewares/tenant.middleware';
 import { authenticate } from './middlewares/auth.middleware';
@@ -112,6 +113,7 @@ app.use('/api/roles', roleRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/activity-logs', activityLogRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/cron', cronRoutes);
 
 // Error Handler
 app.use(errorMiddleware);
