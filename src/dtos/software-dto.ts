@@ -3,6 +3,14 @@ import { BaseDto } from './base-dto';
 import { PaginationDto } from './common-dto';
 import { PaginationResult } from '../services/pagination.service';
 
+export class SoftwareCredentialDto {
+  @Expose()
+  username!: string;
+
+  @Expose()
+  password!: string;
+}
+
 export enum LicenseType {
   SUBSCRIPTION = 'Subscription',
   PERPETUAL = 'Perpetual',
@@ -65,6 +73,10 @@ export class SoftwareResponseDto extends BaseDto {
 
   @Expose()
   status?: SoftwareStatus;
+
+  @Expose()
+  @Type(() => SoftwareCredentialDto)
+  credentials!: SoftwareCredentialDto[];
 }
 
 /**

@@ -4,6 +4,11 @@ export const licenseTypeEnum = ["Subscription", "Perpetual", "Trial", "Education
 export const departmentEnum = ["All", "IT", "Finance", "HR", "Operations", "Sales", "Marketing", "Engineering", "Legal"] as const;
 export const statusEnum = ["Active", "Expiring Soon", "Expired", "Suspended"] as const;
 
+const credentialSchema = Joi.object({
+  username: Joi.string().trim().allow('').default(''),
+  password: Joi.string().allow('').default(''),
+});
+
 // Base schema fields
 const softwareBaseSchema = {
   name: Joi.string().trim(),
@@ -17,6 +22,7 @@ const softwareBaseSchema = {
   renewalCost: Joi.string().trim(),
   assignedDepartment: Joi.string().valid(...departmentEnum),
   status: Joi.string().valid(...statusEnum),
+  credentials: Joi.array().items(credentialSchema).default([]),
 };
 
 export const createSoftwareSchema: ObjectSchema = Joi.object({
@@ -31,6 +37,7 @@ export const createSoftwareSchema: ObjectSchema = Joi.object({
   renewalCost: softwareBaseSchema.renewalCost.required(),
   assignedDepartment: softwareBaseSchema.assignedDepartment.required(),
   status: softwareBaseSchema.status.optional(),
+  credentials: softwareBaseSchema.credentials.optional(),
 });
 
 export const updateSoftwareSchema: ObjectSchema = Joi.object({
@@ -45,6 +52,7 @@ export const updateSoftwareSchema: ObjectSchema = Joi.object({
   renewalCost: softwareBaseSchema.renewalCost.optional(),
   assignedDepartment: softwareBaseSchema.assignedDepartment.optional(),
   status: softwareBaseSchema.status.optional(),
+  credentials: softwareBaseSchema.credentials.optional(),
 }).min(1);
 
 export const idParamSchema = Joi.object({

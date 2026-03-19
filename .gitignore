@@ -28,3 +28,5 @@ Thumbs.db
 
 # OS files
 *.tmp
+
+*.md

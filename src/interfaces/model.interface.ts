@@ -251,6 +251,11 @@ export interface UpdateNetworkEquipmentData extends Partial<INetworkEquipment> {
 // SOFTWARE MODULE
 // ============================================================================
 
+export interface ISoftwareCredential {
+  username: string;
+  password: string;
+}
+
 export interface ISoftware extends Document {
   name: string;
   vendor: string;
@@ -263,6 +268,7 @@ export interface ISoftware extends Document {
   renewalCost: string;
   assignedDepartment: string;
   status: string;
+  credentials: ISoftwareCredential[];
   createdAt: Date;
   updatedAt: Date;
 }

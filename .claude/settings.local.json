@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /d/Projects/cbs-backend/src/utils/*.ts)",
+      "Bash(wc -l /d/Projects/cbs-backend/src/services/*.ts)"
+    ]
+  }
+}

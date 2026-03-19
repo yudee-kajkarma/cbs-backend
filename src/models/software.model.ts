@@ -3,9 +3,17 @@ import { ISoftware } from '../interfaces/model.interface';
 import { LicenseType, SoftwareStatus, allowedLicenseTypes, allowedSoftwareStatuses } from '../constants/software.constants';
 import { Department, allowedDepartments } from '../constants/common.constants';
 
+const softwareCredentialSchema = new Schema(
+  {
+    username: { type: String, trim: true, default: '' },
+    password: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
 export const softwareSchema = new Schema<ISoftware>(
   {
-    name: { 
+    name: {
       type: String, 
       required: [true, 'Software name is required'], 
       trim: true,
@@ -75,7 +83,7 @@ export const softwareSchema = new Schema<ISoftware>(
       },
       required: [true, 'Assigned department is required']
     },
-    status: { 
+    status: {
       type: String,
       enum: {
         values: allowedSoftwareStatuses,
@@ -83,6 +91,10 @@ export const softwareSchema = new Schema<ISoftware>(
       },
       required: [true, 'Status is required'],
       default: SoftwareStatus.ACTIVE
+    },
+    credentials: {
+      type: [softwareCredentialSchema],
+      default: []
     }
   },
   { 
