@@ -40,6 +40,9 @@ export class NetworkEquipmentResponseDto extends BaseDto {
 
   @Expose()
   status!: NetworkEquipmentStatus;
+
+  @Expose()
+  wifiPassword?: string;
 }
 
 /**

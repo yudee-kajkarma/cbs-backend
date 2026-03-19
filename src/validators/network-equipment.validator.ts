@@ -23,6 +23,7 @@ const networkEquipmentBaseSchema = {
   warrantyExpiry: Joi.date(),
   firmwareVersion: Joi.string().trim(),
   status: Joi.string().valid(...statusEnum),
+  wifiPassword: Joi.string().trim().allow(''),
 };
 
 // CREATE SCHEMA
@@ -38,6 +39,7 @@ export const createNetworkEquipmentSchema: ObjectSchema = Joi.object({
   warrantyExpiry: networkEquipmentBaseSchema.warrantyExpiry.required(),
   firmwareVersion: networkEquipmentBaseSchema.firmwareVersion.required(),
   status: networkEquipmentBaseSchema.status.required(),
+  wifiPassword: networkEquipmentBaseSchema.wifiPassword.optional(),
 });
 
 // UPDATE SCHEMA
@@ -53,6 +55,7 @@ export const updateNetworkEquipmentSchema = Joi.object({
   warrantyExpiry: networkEquipmentBaseSchema.warrantyExpiry.optional(),
   firmwareVersion: networkEquipmentBaseSchema.firmwareVersion.optional(),
   status: networkEquipmentBaseSchema.status.optional(),
+  wifiPassword: networkEquipmentBaseSchema.wifiPassword.optional(),
 }).min(1);
 
 export const idParamSchema = Joi.object({

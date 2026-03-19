@@ -66,14 +66,19 @@ export const networkEquipmentSchema = new Schema<INetworkEquipment>(
       trim: true,
       maxlength: [50, 'Firmware version cannot exceed 50 characters']
     },
-    status: { 
-      type: String, 
+    status: {
+      type: String,
       enum: {
         values: allowedEquipmentStatuses,
         message: '{VALUE} is not a valid status'
       },
       required: [true, 'Status is required'],
       default: EquipmentStatus.ONLINE
+    },
+    wifiPassword: {
+      type: String,
+      trim: true,
+      default: undefined
     }
   },
   { 

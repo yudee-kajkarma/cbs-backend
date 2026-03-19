@@ -236,6 +236,7 @@ export interface INetworkEquipment extends Document {
   warrantyExpiry: Date;
   firmwareVersion: string;
   status: string;
+  wifiPassword?: string;
 }
 
 export interface NetworkEquipmentQuery extends BaseQuery {
