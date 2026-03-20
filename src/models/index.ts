@@ -21,6 +21,7 @@ import { EquipmentSchema } from './equipment.model';
 import { bankAccountSchema } from './bankAccount.model';
 import { telexTransferSchema } from './telexTransfer.model';
 import { forecastSchema } from './forecast.model';
+import { forecastCategorySchema } from './forecastCategory.model';
 import { chequeSchema } from './cheque.model';
 import { payeeSchema } from './payee.model';
 import { leavePolicySchema } from './leavePolicy.model';
@@ -108,6 +109,7 @@ export const modelDefinitions: readonly ModelDefinition[] = [
   { name: 'BankAccount', schema: bankAccountSchema, collectionName: 'bankaccounts' },
   { name: 'TelexTransfer', schema: telexTransferSchema, collectionName: 'telextransfers' },
   { name: 'Forecast', schema: forecastSchema, collectionName: 'forecasts' },
+  { name: 'ForecastCategory', schema: forecastCategorySchema, collectionName: 'forecastcategories' },
   { name: 'Cheque', schema: chequeSchema, collectionName: 'cheques' },
   { name: 'Payee', schema: payeeSchema, collectionName: 'payees' },
   { name: 'LeavePolicy', schema: leavePolicySchema, collectionName: 'leavepolicies' },
@@ -188,6 +190,7 @@ export const Equipment = modelRegistry.Equipment;
 export const BankAccount = modelRegistry.BankAccount;
 export const TelexTransfer = modelRegistry.TelexTransfer;
 export const Forecast = modelRegistry.Forecast;
+export const ForecastCategory = modelRegistry.ForecastCategory;
 export const Cheque = modelRegistry.Cheque;
 export const Payee = modelRegistry.Payee;
 export const LeavePolicy = modelRegistry.LeavePolicy;
@@ -226,6 +229,7 @@ export {
   bankAccountSchema,
   telexTransferSchema,
   forecastSchema,
+  forecastCategorySchema,
   chequeSchema,
   payeeSchema,
   leavePolicySchema,

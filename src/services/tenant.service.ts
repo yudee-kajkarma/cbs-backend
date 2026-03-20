@@ -10,6 +10,7 @@ import { config } from '../config/config';
 import * as bcrypt from 'bcryptjs';
 import { userSchema } from '../models/user.model';
 import { employeeSchema } from '../models/employee.model';
+import { forecastCategorySchema, DEFAULT_CATEGORIES } from '../models/forecastCategory.model';
 import { SYSTEM_ROLES } from '../constants/enums.constants';
 import { getIdentityUserModel } from '../utils/admin-connection';
 import { PaginationService } from './pagination.service';
@@ -396,6 +397,18 @@ export class TenantService {
         joinDate: new Date(),
       });
       console.log(`✓ Created admin user and employee in tenant database ${tenantRefId}`);
+
+      // Seed default forecast categories for the new tenant
+      const ForecastCategoryModel = tenantConnection.model(
+        'ForecastCategory',
+        forecastCategorySchema,
+        'forecastcategories'
+      );
+      await ForecastCategoryModel.insertMany(
+        DEFAULT_CATEGORIES.map((name) => ({ name, isDefault: true })),
+        { ordered: false }
+      );
+      console.log(`✓ Seeded default forecast categories for tenant ${tenantRefId}`);
 
       return tenantConnection;
     } catch (error) {

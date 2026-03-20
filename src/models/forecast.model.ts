@@ -1,8 +1,7 @@
 import { Schema } from "mongoose";
-import { 
-  ForecastType, 
-  ForecastStatus, 
-  ForecastCategory
+import {
+  ForecastType,
+  ForecastStatus,
 } from "../constants/forecast.constants";
 import { ForecastDocument } from "../interfaces/model.interface";
 
@@ -19,8 +18,9 @@ export const forecastSchema = new Schema<ForecastDocument>(
     },
     category: {
       type: String,
-      enum: Object.values(ForecastCategory),
       required: [true, 'Category is required'],
+      trim: true,
+      maxlength: [100, 'Category cannot exceed 100 characters'],
     },
     description: {
       type: String,

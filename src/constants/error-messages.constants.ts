@@ -340,6 +340,21 @@ export const ERROR_MESSAGES = {
       message: 'Forecast entry not found',
       status: 404
     },
+    FORECAST_CATEGORY_NOT_FOUND: {
+      code: 'CBS-4025',
+      message: 'Forecast category not found',
+      status: 404
+    },
+    FORECAST_CATEGORY_EXISTS: {
+      code: 'CBS-4026',
+      message: 'A category with this name already exists',
+      status: 409
+    },
+    FORECAST_CATEGORY_DEFAULT: {
+      code: 'CBS-4027',
+      message: 'Default categories cannot be deleted',
+      status: 400
+    },
     INVALID_CSV_FORMAT: {
       code: 'CBS-4023',
       message: 'Invalid CSV format. Please ensure the file contains proper headers and data.',
