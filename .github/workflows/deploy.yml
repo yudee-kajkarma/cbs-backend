@@ -34,24 +34,41 @@ jobs:
 
       - name: Install lightsailctl
         run: |
-          sudo curl -L "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o /usr/local/bin/lightsailctl
+          set -euxo pipefail
+          sudo curl -fL "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o /usr/local/bin/lightsailctl
           sudo chmod +x /usr/local/bin/lightsailctl
+          ls -l /usr/local/bin/lightsailctl
+          which lightsailctl
+          file /usr/local/bin/lightsailctl || true
+          # lightsailctl has no --version flag; just invoking it should print usage and exit non-zero, which is fine
+          lightsailctl || true
+
+      - name: Verify AWS identity and Lightsail access
+        run: |
+          set -euxo pipefail
+          aws sts get-caller-identity
+          aws lightsail get-container-services --region ${{ env.AWS_REGION }} --service-name ${{ env.SERVICE_NAME }} --query 'containerServices[0].state' --output text
 
       - name: Build Docker image
-        run: docker build -t ${{ env.CONTAINER_NAME }}:${{ env.IMAGE_TAG }} .
+        run: |
+          set -euxo pipefail
+          docker build -t ${{ env.CONTAINER_NAME }}:${{ env.IMAGE_TAG }} .
+          docker images | head -5
 
       - name: Push image to Lightsail
         id: push
         run: |
-          OUTPUT=$(aws lightsail push-container-image \
+          set -euo pipefail
+          # Stream output to console AND capture to file (tee). No command substitution swallowing.
+          aws lightsail push-container-image \
             --region ${{ env.AWS_REGION }} \
             --service-name ${{ env.SERVICE_NAME }} \
             --label ${{ env.CONTAINER_NAME }} \
-            --image ${{ env.CONTAINER_NAME }}:${{ env.IMAGE_TAG }} 2>&1)
-          echo "$OUTPUT"
-          IMAGE_REF=$(echo "$OUTPUT" | grep -oP 'Refer to this image as "\K[^"]+')
+            --image ${{ env.CONTAINER_NAME }}:${{ env.IMAGE_TAG }} 2>&1 | tee push.log
+          IMAGE_REF=$(grep -oP 'Refer to this image as "\K[^"]+' push.log || true)
           if [ -z "$IMAGE_REF" ]; then
-            echo "Failed to extract image reference"; exit 1
+            echo "::error::Failed to extract image reference from push output. See push.log above."
+            exit 1
           fi
           echo "image_ref=$IMAGE_REF" >> "$GITHUB_OUTPUT"
           echo "Pushed image: $IMAGE_REF"
