@@ -53,7 +53,7 @@ jobs:
         run: |
           set -euxo pipefail
           docker build -t ${{ env.CONTAINER_NAME }}:${{ env.IMAGE_TAG }} .
-          docker images | head -5
+          docker images ${{ env.CONTAINER_NAME }}
 
       - name: Push image to Lightsail
         id: push
